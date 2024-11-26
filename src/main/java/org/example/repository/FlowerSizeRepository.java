@@ -1,7 +1,22 @@
 package org.example.repository;
 
+import org.example.entity.FlowerSize;
+import org.example.entity.enums.Status;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Repository
-public interface FlowerSizeRepository {
+public interface FlowerSizeRepository  extends JpaRepository<FlowerSize, Integer> {
+    List<FlowerSize> findFlowerSizesByFlowerFlowerIDAndStatus(int id, Status status);
+    FlowerSize findFlowerSizeByFlowerSizeIDAndStatus(int id, Status status);
+    @Transactional
+    @Modifying
+    @Query("UPDATE FlowerSize ps SET ps.stock = ps.stock- :number WHERE ps.flowerSizeID = :pz")
+    void UpdateStock(@Param("pz") int pz, @Param("number") int number);
 }

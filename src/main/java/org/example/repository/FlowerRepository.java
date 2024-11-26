@@ -25,6 +25,7 @@ public interface FlowerRepository extends JpaRepository<Flower, Integer>{
     List<Flower> findFlowersByCategoryCategoryNameAndStatusOrderByFlowerIDDesc(String Category , Status status);
     List<Flower> findFlowersByPurposePurposeNameAndStatusOrderByFlowerIDDesc(String purpose , Status status);
 
+    List<Flower>findFlowersByCategoryCategoryIDAndPurposePurposeIDAndStatusOrderByFlowerIDDesc(int category, int purpose, Status status);
 
     @Query("SELECT new org.example.dto.ProductDTO(f.flowerID, f.image, f.name, SUM(bi.quantity), MIN(fs.price)) " +
             "FROM Flower f " +

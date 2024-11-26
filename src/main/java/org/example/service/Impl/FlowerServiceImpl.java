@@ -115,4 +115,9 @@ public class FlowerServiceImpl implements IFlowerService {
     public List<Flower> findByPurpose(String purpose, Status status) {
         return flowerRepository.findFlowersByPurposePurposeNameAndStatusOrderByFlowerIDDesc(purpose,status);
     }
+
+    @Override
+    public List<Flower> sortFlower(int category, int purpose) {
+        return flowerRepository.findFlowersByCategoryCategoryIDAndPurposePurposeIDAndStatusOrderByFlowerIDDesc(category,purpose, Status.ENABLE);
+    }
 }

@@ -24,4 +24,6 @@ public interface IFlowerService {
     Integer HowManyBought(int id);
 
     List<Flower> findByPurpose(String purpose, Status status);
+
+    List<Flower> sortFlower(int category, int purpose);
 }
