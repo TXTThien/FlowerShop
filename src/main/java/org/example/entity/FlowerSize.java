@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 public class FlowerSize {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "FlowerSizeID", nullable = false)
+    @Column(name = "flower_sizeid", nullable = false)
     private Integer flowerSizeID;
 
     @ManyToOne(fetch = FetchType.LAZY)

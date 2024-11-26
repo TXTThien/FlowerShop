@@ -48,6 +48,12 @@ public class SecurityConfiguration {
             "/resources/**",
             "/product/**",
             "/flowershop/**",
+            "/search/**",
+            "/detail/**",
+            "/homepage/**",
+            "/news/**",
+            "/info",
+            "/cart",
 
     };
 
