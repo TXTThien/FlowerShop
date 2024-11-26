@@ -46,7 +46,7 @@ public class SecurityConfiguration {
             "/webjars/**",
             "/swagger-ui.html",
             "/resources/**",
-            "/product/**",
+            "/flower/**",
             "/flowershop/**",
             "/search/**",
             "/detail/**",
@@ -88,24 +88,7 @@ public class SecurityConfiguration {
                             .requestMatchers("/").permitAll()
                             .requestMatchers(WHITE_LIST_URL).permitAll()
                             .requestMatchers("/api/v1/admin/**").hasAuthority(admin.name())
-                            .requestMatchers("/api/v1/admin/bill/**").hasAuthority(admin.name())
-                            .requestMatchers("/api/v1/admin/billinfo/**").hasAuthority(admin.name())
-                            .requestMatchers("/api/v1/admin/brand/**").hasAuthority(admin.name())
-                            .requestMatchers("/api/v1/admin/cart/**").hasAuthority(admin.name())
-                            .requestMatchers("/api/v1/admin/category/**").hasAuthority(admin.name())
-                            .requestMatchers("/api/v1/admin/discount/**").hasAuthority(admin.name())
-                            .requestMatchers("/api/v1/admin/image**").hasAuthority(admin.name())
-                            .requestMatchers("/api/v1/admin/news/**").hasAuthority(admin.name())
-                            .requestMatchers("/api/v1/admin/account/**").hasAuthority(admin.name())
-                            .requestMatchers("/api/v1/admin/origin/**").hasAuthority(admin.name())
-                            .requestMatchers("/api/v1/admin/banner/**").hasAuthority(admin.name())
-                            .requestMatchers("/api/v1/admin/news/**").hasAuthority(admin.name())
-                            .requestMatchers("/api/v1/admin/account/**").hasAuthority(admin.name())
-                            .requestMatchers("/api/v1/admin/origin/**").hasAuthority(admin.name())
-                            .requestMatchers("/api/v1/admin/productsize/**").hasAuthority(admin.name())
-                            .requestMatchers("/api/v1/admin/producttype/**").hasAuthority(admin.name())
-                            .requestMatchers("/api/v1/admin/review/**").hasAuthority(admin.name())
-                            .requestMatchers("/api/v1/admin/size/**").hasAuthority(admin.name())
+
 
                             .requestMatchers("/api/v1/upload/**").hasAuthority(admin.name())
                             .requestMatchers("/account/**").hasAuthority(user.name())
