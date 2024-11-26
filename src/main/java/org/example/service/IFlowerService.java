@@ -25,5 +25,5 @@ public interface IFlowerService {
 
     List<Flower> findByPurpose(String purpose, Status status);
 
-    List<Flower> sortFlower(int category, int purpose);
+    List<Flower> sortFlower(int category, int propose);
 }

@@ -5,6 +5,7 @@ import lombok.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.example.entity.enums.Condition;
+import org.example.entity.enums.IsPaid;
 import org.example.entity.enums.Status;
 
 import java.math.BigDecimal;
@@ -19,7 +20,7 @@ import java.util.Set;
 @Setter
 @JsonIgnoreProperties({"billInfoID","AccountID"})
 @Entity(name = "Order")
-@Table(name = "order", schema = "flowershop")
+@Table(name = "`order`", schema = "flowershop")
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,27 +32,31 @@ public class Order {
     @JoinColumn(name = "AccountID")
     private Account accountID;
 
-    @Column(name = "OrderDate", nullable = false)
+    @Column(name = "order_date", nullable = false)
     private LocalDateTime date;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "Status", nullable = false)
     protected Status status;
 
-    @Column(name = "Ispaid",length = 1)
-    private Boolean paid;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "Ispaid",nullable = false)
+    protected IsPaid paid;
 
-    @Column(name = "TotalAmount", nullable = false, precision = 10, scale = 2)
+    @Column(name = "total_amount", nullable = false, precision = 10, scale = 2)
     private BigDecimal totalAmount;
 
-    @Column(name = "DeliveryAddress", nullable = false)
+    @Column(name = "delivery_address", nullable = false)
     private String deliveryAddress;
 
-    @Column(name = "PhoneNumber",length = 15, nullable = false)
+    @Column(name = "phone_number",length = 15, nullable = false)
     private String phoneNumber;
 
     @Column(name = "Name",length = 255, nullable = false)
     private String name;
+
+    @Column(name = "Note")
+    private String note;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ShippingID", nullable = false)

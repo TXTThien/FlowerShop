@@ -16,7 +16,7 @@ import org.example.entity.enums.Status;
 public class FlowerImages {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "FlowerImageID", nullable = false)
+    @Column(name = "flower_imageid", nullable = false)
     private Integer flowerImageID;
 
     @Column(name = "ImageURL", nullable = false)

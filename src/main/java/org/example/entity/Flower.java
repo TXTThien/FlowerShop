@@ -3,12 +3,14 @@ package org.example.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.entity.enums.Status;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity(name = "Flower")
 @Table(name = "flower", schema = "flowershop")
 public class Flower {

@@ -12,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.concurrent.Flow;
 
 @Repository
 public interface FlowerRepository extends JpaRepository<Flower, Integer>{
@@ -24,8 +25,17 @@ public interface FlowerRepository extends JpaRepository<Flower, Integer>{
 
     List<Flower> findFlowersByCategoryCategoryNameAndStatusOrderByFlowerIDDesc(String Category , Status status);
     List<Flower> findFlowersByPurposePurposeNameAndStatusOrderByFlowerIDDesc(String purpose , Status status);
+    @Query("SELECT p FROM FlowerSize ps " +
+            "JOIN Flower p ON ps.flower = p " +
+            "JOIN Purpose o ON p.purpose = o " +
+            "JOIN Category pt ON p.category = pt " +
+            "WHERE (COALESCE(:categoryid, 0) = 0 OR pt.categoryID = :categoryid) " +
+            "AND (COALESCE(:purposeid, 0) = 0 OR o.purposeID = :purposeid) " +
+            "AND p.status = 'Enable' " +
+            "ORDER BY p.flowerID DESC")
+    List<Flower> sortProduct(@Param("categoryid") Integer categoryid,
+                             @Param("purposeid") Integer purposeid);
 
-    List<Flower>findFlowersByCategoryCategoryIDAndPurposePurposeIDAndStatusOrderByFlowerIDDesc(int category, int purpose, Status status);
 
     @Query("SELECT new org.example.dto.ProductDTO(f.flowerID, f.image, f.name, SUM(bi.quantity), MIN(fs.price)) " +
             "FROM Flower f " +

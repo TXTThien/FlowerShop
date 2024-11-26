@@ -118,6 +118,6 @@ public class FlowerServiceImpl implements IFlowerService {
 
     @Override
     public List<Flower> sortFlower(int category, int purpose) {
-        return flowerRepository.findFlowersByCategoryCategoryIDAndPurposePurposeIDAndStatusOrderByFlowerIDDesc(category,purpose, Status.ENABLE);
+        return flowerRepository.sortProduct(category,purpose);
     }
 }
