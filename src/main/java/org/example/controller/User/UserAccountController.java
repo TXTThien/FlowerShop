@@ -9,6 +9,7 @@ import org.example.entity.Order;
 import org.example.entity.OrderDetail;
 import org.example.entity.Review;
 import org.example.entity.enums.Condition;
+import org.example.entity.enums.IsPaid;
 import org.example.entity.enums.Role;
 import org.example.entity.enums.Status;
 import org.example.repository.AccountRepository;
@@ -163,12 +164,16 @@ public class UserAccountController {
         Order order = orderService.findOrderByOrderID(OrderID);
         if (order == null)
             return ResponseEntity.notFound().build();
-        if (order.getCondition() == Condition.Prepare || order.getCondition() == Condition.Pending || order.getCondition() == Condition.Processing)
+        if (order.getPaid() == IsPaid.No)
         {
-            order.setCondition(Condition.Cancelled);
-            orderService.update(order);
-            return ResponseEntity.noContent().build();
+            if (order.getCondition() == Condition.Prepare || order.getCondition() == Condition.Pending || order.getCondition() == Condition.Processing)
+            {
+                order.setCondition(Condition.Cancelled);
+                orderService.update(order);
+                return ResponseEntity.noContent().build();
+            }
         }
+
         return ResponseEntity.noContent().build();
 
     }

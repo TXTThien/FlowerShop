@@ -2,11 +2,14 @@ package org.example.controller.User;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.example.dto.BuyInfo;
 import org.example.dto.CartDTO;
 import org.example.dto.CartUpdateRequest;
 import org.example.entity.*;
+import org.example.entity.enums.Condition;
 import org.example.entity.enums.IsPaid;
 import org.example.entity.enums.Status;
+import org.example.repository.OrderDetailRepository;
 import org.example.repository.OrderRepository;
 import org.example.repository.DiscountRepository;
 import org.example.repository.OrderRepository;
@@ -32,7 +35,7 @@ public class UserPrebuyController {
     private final DiscountRepository discountRepository;
     private final OrderRepository orderRepository;
     private final IOrderService orderService;
-
+    private final OrderDetailRepository orderDetailRepository;
     private final IFlowerSizeService flowerSizeService;
     private final IAccountService accountService;
     private final GetIDAccountFromAuthService getIDAccountFromAuthService;
@@ -108,19 +111,25 @@ public class UserPrebuyController {
         return ResponseEntity.noContent().build();
     }
     @PostMapping("/buy")
-    public ResponseEntity<?> buyProduct(@RequestParam("cartID") int[] cartIDs, @RequestParam("price") BigDecimal[] prices) {
+    public ResponseEntity<?> buyProduct(@RequestParam("cartID") int[] cartIDs, @RequestParam("price") BigDecimal[] prices, @RequestBody BuyInfo buyInfo) {
         try {
             int id = getIDAccountFromAuthService.common();
             Account account = accountService.getAccountById(id);
 
-            // Tạo mới đối tượng Order (Bill)
             Order newBill = new Order();
             newBill.setAccountID(account);
             newBill.setPaid(IsPaid.No);
             newBill.setStatus(Status.ENABLE);
             newBill.setDate(LocalDateTime.now());
-
+            newBill.setCondition(Condition.Pending);
+            newBill.setName(buyInfo.getName());
+            newBill.setNote(buyInfo.getNote());
+            newBill.setDeliveryAddress(buyInfo.getAddress());
+            newBill.setPhoneNumber(buyInfo.getPhone());
             BigDecimal totalAmount = new BigDecimal(0);
+            newBill.setTotalAmount(totalAmount);
+            orderRepository.save(newBill);
+
             for (int i = 0; i < cartIDs.length; i++) {
                 int cartID = cartIDs[i];
                 BigDecimal price = prices[i];
@@ -134,9 +143,9 @@ public class UserPrebuyController {
 
                 int number = cart.getQuantity();
                 FlowerSize productSize = cart.getFlowerSize();
+                prebuyService.createBillInfo(newBill, cartID,price);
 
-                prebuyService.createBillInfo(newBill, cartID, price);
-                cartService.deleteCart(cartID);
+                cartService.deleteBoughtCart(cartID);
                 flowerSizeService.updateStock(productSize.getFlowerSizeID(), number);
             }
 
@@ -146,7 +155,16 @@ public class UserPrebuyController {
 
             for (int i = 0; i < cartIDs.length; i++) {
                 Cart cart = cartService.findCartByCartID(cartIDs[i]);
-                prebuyService.createBillInfo(newBill, cartIDs[i], prices[i]);
+                BigDecimal price = prices[i];
+
+                OrderDetail orderDetail = new OrderDetail();
+                orderDetail.setOrderID(newBill);  // Gán Order đã lưu vào OrderDetail
+                orderDetail.setFlowerSize(cart.getFlowerSize());
+                orderDetail.setQuantity(cart.getQuantity());
+                orderDetail.setPrice(price);
+                orderDetail.setStatus(Status.ENABLE);
+
+                orderDetailRepository.save(orderDetail);
             }
 
             return ResponseEntity.status(HttpStatus.CREATED)
@@ -159,21 +177,31 @@ public class UserPrebuyController {
     }
 
 
-    public ResponseEntity<?> buyVNPay(int[] cartIDs, int accountId,BigDecimal[] prices) {
+
+    public ResponseEntity<?> buyVNPay(int[] cartIDs, int accountId,BigDecimal[] prices, BuyInfo buyInfo) {
         try {
             int id = getIDAccountFromAuthService.common();
             Account account = accountService.getAccountById(id);
 
             Order newBill = new Order();
             newBill.setAccountID(account);
-            newBill.setPaid(IsPaid.No);
+            newBill.setPaid(IsPaid.Yes);
             newBill.setStatus(Status.ENABLE);
             newBill.setDate(LocalDateTime.now());
+            newBill.setCondition(Condition.Pending);
+            newBill.setName(buyInfo.getName());
+            newBill.setNote(buyInfo.getNote());
+            newBill.setDeliveryAddress(buyInfo.getAddress());
+            newBill.setPhoneNumber(buyInfo.getPhone());
             BigDecimal totalAmount = new BigDecimal(0);
+            newBill.setTotalAmount(totalAmount);
+            orderRepository.save(newBill);
+
             for (int i = 0; i < cartIDs.length; i++) {
                 int cartID = cartIDs[i];
                 BigDecimal price = prices[i];
-                totalAmount = totalAmount.add(price);
+                totalAmount = totalAmount.add(price);  // Tính tổng số tiền trong vòng lặp
+
                 Cart cart = cartService.findCartByCartID(cartID);
                 if (cart == null) {
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -182,12 +210,30 @@ public class UserPrebuyController {
 
                 int number = cart.getQuantity();
                 FlowerSize productSize = cart.getFlowerSize();
+                prebuyService.createBillInfo(newBill, cartID,price);
 
-                prebuyService.createBillInfo(newBill, cartID, price);
-                cartService.deleteCart(cartID);
+                cartService.deleteBoughtCart(cartID);
                 flowerSizeService.updateStock(productSize.getFlowerSizeID(), number);
             }
+
+            newBill.setTotalAmount(totalAmount);
+
             orderRepository.save(newBill);
+
+            for (int i = 0; i < cartIDs.length; i++) {
+                Cart cart = cartService.findCartByCartID(cartIDs[i]);
+                BigDecimal price = prices[i];
+
+                OrderDetail orderDetail = new OrderDetail();
+                orderDetail.setOrderID(newBill);  // Gán Order đã lưu vào OrderDetail
+                orderDetail.setFlowerSize(cart.getFlowerSize());
+                orderDetail.setQuantity(cart.getQuantity());
+                orderDetail.setPrice(price);
+                orderDetail.setStatus(Status.ENABLE);
+
+                orderDetailRepository.save(orderDetail);
+            }
+
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body("Product purchased successfully.");
 

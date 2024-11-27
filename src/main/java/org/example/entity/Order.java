@@ -60,7 +60,7 @@ public class Order {
     private String note;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ShippingID", nullable = false)
+    @JoinColumn(name = "ShippingID")
     private Shipping shipping;
 
     @Enumerated(EnumType.STRING)

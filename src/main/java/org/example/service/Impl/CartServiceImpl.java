@@ -59,6 +59,12 @@ public class CartServiceImpl implements ICartService {
 
     @Override
     @Transactional
+    public void deleteBoughtCart(Integer id) {
+        cartRepository.deleteCartByCartID(id);
+    }
+
+    @Override
+    @Transactional
     public void hardDeleteCart(Integer id) {
         cartRepository.deleteCartByCartID(id);
     }
