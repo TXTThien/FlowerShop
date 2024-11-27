@@ -17,4 +17,9 @@ public class CommentServiceImpl implements ICommentService {
     public List<Comment> findCommentByAccountIDEnable(int idAccount) {
         return commentRepository.findCommentsByAccountID_AccountIDAndStatusOrderByCommentIDDesc(idAccount, Status.ENABLE);
     }
+
+    @Override
+    public Comment findCommentByID(int id) {
+        return commentRepository.findCommentByCommentIDAndStatus(id, Status.ENABLE);
+    }
 }

@@ -11,4 +11,5 @@ import java.util.List;
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Integer> {
     List<Comment> findCommentsByAccountID_AccountIDAndStatusOrderByCommentIDDesc(int id, Status status);
+    Comment findCommentByCommentIDAndStatus(int id, Status status);
 }

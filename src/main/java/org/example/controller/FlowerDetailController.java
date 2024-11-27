@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("")
@@ -53,7 +54,35 @@ public class FlowerDetailController {
         List<FlowerImages> imageList = flowerImageService.findImagesByProductID(id);
         List<FlowerSize> productSizesList = flowerSizeService.findProductSizeByProductID(id);
         List<Flower> productBrand = flowerService.findFlowersWithPurpose(product.getPurpose().getPurposeID());
+        List<FlowerDTO> productBrandDTOs = productBrand.stream().map(brand -> {
+            FlowerDTO dto = new FlowerDTO();
+            dto.setFlowerID(brand.getFlowerID());
+            dto.setName(brand.getName());
+            dto.setDescription(brand.getDescription());
+            dto.setImage(brand.getImage());
+            dto.setLanguageOfFlowers(brand.getLanguageOfFlowers());
+            dto.setCategory(brand.getCategory());
+            dto.setPurpose(brand.getPurpose());
+            FlowerSize size = flowerSizeService.findCheapestPriceByFlowerID(brand.getFlowerID());
+            dto.setPrice(size.getPrice());
+            return dto;
+        }).toList();
+
         List<Flower> productSimilar = flowerService.findFlowersSimilar(product.getCategory().getCategoryID());
+        List<FlowerDTO> productSimilarDTOs = productSimilar.stream().map(similar -> {
+            FlowerDTO dto = new FlowerDTO();
+            dto.setFlowerID(similar.getFlowerID());
+            dto.setName(similar.getName());
+            dto.setDescription(similar.getDescription());
+            dto.setImage(similar.getImage());
+            dto.setLanguageOfFlowers(similar.getLanguageOfFlowers());
+            dto.setCategory(similar.getCategory());
+            dto.setPurpose(similar.getPurpose());
+            FlowerSize size = flowerSizeService.findCheapestPriceByFlowerID(similar.getFlowerID());
+            dto.setPrice(size.getPrice());
+            return dto;
+        }).toList();
+
         int howManyBought = flowerService.HowManyBought(id);
         Map<String, Object> response = new HashMap<>();
 
@@ -62,8 +91,8 @@ public class FlowerDetailController {
             response.put("reviews", reviewList);
             response.put("productSizes", productSizesList);
             response.put("imageList", imageList);
-            response.put("productBrand", productBrand);
-            response.put("productSimilar", productSimilar);
+            response.put("productBrand", productBrandDTOs);
+            response.put("productSimilar", productSimilarDTOs);
             response.put("howManyBought", howManyBought);
 
             return ResponseEntity.ok(response);

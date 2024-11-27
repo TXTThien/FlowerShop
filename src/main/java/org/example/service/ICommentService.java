@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface ICommentService {
     List<Comment> findCommentByAccountIDEnable(int idAccount);
+    Comment findCommentByID(int id);
 }
