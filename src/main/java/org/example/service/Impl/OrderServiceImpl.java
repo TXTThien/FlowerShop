@@ -17,4 +17,29 @@ public class OrderServiceImpl implements IOrderService {
     public List<Order> findOrderByAccountID(int idAccount, Status status) {
         return orderRepository.findOrdersByAccountIDAccountIDAndStatusOrderByOrderIDDesc(idAccount,Status.ENABLE);
     }
+
+    @Override
+    public Order findOrderByOrderID(int orderid) {
+        return orderRepository.findOrderByOrderID(orderid);
+    }
+
+    @Override
+    public Order update(Order order) {
+        return orderRepository.findById(order.getOrderID())
+                .map(existingBanner -> {
+                    existingBanner.setAccountID(order.getAccountID());
+                    existingBanner.setDate(order.getDate());
+                    existingBanner.setPaid(order.getPaid());
+                    existingBanner.setTotalAmount(order.getTotalAmount());
+                    existingBanner.setDeliveryAddress(order.getDeliveryAddress());
+                    existingBanner.setStatus(order.getStatus());
+                    existingBanner.setPhoneNumber(order.getPhoneNumber());
+                    existingBanner.setName(order.getName());
+                    existingBanner.setNote(order.getNote());
+                    existingBanner.setShipping(order.getShipping());
+                    existingBanner.setCondition(order.getCondition());
+
+                    return orderRepository.save(existingBanner);
+                }).orElse(null);
+    }
 }

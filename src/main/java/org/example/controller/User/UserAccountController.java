@@ -8,6 +8,7 @@ import org.example.entity.Account;
 import org.example.entity.Order;
 import org.example.entity.OrderDetail;
 import org.example.entity.Review;
+import org.example.entity.enums.Condition;
 import org.example.entity.enums.Role;
 import org.example.entity.enums.Status;
 import org.example.repository.AccountRepository;
@@ -128,13 +129,13 @@ public class UserAccountController {
         if (updateAccountRequest.getEmail() != null) {
             currentAccount.setEmail(updateAccountRequest.getEmail());
         }
-
+        if (updateAccountRequest.getAvatar() != null) {
+            currentAccount.setAvatar(updateAccountRequest.getAvatar());
+        }
         accountService.updateAccountInfo(currentAccount);
 
         return ResponseEntity.ok("Cập nhật thông tin tài khoản thành công.");
     }
-
-
 
     @PutMapping("/changepassword")
     public ResponseEntity<String> updateChangePassword(
@@ -155,6 +156,21 @@ public class UserAccountController {
         accountRepository.updatePassword(updatepass, idAccount);
 
         return ResponseEntity.ok("Đổi mật khẩu thành công.");
+    }
+
+    @DeleteMapping("/cancel")
+    public ResponseEntity<Void> cancelOrder(@RequestParam Integer OrderID){
+        Order order = orderService.findOrderByOrderID(OrderID);
+        if (order == null)
+            return ResponseEntity.notFound().build();
+        if (order.getCondition() == Condition.Prepare || order.getCondition() == Condition.Pending || order.getCondition() == Condition.Processing)
+        {
+            order.setCondition(Condition.Cancelled);
+            orderService.update(order);
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.noContent().build();
+
     }
 
 }

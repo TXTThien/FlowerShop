@@ -63,7 +63,7 @@ public class Order {
     private Shipping shipping;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "Condition", nullable = false)
+    @Column(name = "`Condition`", nullable = false)
     protected Condition condition;
 
     @OneToMany(mappedBy = "orderID")
