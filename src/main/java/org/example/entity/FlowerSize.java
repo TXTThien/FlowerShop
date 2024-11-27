@@ -3,14 +3,18 @@ package org.example.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.entity.enums.Status;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity(name = "FlowerSize")
 @Table(name = "flowersize", schema = "flowershop")
 public class FlowerSize {
@@ -19,7 +23,7 @@ public class FlowerSize {
     @Column(name = "flower_sizeid", nullable = false)
     private Integer flowerSizeID;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "FlowerID", nullable = false)
     private Flower flower;
 
@@ -50,4 +54,10 @@ public class FlowerSize {
     @Enumerated(EnumType.STRING)
     @Column(name = "Status", nullable = false)
     protected Status status;
+
+    @JsonIgnore  // Ignore the carts field to avoid circular reference
+    @OneToMany(mappedBy = "flowerSize", fetch = FetchType.LAZY) // Chỉnh sửa từ "productSizeID" thành "flowerSize"
+    private List<Cart> carts;
+
+
 }

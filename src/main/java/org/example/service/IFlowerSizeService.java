@@ -12,6 +12,7 @@ public interface IFlowerSizeService {
     void deleteProductSize(int id);
 
     List<FlowerSize> findProductSizeByProductID(int id);
+    FlowerSize findProductSizeByProductIDAndSize(Integer id, String size);
 
 
     void updateStock(int pz, int number);

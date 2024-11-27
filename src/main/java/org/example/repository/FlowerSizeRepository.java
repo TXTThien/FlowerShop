@@ -27,5 +27,6 @@ public interface FlowerSizeRepository  extends JpaRepository<FlowerSize, Integer
             "ORDER BY fs.price ASC")
     List<FlowerSize> findLowestPriceByFlowerID(@Param("flowerID") Integer flowerID, Pageable pageable);
 
+    FlowerSize findFlowerSizeByFlowerFlowerIDAndSizeNameAndStatus(int id, String size, Status status);
 
 }

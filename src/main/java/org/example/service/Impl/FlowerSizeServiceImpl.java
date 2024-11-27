@@ -61,6 +61,10 @@ public class FlowerSizeServiceImpl implements IFlowerSizeService {
         return flowerSizeRepository.findFlowerSizesByFlowerFlowerIDAndStatus(id,Status.ENABLE);
     }
 
+    @Override
+    public FlowerSize findProductSizeByProductIDAndSize(Integer id, String size) {
+        return flowerSizeRepository.findFlowerSizeByFlowerFlowerIDAndSizeNameAndStatus(id, size, Status.ENABLE);
+    }
 
 
     @Override
