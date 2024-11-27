@@ -1,5 +1,6 @@
 package org.example.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
@@ -20,8 +21,9 @@ public class RepComment {
     @Column(name = "RepcommentID", nullable = false)
     private Integer repcommentID;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "CommentID", nullable = false)
+    @JsonBackReference
     private Comment comment;
 
     @ManyToOne(fetch = FetchType.LAZY)

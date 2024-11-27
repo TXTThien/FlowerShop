@@ -11,6 +11,7 @@ import org.example.entity.enums.Stative;
 import org.example.entity.enums.Status;
 import org.example.repository.AccountRepository;
 import org.example.repository.CommentRepository;
+import org.example.repository.RepCommentRepository;
 import org.example.service.ICommentService;
 import org.example.service.ICommentTypeService;
 import org.example.service.IRepCommentService;
@@ -30,6 +31,7 @@ import java.util.Map;
 public class CommentController {
     private final ICommentService commentService;
     private final CommentRepository commentRepository;
+    private final RepCommentRepository repCommentRepository;
     private final IRepCommentService repCommentService;
     private final ICommentTypeService commentTypeService;
     private final GetIDAccountFromAuthService getIDAccountService;
@@ -67,29 +69,27 @@ public class CommentController {
         comment.setCommentType(commentType);
         comment.setDate(LocalDateTime.now());
         comment.setImage(commentDTO.getImage());
-        comment.setText(comment.getText());
-        comment.setTitle(comment.getTitle());
+        comment.setText(commentDTO.getText());
+        comment.setTitle(commentDTO.getTitle());
         comment.setStative(Stative.Waiting);
         comment.setStatus(Status.ENABLE);
         comment.setAccountID(account);
         commentRepository.save(comment);
         return ResponseEntity.ok(comment);
     }
-//    @PostMapping("/{id}")
-//    public ResponseEntity<?> createRepComment(@RequestBody RepCommentDTO repCommentDTO) {
-//        int idAccount = getIDAccountService.common();
-//        Account account = accountRepository.findAccountByAccountID(idAccount);
-//        Comment comment = new Comment();
-//        CommentType commentType = commentTypeService.findTypebyID(commentDTO.getCommentType());
-//        comment.setCommentType(commentType);
-//        comment.setDate(LocalDateTime.now());
-//        comment.setImage(commentDTO.getImage());
-//        comment.setText(comment.getText());
-//        comment.setTitle(comment.getTitle());
-//        comment.setStative(Stative.Waiting);
-//        comment.setStatus(Status.ENABLE);
-//        comment.setAccountID(account);
-//        commentRepository.save(comment);
-//        return ResponseEntity.ok(comment);
-//    }
+    @PostMapping("/{id}")
+    public ResponseEntity<?> createRepComment(@PathVariable("id") int id, @RequestBody RepCommentDTO repCommentDTO) {
+        int idAccount = getIDAccountService.common();
+        Account account = accountRepository.findAccountByAccountID(idAccount);
+        Comment comment = commentService.findCommentByID(id);
+        RepComment repComment = new RepComment();
+        repComment.setComment(comment);
+        repComment.setAccount(account);
+        repComment.setRepcommentdate(LocalDateTime.now());
+        repComment.setStatus(Status.ENABLE);
+        repComment.setImage(repCommentDTO.getImage());
+        repComment.setRepcommenttext(repCommentDTO.getRepcommenttext());
+        repCommentRepository.save(repComment);
+        return ResponseEntity.ok(repComment);
+    }
 }

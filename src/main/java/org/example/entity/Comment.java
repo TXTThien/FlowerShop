@@ -2,12 +2,14 @@ package org.example.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.entity.enums.Stative;
 import org.example.entity.enums.Status;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
 @AllArgsConstructor
@@ -50,4 +52,8 @@ public class Comment {
 
     @Column(name = "Image", length = 1000)
     private String image;
+
+    @OneToMany(mappedBy = "comment", fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<RepComment> repComments;
 }

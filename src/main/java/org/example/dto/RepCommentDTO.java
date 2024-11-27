@@ -10,6 +10,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RepCommentDTO {
-    private String Repcommenttext;
-    private String Image;
+    private String repcommenttext;
+    private String image;
 }
