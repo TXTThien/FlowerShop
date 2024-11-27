@@ -9,5 +9,5 @@ import java.util.List;
 
 @Repository
 public interface WishlistRepository extends JpaRepository<Wishlist, Integer> {
-    static List<Wishlist>findWishlistsByAccountID_AccountIDAndStatus(int id, Status status);
+    List<Wishlist>findWishlistsByAccountID_AccountIDAndStatus(int id, Status status);
 }

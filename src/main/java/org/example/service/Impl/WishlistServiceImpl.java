@@ -15,6 +15,6 @@ public class WishlistServiceImpl implements IWishlistService {
     private final WishlistRepository wishlistRepository;
     @Override
     public List<Wishlist> findWishlistByAccountID(int id) {
-        return WishlistRepository.findWishlistsByAccountID_AccountIDAndStatus(id, Status.ENABLE);
+        return null;
     }
 }
