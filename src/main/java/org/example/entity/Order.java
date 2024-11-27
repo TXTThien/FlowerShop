@@ -11,6 +11,7 @@ import org.example.entity.enums.Status;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 @Builder
@@ -66,7 +67,6 @@ public class Order {
     @Column(name = "`Condition`", nullable = false)
     protected Condition condition;
 
-    @OneToMany(mappedBy = "orderID")
-    @ToString.Exclude
-    private Set<OrderDetail> orderDetailSet = new LinkedHashSet<>();
+    @OneToMany(mappedBy = "orderID", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderDetail> orderDetails;
 }

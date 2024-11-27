@@ -42,11 +42,26 @@ public class FlowerController {
                         category != null ? category : 0,
                         purpose != null ? purpose : 0
                 );
+                List<FlowerDTO> flowerDTOList = new ArrayList<>();
+                for (Flower flower : sortProduct) {
+                    FlowerDTO flowerDTO = new FlowerDTO();
+                    flowerDTO.setFlowerID(flower.getFlowerID());
+                    flowerDTO.setName(flower.getName());
+                    flowerDTO.setDescription(flower.getDescription());
+                    flowerDTO.setImage(flower.getImage());
+                    flowerDTO.setLanguageOfFlowers(flower.getLanguageOfFlowers());
+                    flowerDTO.setCategory(flower.getCategory());
+                    flowerDTO.setPurpose(flower.getPurpose());
+                    FlowerSize minFlowerSize = flowerSizeService.findCheapestPriceByFlowerID(flower.getFlowerID());
+                    flowerDTO.setPrice(minFlowerSize.getPrice());
 
+                    flowerDTOList.add(flowerDTO);
+
+                }
                 if (sortProduct.isEmpty()) {
                     return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No sorted products found");
                 }
-                return ResponseEntity.ok(sortProduct);
+                return ResponseEntity.ok(flowerDTOList);
             }
             List<Flower> productList = flowerService.findAllEnable();
             List<Category> categoryList = categoryService.findAllEnable();
@@ -83,28 +98,6 @@ public class FlowerController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("An error occurred: " + e.getMessage());
-        }
-    }
-
-    @RequestMapping("/sort")
-    public ResponseEntity<?> sortListProduct(
-            @RequestParam(value = "category", required = false) Integer category,
-            @RequestParam(value = "purpose", required = false) Integer purpose
-           ) {
-
-        try {
-            List<Flower> productList = flowerService.sortFlower(
-                    category != null ? category : 0,
-                    purpose != null ? purpose : 0
-            );
-
-            if (productList.isEmpty()) {
-                return ResponseEntity.noContent().build();
-            }
-            return ResponseEntity.ok(productList);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An error occurred while sorting the products: " + e.getMessage());
         }
     }
 }
