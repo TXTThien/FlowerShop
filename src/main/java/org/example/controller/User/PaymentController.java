@@ -114,12 +114,11 @@ public class PaymentController {
     }
     @GetMapping("/payment_info")
     public void transaction(@RequestParam Map<String, String> params, HttpServletRequest request, HttpServletResponse response) throws IOException {
+
         String responseCode = params.get("vnp_ResponseCode");
         int accountId = (int) request.getSession().getAttribute("accountID");
-        System.out.println("Here");
         if ("00".equals(responseCode)) {
             prebuyController.buyVNPay(cartID, accountId,price,buyInfo);
-            System.out.println("Herex2");
             response.sendRedirect("http://localhost:8000/PaymentSuccess");
 
         } else {

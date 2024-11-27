@@ -9,9 +9,7 @@ import org.example.entity.*;
 import org.example.entity.enums.Condition;
 import org.example.entity.enums.IsPaid;
 import org.example.entity.enums.Status;
-import org.example.repository.OrderDetailRepository;
-import org.example.repository.OrderRepository;
-import org.example.repository.DiscountRepository;
+import org.example.repository.*;
 import org.example.repository.OrderRepository;
 import org.example.service.*;
 import org.example.service.securityService.GetIDAccountFromAuthService;
@@ -39,12 +37,14 @@ public class UserPrebuyController {
     private final IFlowerSizeService flowerSizeService;
     private final IAccountService accountService;
     private final ITypeService typeService;
+    private final AccountRepository accountRepository;
 
     private final GetIDAccountFromAuthService getIDAccountFromAuthService;
 
     @GetMapping("")
     public ResponseEntity<?> getCart(HttpServletRequest request) {
         int id = getIDAccountFromAuthService.common();
+        Account account = accountRepository.findAccountByAccountID(id);
         List<Cart> cartList = cartService.findCartsByAccountID(id);
         List<Discount> discounts = discountRepository.findAll();
         Map<String, Object> response = new HashMap<>();
@@ -81,6 +81,7 @@ public class UserPrebuyController {
 
                 return cartDTO;
             }).collect(Collectors.toList());
+            response.put("account",account);
             response.put("cart",cartDTOList);
             response.put("discount", discounts);
             return ResponseEntity.ok(response);
@@ -190,12 +191,10 @@ public class UserPrebuyController {
 
     public ResponseEntity<?> buyVNPay(int[] cartIDs, int accountId,BigDecimal[] prices, BuyInfo buyInfo) {
         try {
-            int id = getIDAccountFromAuthService.common();
-            Account account = accountService.getAccountById(id);
-
+            Account account = accountService.getAccountById(accountId);
             Order newBill = new Order();
             newBill.setAccountID(account);
-            newBill.setPaid(IsPaid.No);
+            newBill.setPaid(IsPaid.Yes);
             newBill.setStatus(Status.ENABLE);
             newBill.setDate(LocalDateTime.now());
             newBill.setCondition(Condition.Pending);
