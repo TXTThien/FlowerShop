@@ -12,4 +12,6 @@ public interface IBannerService {
     boolean delete(Integer id);
 
     List<Banner> find4BannerEnable();
+
+    void harddeleteAccount(Integer id);
 }

@@ -23,4 +23,6 @@ public interface IAccountService {
     void deleteAccount (Integer id);
 
     void updateAccountInfo(Account account);
+
+    void harddeleteAccount(int id);
 }

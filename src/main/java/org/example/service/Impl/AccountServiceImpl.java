@@ -12,6 +12,7 @@ import org.example.repository.AccountRepository;
 import org.example.service.IAccountService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -105,6 +106,10 @@ public class AccountServiceImpl implements IAccountService {
         accountRepository.save(account);
     }
 
-
+    @Override
+    @Transactional
+    public void harddeleteAccount(int id) {
+        accountRepository.deleteById(id);
+    }
 
 }

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -62,5 +63,11 @@ public class BannerServiceImpl implements IBannerService {
         Pageable pageable = PageRequest.of(0, 4);
         List<Banner> banners = bannerRepository.findTop4ByStatusOrderByIdDesc(Status.ENABLE, pageable);
         return banners;
+    }
+
+    @Override
+    @Transactional
+    public void harddeleteAccount(Integer id) {
+        bannerRepository.deleteById(id);
     }
 }

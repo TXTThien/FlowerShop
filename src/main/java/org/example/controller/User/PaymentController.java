@@ -43,7 +43,7 @@ public class PaymentController {
         quantity = quantities;
         price = prices;
         buyInfo = buyInfos;
-
+        System.out.println(buyInfo);
         return ResponseEntity.ok("Cart updated successfully.");
     }
     @GetMapping("/pay")
@@ -53,6 +53,7 @@ public class PaymentController {
         String orderType = "other";
         long amount = Long.parseLong(totalPayment)*100;
         String bankCode = "NCB";
+        System.out.println(buyInfo);
 
         String vnp_TxnRef = ConfigVnpay.getRandomNumber(8);
         String vnp_IpAddr = "127.0.0.1";
@@ -115,10 +116,12 @@ public class PaymentController {
     public void transaction(@RequestParam Map<String, String> params, HttpServletRequest request, HttpServletResponse response) throws IOException {
         String responseCode = params.get("vnp_ResponseCode");
         int accountId = (int) request.getSession().getAttribute("accountID");
-
+        System.out.println("Here");
         if ("00".equals(responseCode)) {
             prebuyController.buyVNPay(cartID, accountId,price,buyInfo);
+            System.out.println("Herex2");
             response.sendRedirect("http://localhost:8000/PaymentSuccess");
+
         } else {
             response.sendRedirect("http://localhost:8000/PaymentFailure");
         }
