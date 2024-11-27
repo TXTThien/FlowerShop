@@ -11,4 +11,5 @@ import java.util.List;
 @Repository
 public interface CommentTypeRepository extends JpaRepository<CommentType, Integer> {
     List<CommentType> findAllByStatus(Status status);
+    CommentType findCommentTypeByCommenttypeID (int id);
 }

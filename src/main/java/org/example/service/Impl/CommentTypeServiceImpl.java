@@ -17,4 +17,9 @@ public class CommentTypeServiceImpl implements ICommentTypeService {
     public List<CommentType> findAllEnable() {
         return commentTypeRepository.findAllByStatus(Status.ENABLE);
     }
+
+    @Override
+    public CommentType findTypebyID(int id) {
+        return commentTypeRepository.findCommentTypeByCommenttypeID(id);
+    }
 }

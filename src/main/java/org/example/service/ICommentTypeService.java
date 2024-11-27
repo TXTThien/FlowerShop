@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface ICommentTypeService {
     List<CommentType> findAllEnable ();
+    CommentType findTypebyID(int id);
 }

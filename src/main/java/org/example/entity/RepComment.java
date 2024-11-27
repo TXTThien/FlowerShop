@@ -38,4 +38,7 @@ public class RepComment {
     @Enumerated(EnumType.STRING)
     @Column(name = "Status", nullable = false)
     protected Status status;
+
+    @Column(name = "Image", length = 1000)
+    private String image;
 }

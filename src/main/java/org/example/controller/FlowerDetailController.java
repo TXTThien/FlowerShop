@@ -122,13 +122,12 @@ public class FlowerDetailController {
         }
     }
     @PostMapping("/addToWishlist")
-    public  ResponseEntity<?> AddToWishlist(@RequestBody int flowerID){
+    public  ResponseEntity<?> AddToWishlist(@RequestBody Flower flowerID){
         int idAccount = getIDAccountService.common();
         Account account = accountService.getAccountById(idAccount);
-        Flower flower = flowerService.getProductById(flowerID);
         try {
             Wishlist wishlist = new Wishlist();
-            wishlist.setFlower(flower);
+            wishlist.setFlower(flowerID);
             wishlist.setAccountID(account);
             wishlist.setStatus(Status.ENABLE);
             wishlistRepository.save(wishlist);

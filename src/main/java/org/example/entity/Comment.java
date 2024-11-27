@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
+import org.example.entity.enums.Stative;
 import org.example.entity.enums.Status;
 
 import java.time.LocalDateTime;
@@ -43,4 +44,10 @@ public class Comment {
     @Column(name = "Status", nullable = false)
     protected Status status;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "Stative", nullable = false)
+    protected Stative stative;
+
+    @Column(name = "Image", length = 1000)
+    private String image;
 }
