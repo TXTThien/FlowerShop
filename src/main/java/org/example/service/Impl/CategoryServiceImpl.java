@@ -6,6 +6,7 @@ import org.example.repository.CategoryRepository;
 import org.example.service.ICategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -52,5 +53,11 @@ public class CategoryServiceImpl implements ICategoryService {
     @Override
     public List<Category> findAllEnable() {
         return categoryRepository.findAllByStatus(Status.ENABLE);
+    }
+
+    @Override
+    @Transactional
+    public void harddeleteAccount(Integer id) {
+        categoryRepository.deleteById(id);
     }
 }

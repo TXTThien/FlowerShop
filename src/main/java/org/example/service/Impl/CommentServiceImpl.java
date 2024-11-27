@@ -22,4 +22,9 @@ public class CommentServiceImpl implements ICommentService {
     public Comment findCommentByID(int id) {
         return commentRepository.findCommentByCommentIDAndStatus(id, Status.ENABLE);
     }
+
+    @Override
+    public Comment updateComment(Integer id, Comment comment) {
+        return null;
+    }
 }

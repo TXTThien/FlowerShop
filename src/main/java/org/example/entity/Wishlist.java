@@ -14,7 +14,7 @@ import org.example.entity.enums.Status;
 public class Wishlist {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "WishListID", nullable = false)
+    @Column(name = "wish_listid", nullable = false)
     private Integer wishListID;
 
     @ManyToOne(fetch = FetchType.LAZY)

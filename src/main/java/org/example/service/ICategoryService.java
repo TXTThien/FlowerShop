@@ -12,4 +12,6 @@ public interface ICategoryService {
     void deleteCategory(Integer id);
 
     List<Category>findAllEnable();
+
+    void harddeleteAccount(Integer id);
 }

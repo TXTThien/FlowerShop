@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface WishlistRepository extends JpaRepository<Wishlist, Integer> {
     List<Wishlist>findWishlistsByAccountID_AccountIDAndStatus(int id, Status status);
+    Wishlist findWishlistByWishListIDAndStatus(int id, Status status);
 }
