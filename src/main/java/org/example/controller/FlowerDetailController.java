@@ -52,7 +52,7 @@ public class FlowerDetailController {
 
         List<Review> reviewList = reviewService.findReviewByProductID (id);
         List<FlowerImages> imageList = flowerImageService.findImagesByProductID(id);
-        List<FlowerSize> productSizesList = flowerSizeService.findProductSizeByProductID(id);
+        List<FlowerSize> FlowerSizesList = flowerSizeService.findFlowerSizeByProductID(id);
         List<Flower> productBrand = flowerService.findFlowersWithPurpose(product.getPurpose().getPurposeID());
         List<FlowerDTO> productBrandDTOs = productBrand.stream().map(brand -> {
             FlowerDTO dto = new FlowerDTO();
@@ -89,7 +89,7 @@ public class FlowerDetailController {
         if (product != null && product.getStatus() == Status.ENABLE) {
             response.put("product", flowerDTO);
             response.put("reviews", reviewList);
-            response.put("productSizes", productSizesList);
+            response.put("productSizes", FlowerSizesList);
             response.put("imageList", imageList);
             response.put("productBrand", productBrandDTOs);
             response.put("productSimilar", productSimilarDTOs);
@@ -105,11 +105,11 @@ public class FlowerDetailController {
     public  ResponseEntity<?> AddToCart (@RequestBody PrebuyDTO prebuyDTO){
         int idAccount = getIDAccountService.common();
         Account account = accountService.getAccountById(idAccount);
-        FlowerSize productSize =  flowerSizeService.findProductSizeByID(prebuyDTO.getProductSizeID());
+        FlowerSize FlowerSize =  flowerSizeService.findFlowerSizeByID(prebuyDTO.getProductSizeID());
 
         try {
             Cart cart = new Cart();
-            cart.setFlowerSize(productSize);
+            cart.setFlowerSize(FlowerSize);
             cart.setQuantity(prebuyDTO.getNumber());
             cart.setAccountID(account);
             cart.setStatus(Status.ENABLE);

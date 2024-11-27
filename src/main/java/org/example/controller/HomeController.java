@@ -1,6 +1,7 @@
 package org.example.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.example.dto.FlowerDTO;
 import org.example.dto.ProductDTO;
 import org.example.entity.*;
 import org.example.entity.enums.Role;
@@ -24,6 +25,7 @@ public class HomeController {
     private final IFlowerService flowerService;
     private final IBannerService bannerService;
     private final INewsService newsService;
+    private final IFlowerSizeService flowerSizeService;
     private final GetIDAccountFromAuthService getIDAccountService;
     private final IAccountService accountService;
     private final CategoryRepository categoryRepository;
@@ -115,19 +117,32 @@ public class HomeController {
                 ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found");
     }
     @RequestMapping(value = "/search",  method = {RequestMethod.GET, RequestMethod.POST})
-    public ResponseEntity<List<Flower>> findProductOrBrand(@RequestParam("searchTerm") String search, Model model) {
+    public ResponseEntity<List<FlowerDTO>> findProductOrBrand(@RequestParam("searchTerm") String search, Model model) {
         String searchTerm = search.trim();
         List<Flower>  searchProduct = flowerService.findByCategory(searchTerm, Status.ENABLE);
+        if (searchProduct.isEmpty()) {
+            searchProduct = flowerService.findByPurpose(searchTerm, Status.ENABLE);
             if (searchProduct.isEmpty()) {
-                searchProduct = flowerService.findByPurpose(searchTerm, Status.ENABLE);
-                if (searchProduct.isEmpty()) {
-                    searchProduct = flowerService.findByTitle(searchTerm, Status.ENABLE);
-                }
+                searchProduct = flowerService.findByTitle(searchTerm, Status.ENABLE);
             }
+        }
+        List<FlowerDTO> productBrandDTOs = searchProduct.stream().map(brand -> {
+            FlowerDTO dto = new FlowerDTO();
+            dto.setFlowerID(brand.getFlowerID());
+            dto.setName(brand.getName());
+            dto.setDescription(brand.getDescription());
+            dto.setImage(brand.getImage());
+            dto.setLanguageOfFlowers(brand.getLanguageOfFlowers());
+            dto.setCategory(brand.getCategory());
+            dto.setPurpose(brand.getPurpose());
+            FlowerSize size = flowerSizeService.findCheapestPriceByFlowerID(brand.getFlowerID());
+            dto.setPrice(size.getPrice());
+            return dto;
+        }).toList();
         if (searchProduct.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
-        return ResponseEntity.ok(searchProduct);
+        return ResponseEntity.ok(productBrandDTOs);
     }
 
 

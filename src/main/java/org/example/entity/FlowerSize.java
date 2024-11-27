@@ -55,8 +55,8 @@ public class FlowerSize {
     @Column(name = "Status", nullable = false)
     protected Status status;
 
-    @JsonIgnore  // Ignore the carts field to avoid circular reference
-    @OneToMany(mappedBy = "flowerSize", fetch = FetchType.LAZY) // Chỉnh sửa từ "productSizeID" thành "flowerSize"
+    @JsonIgnore
+    @OneToMany(mappedBy = "flowerSize", fetch = FetchType.LAZY)
     private List<Cart> carts;
 
 

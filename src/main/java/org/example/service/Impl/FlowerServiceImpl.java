@@ -74,7 +74,7 @@ public class FlowerServiceImpl implements IFlowerService {
 
     @Override
     public List<Flower> findByCategory(String category, Status status) {
-        return flowerRepository.findFlowersByCategoryCategoryNameAndStatusOrderByFlowerIDDesc(category, status);
+        return flowerRepository.findFlowersByCategoryCategoryNameContainingAndStatusOrderByFlowerIDDesc(category, status);
     }
 
 
@@ -113,7 +113,7 @@ public class FlowerServiceImpl implements IFlowerService {
 
     @Override
     public List<Flower> findByPurpose(String purpose, Status status) {
-        return flowerRepository.findFlowersByPurposePurposeNameAndStatusOrderByFlowerIDDesc(purpose,status);
+        return flowerRepository.findFlowersByPurposePurposeNameContainingAndStatusOrderByFlowerIDDesc(purpose,status);
     }
 
     @Override

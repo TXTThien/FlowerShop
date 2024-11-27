@@ -70,11 +70,11 @@ public class UserPrebuyController {
                         .stream()
                         .map(FlowerSize::getSizeName)
                         .collect(Collectors.toList());
-                List<FlowerSize> productSizes = flowerSizeService.findProductSizeByProductID(cart.getFlowerSize().getFlower().getFlowerID());
+                List<FlowerSize> FlowerSizes = flowerSizeService.findFlowerSizeByProductID(cart.getFlowerSize().getFlower().getFlowerID());
                 List<Integer> stockList = new ArrayList<>();
-                for (int i = 0; i < productSizes.size(); i++) {
-                    FlowerSize productSize = productSizes.get(i);
-                    stockList.add(productSize.getStock());
+                for (int i = 0; i < FlowerSizes.size(); i++) {
+                    FlowerSize FlowerSize = FlowerSizes.get(i);
+                    stockList.add(FlowerSize.getStock());
                 }
                 cartDTO.setSizes(sizes);
                 cartDTO.setStock(stockList);
@@ -93,8 +93,8 @@ public class UserPrebuyController {
     public ResponseEntity<?> updateCart(@PathVariable Integer id, @RequestBody CartUpdateRequest request) {
 
         Cart cart =cartService.getCartById(id);
-        FlowerSize productSize = flowerSizeService.findProductSizeByProductIDAndSize(cart.getFlowerSize().getFlower().getFlowerID(), request.getSize());
-        if (productSize == null) {
+        FlowerSize FlowerSize = flowerSizeService.findFlowerSizeByProductIDAndSize(cart.getFlowerSize().getFlower().getFlowerID(), request.getSize());
+        if (FlowerSize == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product size not found");
         }
 
@@ -103,7 +103,7 @@ public class UserPrebuyController {
         }
 
         cart.setQuantity(request.getNumber());
-        cart.setFlowerSize(productSize);
+        cart.setFlowerSize(FlowerSize);
 
         Cart updatedCart = cartService.updateCart(id, cart);
         return ResponseEntity.ok(updatedCart);
@@ -145,7 +145,7 @@ public class UserPrebuyController {
                 }
 
                 int number = cart.getQuantity();
-                FlowerSize productSize = cart.getFlowerSize();
+                FlowerSize FlowerSize = cart.getFlowerSize();
                 prebuyService.createBillInfo(newBill, cartID,price);
 
                 OrderDetail orderDetail = new OrderDetail();
@@ -155,7 +155,7 @@ public class UserPrebuyController {
                 orderDetail.setPrice(price);
                 orderDetail.setStatus(Status.ENABLE);
                 cartService.deleteBoughtCart(cartID);
-                flowerSizeService.updateStock(productSize.getFlowerSizeID(), number);
+                flowerSizeService.updateStock(FlowerSize.getFlowerSizeID(), number);
                 orderDetailRepository.save(orderDetail);
 
             }
@@ -218,7 +218,7 @@ public class UserPrebuyController {
                 }
 
                 int number = cart.getQuantity();
-                FlowerSize productSize = cart.getFlowerSize();
+                FlowerSize FlowerSize = cart.getFlowerSize();
                 prebuyService.createBillInfo(newBill, cartID,price);
 
                 OrderDetail orderDetail = new OrderDetail();
@@ -228,7 +228,7 @@ public class UserPrebuyController {
                 orderDetail.setPrice(price);
                 orderDetail.setStatus(Status.ENABLE);
                 cartService.deleteBoughtCart(cartID);
-                flowerSizeService.updateStock(productSize.getFlowerSizeID(), number);
+                flowerSizeService.updateStock(FlowerSize.getFlowerSizeID(), number);
                 orderDetailRepository.save(orderDetail);
 
             }

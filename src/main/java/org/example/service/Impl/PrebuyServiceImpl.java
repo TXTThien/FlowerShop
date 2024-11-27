@@ -26,12 +26,12 @@ public class PrebuyServiceImpl implements IPrebuyService {
 
     public void createBillInfo(Order billID, int cartid, BigDecimal price) {
         Cart cart = cartService.findCartByCartID(cartid);
-        FlowerSize productSizeid = cart.getFlowerSize();
+        FlowerSize FlowerSizeid = cart.getFlowerSize();
         int count = cart.getQuantity();
         cartService.hardDeleteCart(cartid);
         OrderDetail billInfo = new OrderDetail();
         billInfo.setOrderID(billID);
-        billInfo.setFlowerSize(productSizeid);
+        billInfo.setFlowerSize(FlowerSizeid);
         billInfo.setQuantity(count);
         billInfo.setStatus(Status.ENABLE);
         billInfo.setPrice(price);

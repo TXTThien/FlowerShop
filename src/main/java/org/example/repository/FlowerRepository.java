@@ -23,8 +23,8 @@ public interface FlowerRepository extends JpaRepository<Flower, Integer>{
 
     List<Flower>findFlowersByCategoryCategoryIDAndStatusOrderByFlowerIDDesc(int id, Pageable pageable, Status status);
 
-    List<Flower> findFlowersByCategoryCategoryNameAndStatusOrderByFlowerIDDesc(String Category , Status status);
-    List<Flower> findFlowersByPurposePurposeNameAndStatusOrderByFlowerIDDesc(String purpose , Status status);
+    List<Flower> findFlowersByCategoryCategoryNameContainingAndStatusOrderByFlowerIDDesc(String Category , Status status);
+    List<Flower> findFlowersByPurposePurposeNameContainingAndStatusOrderByFlowerIDDesc(String purpose , Status status);
     @Query("SELECT p FROM FlowerSize ps " +
             "JOIN Flower p ON ps.flower = p " +
             "JOIN Purpose o ON p.purpose = o " +

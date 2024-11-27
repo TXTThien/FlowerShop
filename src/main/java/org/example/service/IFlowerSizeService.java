@@ -7,17 +7,17 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 public interface IFlowerSizeService {
-    FlowerSize updateProductSize(int id, FlowerSize productSize);
+    FlowerSize updateFlowerSize(int id, FlowerSize FlowerSize);
 
-    void deleteProductSize(int id);
+    void deleteFlowerSize(int id);
 
-    List<FlowerSize> findProductSizeByProductID(int id);
-    FlowerSize findProductSizeByProductIDAndSize(Integer id, String size);
+    List<FlowerSize> findFlowerSizeByProductID(int id);
+    FlowerSize findFlowerSizeByProductIDAndSize(Integer id, String size);
 
 
     void updateStock(int pz, int number);
 
-    FlowerSize findProductSizeByID(int productSizeID);
+    FlowerSize findFlowerSizeByID(int FlowerSizeID);
 
     FlowerSize findCheapestPriceByFlowerID(Integer flowerID);
 }

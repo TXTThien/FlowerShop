@@ -22,24 +22,24 @@ public class FlowerSizeServiceImpl implements IFlowerSizeService {
     private final FlowerRepository flowerRepository;
 
     @Override
-    public FlowerSize updateProductSize(int id, FlowerSize productSize) {
-        FlowerSize existingProductSize = flowerSizeRepository.findById(id).orElse(null);
-        if (existingProductSize != null) {
-            existingProductSize.setStock(productSize.getStock());
-            existingProductSize.setStatus(productSize.getStatus());
-            existingProductSize.setSizeName(productSize.getSizeName());
-            existingProductSize.setLength(productSize.getLength());
-            existingProductSize.setHigh(productSize.getHigh());
-            existingProductSize.setWidth(productSize.getWidth());
-            existingProductSize.setWeight(productSize.getWeight());
-            existingProductSize.setPrice(productSize.getPrice());
-            existingProductSize.setCost(productSize.getCost());
-            if (productSize.getFlowerSizeID() != null && productSize.getFlower().getFlowerID() != null) {
-                Flower product = flowerRepository.findById(productSize.getFlower().getFlowerID()).orElse(null);
+    public FlowerSize updateFlowerSize(int id, FlowerSize FlowerSize) {
+        FlowerSize existingFlowerSize = flowerSizeRepository.findById(id).orElse(null);
+        if (existingFlowerSize != null) {
+            existingFlowerSize.setStock(FlowerSize.getStock());
+            existingFlowerSize.setStatus(FlowerSize.getStatus());
+            existingFlowerSize.setSizeName(FlowerSize.getSizeName());
+            existingFlowerSize.setLength(FlowerSize.getLength());
+            existingFlowerSize.setHigh(FlowerSize.getHigh());
+            existingFlowerSize.setWidth(FlowerSize.getWidth());
+            existingFlowerSize.setWeight(FlowerSize.getWeight());
+            existingFlowerSize.setPrice(FlowerSize.getPrice());
+            existingFlowerSize.setCost(FlowerSize.getCost());
+            if (FlowerSize.getFlowerSizeID() != null && FlowerSize.getFlower().getFlowerID() != null) {
+                Flower product = flowerRepository.findById(FlowerSize.getFlower().getFlowerID()).orElse(null);
                 if (product != null) {
-                    existingProductSize.setFlower(product);
+                    existingFlowerSize.setFlower(product);
                 } else {
-                    throw new EntityNotFoundException("Product not found with ID: " + productSize.getFlower().getFlowerID());
+                    throw new EntityNotFoundException("Product not found with ID: " + FlowerSize.getFlower().getFlowerID());
                 }
             }
 
@@ -49,20 +49,20 @@ public class FlowerSizeServiceImpl implements IFlowerSizeService {
 
 
     @Override
-    public void deleteProductSize(int id) {
-        FlowerSize productSize = flowerSizeRepository.findById(id).orElse(null);
-        assert productSize != null;
-        productSize.setStatus(Status.DISABLE);
-        flowerSizeRepository.save(productSize);
+    public void deleteFlowerSize(int id) {
+        FlowerSize FlowerSize = flowerSizeRepository.findById(id).orElse(null);
+        assert FlowerSize != null;
+        FlowerSize.setStatus(Status.DISABLE);
+        flowerSizeRepository.save(FlowerSize);
     }
 
     @Override
-    public List<FlowerSize> findProductSizeByProductID(int id) {
+    public List<FlowerSize> findFlowerSizeByProductID(int id) {
         return flowerSizeRepository.findFlowerSizesByFlowerFlowerIDAndStatus(id,Status.ENABLE);
     }
 
     @Override
-    public FlowerSize findProductSizeByProductIDAndSize(Integer id, String size) {
+    public FlowerSize findFlowerSizeByProductIDAndSize(Integer id, String size) {
         return flowerSizeRepository.findFlowerSizeByFlowerFlowerIDAndSizeNameAndStatus(id, size, Status.ENABLE);
     }
 
@@ -73,8 +73,8 @@ public class FlowerSizeServiceImpl implements IFlowerSizeService {
     }
 
     @Override
-    public FlowerSize findProductSizeByID(int productSizeID) {
-        return flowerSizeRepository.findFlowerSizeByFlowerSizeIDAndStatus(productSizeID,Status.ENABLE);
+    public FlowerSize findFlowerSizeByID(int FlowerSizeID) {
+        return flowerSizeRepository.findFlowerSizeByFlowerSizeIDAndStatus(FlowerSizeID,Status.ENABLE);
     }
 
     @Override

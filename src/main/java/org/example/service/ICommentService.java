@@ -10,4 +10,6 @@ public interface ICommentService {
     Comment findCommentByID(int id);
     Comment updateComment(Integer id, Comment comment);
 
+    Comment createComment(Comment comment);
+    void harddelete(int id);
 }

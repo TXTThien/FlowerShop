@@ -32,7 +32,7 @@ public class Cart {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "FlowersizeID")
-    @JsonIgnoreProperties("carts")  // Ignore `carts` in ProductSize to avoid circular reference
+    @JsonIgnoreProperties("carts")
     private FlowerSize flowerSize;
 
     @Enumerated(EnumType.STRING)
