@@ -38,6 +38,8 @@ public class UserPrebuyController {
     private final OrderDetailRepository orderDetailRepository;
     private final IFlowerSizeService flowerSizeService;
     private final IAccountService accountService;
+    private final ITypeService typeService;
+
     private final GetIDAccountFromAuthService getIDAccountFromAuthService;
 
     @GetMapping("")
@@ -145,28 +147,38 @@ public class UserPrebuyController {
                 FlowerSize productSize = cart.getFlowerSize();
                 prebuyService.createBillInfo(newBill, cartID,price);
 
-                cartService.deleteBoughtCart(cartID);
-                flowerSizeService.updateStock(productSize.getFlowerSizeID(), number);
-            }
-
-            newBill.setTotalAmount(totalAmount);
-
-            orderRepository.save(newBill);
-
-            for (int i = 0; i < cartIDs.length; i++) {
-                Cart cart = cartService.findCartByCartID(cartIDs[i]);
-                BigDecimal price = prices[i];
-
                 OrderDetail orderDetail = new OrderDetail();
                 orderDetail.setOrderID(newBill);  // Gán Order đã lưu vào OrderDetail
                 orderDetail.setFlowerSize(cart.getFlowerSize());
                 orderDetail.setQuantity(cart.getQuantity());
                 orderDetail.setPrice(price);
                 orderDetail.setStatus(Status.ENABLE);
-
+                cartService.deleteBoughtCart(cartID);
+                flowerSizeService.updateStock(productSize.getFlowerSizeID(), number);
                 orderDetailRepository.save(orderDetail);
+
+            }
+            newBill.setTotalAmount(totalAmount);
+            orderRepository.save(newBill);
+            BigDecimal consume = account.getConsume().add(totalAmount);
+            account.setConsume(consume);
+
+            List<Type> types = typeService.findAllOrderByMinConsumeAsc();
+
+            Type appropriateType = null;
+            for (Type type : types) {
+                if (consume.compareTo(type.getMinConsume()) >= 0) {
+                    appropriateType = type;
+                } else {
+                    break;
+                }
             }
 
+            if (appropriateType != null) {
+                account.setType(appropriateType);
+            }
+
+            accountService.save(account);
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body("Product purchased successfully.");
 
@@ -176,8 +188,6 @@ public class UserPrebuyController {
         }
     }
 
-
-
     public ResponseEntity<?> buyVNPay(int[] cartIDs, int accountId,BigDecimal[] prices, BuyInfo buyInfo) {
         try {
             int id = getIDAccountFromAuthService.common();
@@ -185,7 +195,7 @@ public class UserPrebuyController {
 
             Order newBill = new Order();
             newBill.setAccountID(account);
-            newBill.setPaid(IsPaid.Yes);
+            newBill.setPaid(IsPaid.No);
             newBill.setStatus(Status.ENABLE);
             newBill.setDate(LocalDateTime.now());
             newBill.setCondition(Condition.Pending);
@@ -212,28 +222,38 @@ public class UserPrebuyController {
                 FlowerSize productSize = cart.getFlowerSize();
                 prebuyService.createBillInfo(newBill, cartID,price);
 
-                cartService.deleteBoughtCart(cartID);
-                flowerSizeService.updateStock(productSize.getFlowerSizeID(), number);
-            }
-
-            newBill.setTotalAmount(totalAmount);
-
-            orderRepository.save(newBill);
-
-            for (int i = 0; i < cartIDs.length; i++) {
-                Cart cart = cartService.findCartByCartID(cartIDs[i]);
-                BigDecimal price = prices[i];
-
                 OrderDetail orderDetail = new OrderDetail();
                 orderDetail.setOrderID(newBill);  // Gán Order đã lưu vào OrderDetail
                 orderDetail.setFlowerSize(cart.getFlowerSize());
                 orderDetail.setQuantity(cart.getQuantity());
                 orderDetail.setPrice(price);
                 orderDetail.setStatus(Status.ENABLE);
-
+                cartService.deleteBoughtCart(cartID);
+                flowerSizeService.updateStock(productSize.getFlowerSizeID(), number);
                 orderDetailRepository.save(orderDetail);
+
+            }
+            newBill.setTotalAmount(totalAmount);
+            orderRepository.save(newBill);
+            BigDecimal consume = account.getConsume().add(totalAmount);
+            account.setConsume(consume);
+
+            List<Type> types = typeService.findAllOrderByMinConsumeAsc();
+
+            Type appropriateType = null;
+            for (Type type : types) {
+                if (consume.compareTo(type.getMinConsume()) >= 0) {
+                    appropriateType = type;
+                } else {
+                    break;
+                }
             }
 
+            if (appropriateType != null) {
+                account.setType(appropriateType);
+            }
+
+            accountService.save(account);
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body("Product purchased successfully.");
 

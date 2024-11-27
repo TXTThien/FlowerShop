@@ -92,8 +92,10 @@ public class SecurityConfiguration {
 
                             .requestMatchers("/api/v1/upload/**").hasAnyAuthority(admin.name(),shipper.name(), user.name(),staff.name())
                             .requestMatchers("/account/**").hasAuthority(user.name())
+                            .requestMatchers("/comment/**").hasAuthority(user.name())
                             .requestMatchers("/review/**").hasAuthority(user.name())
                             .requestMatchers("/addToPrebuy/**").hasAuthority(user.name())
+                            .requestMatchers("/addToWishlist/**").hasAuthority(user.name())
                             .requestMatchers("/prebuy/**").hasAuthority(user.name())
                             .requestMatchers("/payment_info").permitAll()
 

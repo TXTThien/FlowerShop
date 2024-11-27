@@ -6,6 +6,7 @@ import org.example.dto.PrebuyDTO;
 import org.example.entity.*;
 import org.example.entity.enums.Status;
 import org.example.repository.CartRepository;
+import org.example.repository.WishlistRepository;
 import org.example.service.*;
 import org.example.service.securityService.GetIDAccountFromAuthService;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,7 @@ public class FlowerDetailController {
     private final IReviewService reviewService;
     private final IFlowerSizeService flowerSizeService;
     private final IFlowerImageService flowerImageService;
+    private final WishlistRepository wishlistRepository;
 
     private final ICartService cartService;
     private final IAccountService accountService;
@@ -90,5 +92,21 @@ public class FlowerDetailController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while creating the cart.");
         }
     }
+    @PostMapping("/addToWishlist")
+    public  ResponseEntity<?> AddToWishlist(@RequestBody int flowerID){
+        int idAccount = getIDAccountService.common();
+        Account account = accountService.getAccountById(idAccount);
+        Flower flower = flowerService.getProductById(flowerID);
+        try {
+            Wishlist wishlist = new Wishlist();
+            wishlist.setFlower(flower);
+            wishlist.setAccountID(account);
+            wishlist.setStatus(Status.ENABLE);
+            wishlistRepository.save(wishlist);
+            return ResponseEntity.status(HttpStatus.CREATED).body(wishlist);
 
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while creating the cart.");
+        }
+    }
 }
