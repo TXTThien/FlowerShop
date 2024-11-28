@@ -3,6 +3,7 @@ package org.example.service.Impl;
 import lombok.RequiredArgsConstructor;
 import org.example.entity.Category;
 import org.example.entity.Comment;
+import org.example.entity.enums.Stative;
 import org.example.entity.enums.Status;
 import org.example.repository.CommentRepository;
 import org.example.service.ICommentService;
@@ -50,6 +51,21 @@ public class CommentServiceImpl implements ICommentService {
     @Transactional
     public void harddelete(int id) {
         commentRepository.deleteById(id);
+    }
+
+    @Override
+    public List<Comment> findCommentWaiting() {
+        return commentRepository.findCommentsByStativeAndStatus(Stative.Waiting, Status.ENABLE);
+    }
+
+    @Override
+    public List<Comment> findCommentComplete(int id) {
+        return commentRepository.findCommentsWithRepCommentByAccountId(id);
+    }
+
+    @Override
+    public List<Comment> findCommentProcess(int id) {
+        return commentRepository.findCommentsProcessingWithRepCommentByAccountId(id);
     }
 
 

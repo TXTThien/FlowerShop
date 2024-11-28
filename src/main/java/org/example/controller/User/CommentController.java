@@ -2,6 +2,7 @@ package org.example.controller.User;
 
 import lombok.RequiredArgsConstructor;
 import org.example.dto.CommentDTO;
+import org.example.dto.CommentRepCommentDTO;
 import org.example.dto.RepCommentDTO;
 import org.example.entity.Account;
 import org.example.entity.Comment;
@@ -24,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/comment")
@@ -51,14 +53,27 @@ public class CommentController {
     }
     @GetMapping("/{id}")
     public ResponseEntity<?> getRepCommentInfo(@PathVariable("id") int id) {
-        int idAccount = getIDAccountService.common();
-        Account account = accountRepository.findAccountByAccountID(idAccount);
-        List<RepComment> repComments = repCommentService.findRepCommentByCommentID(id);
         Comment comment = commentService.findCommentByID(id);
-        Map<String, Object> response = new HashMap<>();
-        response.put("repComments", repComments);
-        response.put("comment", comment);
-        return ResponseEntity.ok(response);
+        CommentRepCommentDTO commentDTO = new CommentRepCommentDTO();
+        commentDTO.setCommentID(comment.getCommentID());
+        commentDTO.setCommentTitle(comment.getTitle());
+        commentDTO.setCommentText(comment.getText());
+        commentDTO.setCommentDate(comment.getDate());
+        commentDTO.setCommentStatus(comment.getStatus().toString());
+        commentDTO.setCommentStative(comment.getStative().toString());
+        commentDTO.setImage(comment.getImage());
+        List<CommentRepCommentDTO.RepCommentDTO> repCommentDTOList = comment.getRepComments().stream()
+                .map(repComment -> new CommentRepCommentDTO.RepCommentDTO(
+                        repComment.getRepcommentID(),
+                        repComment.getAccount().getAccountID(),  // Giả sử AccountID là ID của tài khoản
+                        repComment.getAccount().getName(),      // Giả sử bạn muốn trả về tên tài khoản
+                        repComment.getRepcommentdate(),
+                        repComment.getRepcommenttext(),
+                        repComment.getStatus().toString(),
+                        repComment.getImage()))
+                .collect(Collectors.toList());
+        commentDTO.setRepComments(repCommentDTOList);
+        return ResponseEntity.ok(commentDTO);
     }
     @PostMapping("")
     public ResponseEntity<?> createComment(@RequestBody CommentDTO commentDTO) {
@@ -82,14 +97,17 @@ public class CommentController {
         int idAccount = getIDAccountService.common();
         Account account = accountRepository.findAccountByAccountID(idAccount);
         Comment comment = commentService.findCommentByID(id);
-        RepComment repComment = new RepComment();
-        repComment.setComment(comment);
-        repComment.setAccount(account);
-        repComment.setRepcommentdate(LocalDateTime.now());
-        repComment.setStatus(Status.ENABLE);
-        repComment.setImage(repCommentDTO.getImage());
-        repComment.setRepcommenttext(repCommentDTO.getRepcommenttext());
-        repCommentRepository.save(repComment);
-        return ResponseEntity.ok(repComment);
+        if (comment.getStative() == Stative.Processing){
+            RepComment repComment = new RepComment();
+            repComment.setComment(comment);
+            repComment.setAccount(account);
+            repComment.setRepcommentdate(LocalDateTime.now());
+            repComment.setStatus(Status.ENABLE);
+            repComment.setImage(repCommentDTO.getImage());
+            repComment.setRepcommenttext(repCommentDTO.getRepcommenttext());
+            repCommentRepository.save(repComment);
+            return ResponseEntity.ok(repComment);
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Comment đang chờ xử lý.");
     }
 }

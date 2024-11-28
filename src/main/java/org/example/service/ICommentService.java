@@ -12,4 +12,10 @@ public interface ICommentService {
 
     Comment createComment(Comment comment);
     void harddelete(int id);
+
+    List<Comment> findCommentWaiting();
+
+    List<Comment>findCommentComplete(int id);
+    List<Comment> findCommentProcess(int id);
+
 }

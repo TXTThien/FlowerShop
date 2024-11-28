@@ -30,7 +30,7 @@ public class RepComment {
     @JoinColumn(name = "AccountID", nullable = false)
     private Account account;
 
-    @Column(name = "Repcommentdate", nullable = false)
+    @Column(name = "Repcommentdate")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime repcommentdate;
 

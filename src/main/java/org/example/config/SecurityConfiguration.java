@@ -88,13 +88,15 @@ public class SecurityConfiguration {
                             .requestMatchers("/").permitAll()
                             .requestMatchers(WHITE_LIST_URL).permitAll()
                             .requestMatchers("/api/v1/admin/**").hasAuthority(admin.name())
+                            .requestMatchers("/api/v1/staff/**").hasAuthority(staff.name())
 
 
                             .requestMatchers("/api/v1/upload/**").hasAnyAuthority(admin.name(),shipper.name(), user.name(),staff.name())
                             .requestMatchers("/account/**").hasAuthority(user.name())
                             .requestMatchers("/shipper/**").hasAuthority(shipper.name())
-
                             .requestMatchers("/shipperaccount/**").hasAnyAuthority(shipper.name())
+                            .requestMatchers("/staff/**").hasAuthority(staff.name())
+                            .requestMatchers("/staffaccount/**").hasAnyAuthority(staff.name())
                             .requestMatchers("/comment/**").hasAuthority(user.name())
                             .requestMatchers("/review/**").hasAuthority(user.name())
                             .requestMatchers("/addToPrebuy/**").hasAuthority(user.name())
