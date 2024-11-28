@@ -89,6 +89,7 @@ public class SecurityConfiguration {
                             .requestMatchers(WHITE_LIST_URL).permitAll()
                             .requestMatchers("/api/v1/admin/**").hasAuthority(admin.name())
                             .requestMatchers("/api/v1/staff/**").hasAuthority(staff.name())
+                            .requestMatchers("/wishlist/**").hasAuthority(user.name())
 
 
                             .requestMatchers("/api/v1/upload/**").permitAll()

@@ -37,7 +37,7 @@ public class Review {
 
     @Lob
     @Column(name = "Comment")
-    private String Comment;
+    private String comment;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "Status", nullable = false)

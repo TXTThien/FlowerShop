@@ -27,7 +27,7 @@ public class FlowerSize {
     @JoinColumn(name = "FlowerID", nullable = false)
     private Flower flower;
 
-    @Column(name = "size_name",length = 10, nullable = false)
+    @Column(name = "size_name",length = 100, nullable = false)
     private String sizeName;
 
     @Column(name = "Length", nullable = false)

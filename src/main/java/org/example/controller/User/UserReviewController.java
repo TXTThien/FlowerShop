@@ -44,6 +44,10 @@ public class UserReviewController {
         }
         else  {
             existingReview.setRating(review.getRating());
+            if (review.getImage() != null)
+            {
+                existingReview.setImage(review.getImage());
+            }
             existingReview.setComment(review.getComment());
             existingReview.setDate(LocalDateTime.now());
             Review updatedReview = reviewRepository.save(existingReview);
