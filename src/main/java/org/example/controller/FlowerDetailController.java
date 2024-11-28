@@ -122,19 +122,24 @@ public class FlowerDetailController {
         }
     }
     @PostMapping("/addToWishlist")
-    public  ResponseEntity<?> AddToWishlist(@RequestBody Flower flowerID){
+    public ResponseEntity<?> AddToWishlist(@RequestBody Flower flowerID) {
         int idAccount = getIDAccountService.common();
         Account account = accountService.getAccountById(idAccount);
         try {
-            Wishlist wishlist = new Wishlist();
-            wishlist.setFlower(flowerID);
-            wishlist.setAccountID(account);
-            wishlist.setStatus(Status.ENABLE);
-            wishlistRepository.save(wishlist);
-            return ResponseEntity.status(HttpStatus.CREATED).body(wishlist);
-
+            Wishlist findWishlist = wishlistRepository.findWishlistByFlowerFlowerIDAndStatus(flowerID.getFlowerID(), Status.ENABLE);
+            if (findWishlist == null) {
+                Wishlist wishlist = new Wishlist();
+                wishlist.setFlower(flowerID);
+                wishlist.setAccountID(account);
+                wishlist.setStatus(Status.ENABLE);
+                wishlistRepository.save(wishlist);
+                return ResponseEntity.status(HttpStatus.CREATED).body(wishlist);
+            } else {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("This flower is already in your wishlist.");
+            }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while creating the cart.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while adding the flower to the wishlist: " + e.getMessage());
         }
     }
+
 }

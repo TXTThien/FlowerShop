@@ -9,6 +9,7 @@ import org.example.entity.enums.Status;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Builder
 @AllArgsConstructor
@@ -33,14 +34,19 @@ public class Discount {
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Type type;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PurposeID")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    private Purpose purpose;
+
     @Column(name = "Discountpercent", precision = 5, scale = 2)
     private BigDecimal discountPercent;
 
     @Column(name = "start_date", nullable = false)
-    private LocalDate startDate;
+    private LocalDateTime startDate;
 
     @Column(name = "end_date", nullable = false)
-    private LocalDate endDate;
+    private LocalDateTime endDate;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "Status", nullable = false)

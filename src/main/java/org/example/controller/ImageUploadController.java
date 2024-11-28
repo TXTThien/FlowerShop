@@ -1,4 +1,4 @@
-package org.example.controller.Admin;
+package org.example.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.service.IImageUploadService;

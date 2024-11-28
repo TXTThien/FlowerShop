@@ -91,7 +91,7 @@ public class SecurityConfiguration {
                             .requestMatchers("/api/v1/staff/**").hasAuthority(staff.name())
 
 
-                            .requestMatchers("/api/v1/upload/**").hasAnyAuthority(admin.name(),shipper.name(), user.name(),staff.name())
+                            .requestMatchers("/api/v1/upload/**").permitAll()
                             .requestMatchers("/account/**").hasAuthority(user.name())
                             .requestMatchers("/shipper/**").hasAuthority(shipper.name())
                             .requestMatchers("/shipperaccount/**").hasAnyAuthority(shipper.name())

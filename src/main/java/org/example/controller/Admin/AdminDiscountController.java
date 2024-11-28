@@ -48,6 +48,7 @@ public class AdminDiscountController {
         commentType.setCategoryID(categoryDetails.getCategoryID());
         commentType.setStatus(categoryDetails.getStatus());
         commentType.setType(categoryDetails.getType());
+        commentType.setPurpose(categoryDetails.getPurpose());
         commentType.setDiscountPercent(categoryDetails.getDiscountPercent());
         commentType.setEndDate(categoryDetails.getEndDate());
         commentType.setStartDate(categoryDetails.getStartDate());
