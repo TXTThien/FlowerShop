@@ -27,6 +27,7 @@ public class UserReviewController {
     @PostMapping("")
     public ResponseEntity<Review> makeReview(@RequestBody Review review) {
         int idAccount = getIDAccountService.common();
+        System.out.println("Review: "+review);
         Account account = accountRepository.findAccountByAccountID(idAccount);
         int idProduct = review.getFlower().getFlowerID();
         review.setStatus(Status.ENABLE);

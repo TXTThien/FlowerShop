@@ -21,5 +21,5 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, Intege
             @Param("accountid") int accountid,
             @Param("status") Status status);
 
-
+    List<OrderDetail> findOrderDetailsByOrderID_OrderIDAndStatus(int id, Status status);
 }

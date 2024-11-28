@@ -2,6 +2,7 @@ package org.example.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.entity.enums.Status;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Getter
 @Setter
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity(name = "RepComment")
 @Table(name = "repcomment", schema = "flowershop")
 public class RepComment {
@@ -21,10 +23,10 @@ public class RepComment {
     @Column(name = "RepcommentID", nullable = false)
     private Integer repcommentID;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "CommentID", nullable = false)
-    @JsonBackReference
     private Comment comment;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "AccountID", nullable = false)

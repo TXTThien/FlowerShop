@@ -34,4 +34,5 @@ public class OrderHistory {
     private String shipperName;
     private String shipperEmail;
     private String shipperPhone;
+    private String shipperNote;
 }

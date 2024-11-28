@@ -16,4 +16,5 @@ public interface IOrderDetailService {
 
     List<OrderDetail>findBillInfoByAccountID (int id, Status status);
 
+    List<OrderDetail> findOrderDetailByOrderID(int id);
 }

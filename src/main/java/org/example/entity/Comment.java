@@ -1,5 +1,6 @@
 package org.example.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -16,6 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Setter
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity(name = "Comment")
 @Table(name = "comment", schema = "flowershop")
 public class Comment {
@@ -53,7 +55,7 @@ public class Comment {
     @Column(name = "Image", length = 1000)
     private String image;
 
-    @OneToMany(mappedBy = "comment", fetch = FetchType.LAZY)
-    @JsonManagedReference
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonBackReference
     private List<RepComment> repComments;
 }

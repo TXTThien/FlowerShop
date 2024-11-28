@@ -65,7 +65,7 @@ public class UserAccountController {
             buyHistoryDTO.setDate(billInfo.getOrderID().getDate());
             buyHistoryDTO.setNumber(billInfo.getQuantity());
             buyHistoryDTO.setProductID(billInfo.getFlowerSize().getFlower().getFlowerID());
-            buyHistoryDTO.setProductTitle(billInfo.getFlowerSize().getFlower().getName()+ " " + billInfo.getFlowerSize().getSizeName());
+            buyHistoryDTO.setProductTitle(billInfo.getFlowerSize().getFlower().getName() + " " + billInfo.getFlowerSize().getSizeName());
             buyHistoryDTO.setCost(billInfo.getFlowerSize().getPrice());
             buyHistoryDTOS.add(buyHistoryDTO);
         }
@@ -76,6 +76,7 @@ public class UserAccountController {
         response.put("review", review);
         return ResponseEntity.ok(response);
     }
+
     @GetMapping("/orderHistory")
     public ResponseEntity<Map<String, Object>> getOrderBought() {
         int idAccount = getIDAccountService.common();
@@ -91,18 +92,69 @@ public class UserAccountController {
             orderHistory.setPhone(order.getPhoneNumber());
             orderHistory.setName(order.getName());
             orderHistory.setCondition(order.getCondition());
-            orderHistory.setNote(order.getNote());
-            orderHistory.setShipStart(order.getShipping().getStartDate());
-            orderHistory.setShipEnd(order.getShipping().getCompleteDate());
-            orderHistory.setShipperName(order.getShipping().getAccountID().getName());
-            orderHistory.setShipperPhone(order.getShipping().getAccountID().getPhoneNumber());
-            orderHistory.setShipperEmail(order.getShipping().getAccountID().getEmail());
+            if (order.getNote() != null) {
+                orderHistory.setNote(order.getNote());
+            }
+            if (order.getShipping() != null) {
+                if (order.getShipping().getStartDate() != null) {
+                    orderHistory.setShipStart(order.getShipping().getStartDate());
+                }
+                if (order.getShipping().getCompleteDate() != null) {
+                    orderHistory.setShipEnd(order.getShipping().getCompleteDate());
+                }
+                if (order.getShipping().getNote() != null) {
+                    orderHistory.setShipperNote(order.getShipping().getNote());
+                }
+                orderHistory.setShipperName(order.getShipping().getAccountID().getName());
+                orderHistory.setShipperPhone(order.getShipping().getAccountID().getPhoneNumber());
+                orderHistory.setShipperEmail(order.getShipping().getAccountID().getEmail());
 
+            }
             orderHistories.add(orderHistory);
         }
 
         Map<String, Object> response = new HashMap<>();
         response.put("orderHistory", orderHistories);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/orderHistory/{id}")
+    public ResponseEntity<Map<String, Object>> getDetailOrderBought(@PathVariable int id) {
+        int idAccount = getIDAccountService.common();
+        Order order = orderService.findOrderByOrderID(id);
+        List<OrderDetail> orderDetails= orderDetailService.findOrderDetailByOrderID(id);
+        OrderHistory orderHistory = new OrderHistory();
+        orderHistory.setOrderID(order.getOrderID());
+        orderHistory.setDate(order.getDate());
+        orderHistory.setIsPaid(order.getPaid());
+        orderHistory.setTotal(order.getTotalAmount());
+        orderHistory.setAddress(order.getDeliveryAddress());
+        orderHistory.setPhone(order.getPhoneNumber());
+        orderHistory.setName(order.getName());
+        orderHistory.setCondition(order.getCondition());
+        if (order.getNote() != null) {
+            orderHistory.setNote(order.getNote());
+        }
+        if (order.getShipping() != null) {
+            if (order.getShipping().getStartDate() != null) {
+                orderHistory.setShipStart(order.getShipping().getStartDate());
+            }
+            if (order.getShipping().getCompleteDate() != null) {
+                orderHistory.setShipEnd(order.getShipping().getCompleteDate());
+            }
+            if (order.getShipping().getNote() != null) {
+                orderHistory.setShipperNote(order.getShipping().getNote());
+            }
+            orderHistory.setShipperName(order.getShipping().getAccountID().getName());
+            orderHistory.setShipperPhone(order.getShipping().getAccountID().getPhoneNumber());
+            orderHistory.setShipperEmail(order.getShipping().getAccountID().getEmail());
+        }
+
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("orderHistory", orderHistory);
+        response.put("orderDetail", orderDetails);
+
         return ResponseEntity.ok(response);
     }
 
@@ -160,20 +212,18 @@ public class UserAccountController {
     }
 
     @DeleteMapping("/cancel")
-    public ResponseEntity<Void> cancelOrder(@RequestParam Integer OrderID){
+    public ResponseEntity<Void> cancelOrder(@RequestParam Integer OrderID) {
         Order order = orderService.findOrderByOrderID(OrderID);
+
         if (order == null)
             return ResponseEntity.notFound().build();
-        if (order.getPaid() == IsPaid.No)
-        {
-            if (order.getCondition() == Condition.Prepare ||  order.getCondition() == Condition.Processing)
-            {
+        if (order.getPaid() == IsPaid.No) {
+
+            if (order.getCondition() == Condition.Prepare || order.getCondition() == Condition.Processing) {
                 order.setCondition(Condition.Cancel_is_Processing);
                 orderService.update(order);
                 return ResponseEntity.noContent().build();
-            }
-            else if (order.getCondition() == Condition.Pending)
-            {
+            } else if (order.getCondition() == Condition.Pending) {
                 order.setCondition(Condition.Cancelled);
                 orderService.update(order);
                 return ResponseEntity.noContent().build();

@@ -43,4 +43,9 @@ public class OrderDetailServiceImpl implements IOrderDetailService {
     public List<OrderDetail> findBillInfoByAccountID(int id, Status status) {
         return orderDetailRepository.findDistinctOrderDetailsByAccountIDAndStatus(id, status);
     }
+
+    @Override
+    public List<OrderDetail> findOrderDetailByOrderID(int id) {
+        return orderDetailRepository.findOrderDetailsByOrderID_OrderIDAndStatus(id, Status.ENABLE);
+    }
 }
