@@ -13,6 +13,7 @@ import java.util.List;
 public interface OrderRepository extends JpaRepository<Order, Integer> {
     List<Order> findOrdersByAccountIDAccountIDAndStatusOrderByOrderIDDesc(int accountid, Status status);
     Order findOrderByOrderID(int id);
-
     List<Order>findOrdersByShippingIsNullAndStatusAndConditionInOrderByOrderIDDesc(Status status, List<Condition> conditions);
+    List<Order> findOrderByShipping_AccountID_AccountIDAndConditionInOrderByOrderIDDesc(int id, List<Condition> conditions);
+
 }

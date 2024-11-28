@@ -11,4 +11,9 @@ public interface IOrderService {
 
     List<Order> findOrderNoShipping();
     Order update(Order order);
+
+    List<Order> findOrderByShipperID(int id);
+    List<Order> findOrderByShipperIDAndCondition(int id);
+
+
 }

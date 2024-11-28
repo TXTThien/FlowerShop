@@ -54,4 +54,30 @@ public class OrderServiceImpl implements IOrderService {
                     return orderRepository.save(existingBanner);
                 }).orElse(null);
     }
+
+    @Override
+    public List<Order> findOrderByShipperID(int id) {
+        List<Condition> conditions = new ArrayList<>();
+
+        conditions.add(Condition.Cancelled);
+        conditions.add(Condition.Cancel_is_Processing);
+        conditions.add(Condition.Delivered_Successfully);
+        conditions.add(Condition.Return_to_shop);
+
+        return orderRepository.findOrderByShipping_AccountID_AccountIDAndConditionInOrderByOrderIDDesc(id,conditions);
+    }
+
+    @Override
+    public List<Order> findOrderByShipperIDAndCondition(int id) {
+        List<Condition> conditions = new ArrayList<>();
+        conditions.add(Condition.Shipper_Delivering);
+        conditions.add(Condition.First_Attempt_Failed);
+        conditions.add(Condition.Second_Attempt_Failed);
+        conditions.add(Condition.Third_Attempt_Failed);
+        conditions.add(Condition.Pending);
+        conditions.add(Condition.Processing);
+        conditions.add(Condition.Prepare);
+        conditions.add(Condition.In_Transit);
+        return orderRepository.findOrderByShipping_AccountID_AccountIDAndConditionInOrderByOrderIDDesc(id,conditions);
+    }
 }

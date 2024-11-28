@@ -22,11 +22,11 @@ public class Shipping {
     @Column(name = "ShippingID", nullable = false)
     private Integer shippingID;
 
-    @Column(name = "start_date", nullable = false)
+    @Column(name = "start_date")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime startDate;
 
-    @Column(name = "complete_date", nullable = false)
+    @Column(name = "complete_date")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime completeDate;
 
