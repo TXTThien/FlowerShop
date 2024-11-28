@@ -11,8 +11,8 @@ public enum Condition {
     Third_Attempt_Failed,
     Cancelled,
     Delivered_Successfully,
-    Return_to_shop;
-
+    Return_to_shop,
+    Cancel_is_Processing;
     @Override
     public String toString() {
         return name().replace("_", " ");

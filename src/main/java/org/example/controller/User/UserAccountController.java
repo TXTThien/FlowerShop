@@ -166,7 +166,13 @@ public class UserAccountController {
             return ResponseEntity.notFound().build();
         if (order.getPaid() == IsPaid.No)
         {
-            if (order.getCondition() == Condition.Prepare || order.getCondition() == Condition.Pending || order.getCondition() == Condition.Processing)
+            if (order.getCondition() == Condition.Prepare ||  order.getCondition() == Condition.Processing)
+            {
+                order.setCondition(Condition.Cancel_is_Processing);
+                orderService.update(order);
+                return ResponseEntity.noContent().build();
+            }
+            else if (order.getCondition() == Condition.Pending)
             {
                 order.setCondition(Condition.Cancelled);
                 orderService.update(order);
