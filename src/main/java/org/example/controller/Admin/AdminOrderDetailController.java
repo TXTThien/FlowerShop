@@ -42,7 +42,6 @@ public class AdminOrderDetailController {
     public ResponseEntity<OrderDetail> updateCategory(@PathVariable Integer id, @RequestBody OrderDetail categoryDetails) {
         OrderDetail commentType = orderDetailRepository.findById(id).orElse(null);
         assert commentType != null;
-        commentType.setOrderID(categoryDetails.getOrderID());
         commentType.setStatus(categoryDetails.getStatus());
         commentType.setFlowerSize(categoryDetails.getFlowerSize());
         commentType.setPrice(categoryDetails.getPrice());

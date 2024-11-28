@@ -42,7 +42,6 @@ public class AdminOrderController {
     public ResponseEntity<Order> updateCategory(@PathVariable Integer id, @RequestBody Order categoryDetails) {
         Order commentType = orderRepository.findById(id).orElse(null);
         assert commentType != null;
-        commentType.setAccountID(categoryDetails.getAccountID());
         commentType.setStatus(categoryDetails.getStatus());
         commentType.setDate(categoryDetails.getDate());
         commentType.setPaid(categoryDetails.getPaid());

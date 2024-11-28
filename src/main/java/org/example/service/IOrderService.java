@@ -9,5 +9,6 @@ public interface IOrderService {
     List<Order> findOrderByAccountID(int idAccount, Status status);
     Order findOrderByOrderID (int orderid);
 
+    List<Order> findOrderNoShipping();
     Order update(Order order);
 }

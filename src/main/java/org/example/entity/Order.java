@@ -1,5 +1,7 @@
 package org.example.entity;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -19,7 +21,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Getter
 @Setter
-@JsonIgnoreProperties({"billInfoID","AccountID"})
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity(name = "Order")
 @Table(name = "`order`", schema = "flowershop")
 public class Order {
