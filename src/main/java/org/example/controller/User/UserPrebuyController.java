@@ -209,8 +209,11 @@ public class UserPrebuyController {
 
             for (int i = 0; i < cartIDs.length; i++) {
                 int cartID = cartIDs[i];
+                Cart fcart = cartService.findCartByCartID(cartID);
+                int quantity = fcart.getQuantity();
                 BigDecimal price = prices[i];
-                totalAmount = totalAmount.add(price);  // Tính tổng số tiền trong vòng lặp
+                BigDecimal total = price.multiply(BigDecimal.valueOf(quantity));
+                totalAmount = totalAmount.add(total);  // Tính tổng số tiền trong vòng lặp
 
                 Cart cart = cartService.findCartByCartID(cartID);
                 if (cart == null) {
