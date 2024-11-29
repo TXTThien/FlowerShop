@@ -9,18 +9,26 @@ import org.example.repository.FlowerRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/admin/flowerimage")
 @RequiredArgsConstructor
 public class AdminFlowerImageController {
     private final FlowerImagesRepository flowerImagesRepository;
+    private final FlowerRepository flowerRepository;
 
     @GetMapping
-    public ResponseEntity<List<FlowerImages>> getAllCategories() {
-        List<FlowerImages> categories = flowerImagesRepository.findAll();
-        return ResponseEntity.ok(categories);
+    public ResponseEntity<?> getAllCategories() {
+        List<FlowerImages> flowerImages = flowerImagesRepository.findAll();
+        List<Flower> flowers = flowerRepository.findAll();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("flowers", flowers);
+        response.put("flowerImages", flowerImages);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")

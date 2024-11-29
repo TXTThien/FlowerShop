@@ -1,28 +1,41 @@
 package org.example.controller.Admin;
 
 import lombok.RequiredArgsConstructor;
-import org.example.entity.CommentType;
-import org.example.entity.Discount;
+import org.example.entity.*;
 import org.example.entity.enums.Status;
-import org.example.repository.CommentTypeRepository;
-import org.example.repository.DiscountRepository;
+import org.example.repository.*;
 import org.example.service.ICommentTypeService;
 import org.example.service.IDiscountService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/admin/discount")
 @RequiredArgsConstructor
 public class AdminDiscountController {
     private final DiscountRepository discountRepository;
+    private final CategoryRepository categoryRepository;
+    private final TypeRepository typeRepository;
+    private final PurposeRepository purposeRepository;
 
     @GetMapping
-    public ResponseEntity<List<Discount>> getAllCategories() {
-        List<Discount> categories = discountRepository.findAll();
-        return ResponseEntity.ok(categories);
+    public ResponseEntity<?> getAllCategories() {
+        List<Discount> discounts = discountRepository.findAll();
+        List<Category> categories = categoryRepository.findAll();
+        List<Type> types = typeRepository.findAll();
+        List<Purpose> purposes = purposeRepository.findAll();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("discounts", discounts);
+        response.put("categories", categories);
+        response.put("types", types);
+        response.put("purposes", purposes);
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")

@@ -1,25 +1,36 @@
 package org.example.controller.Admin;
 
 import lombok.RequiredArgsConstructor;
+import org.example.entity.Account;
 import org.example.entity.Review;
 import org.example.entity.Shipping;
 import org.example.entity.enums.Status;
+import org.example.repository.AccountRepository;
 import org.example.repository.ReviewRepository;
 import org.example.repository.ShippingRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/admin/shipping")
 @RequiredArgsConstructor
 public class AdminShippingController {
     private final ShippingRepository shippingRepository;
+    private final AccountRepository accountRepository;
+
     @GetMapping
-    public ResponseEntity<List<Shipping>> getAllCategories() {
-        List<Shipping> categories = shippingRepository.findAll();
-        return ResponseEntity.ok(categories);
+    public ResponseEntity<?> getAllCategories() {
+        List<Shipping> shippings = shippingRepository.findAll();
+        List<Account> accounts = accountRepository.findAll();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("accounts", accounts);
+        response.put("shippings", shippings);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")

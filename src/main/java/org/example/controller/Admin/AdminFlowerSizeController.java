@@ -1,26 +1,36 @@
 package org.example.controller.Admin;
 
 import lombok.RequiredArgsConstructor;
+import org.example.entity.Flower;
 import org.example.entity.FlowerImages;
 import org.example.entity.FlowerSize;
 import org.example.entity.enums.Status;
 import org.example.repository.FlowerImagesRepository;
+import org.example.repository.FlowerRepository;
 import org.example.repository.FlowerSizeRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/admin/flowersize")
 @RequiredArgsConstructor
 public class AdminFlowerSizeController {
     private final FlowerSizeRepository flowerSizeRepository;
+    private final FlowerRepository flowerRepository;
 
     @GetMapping
-    public ResponseEntity<List<FlowerSize>> getAllCategories() {
-        List<FlowerSize> categories = flowerSizeRepository.findAll();
-        return ResponseEntity.ok(categories);
+    public ResponseEntity<?> getAllCategories() {
+        List<FlowerSize> flowerSizes = flowerSizeRepository.findAll();
+        List<Flower> flowers = flowerRepository.findAll();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("flowers", flowers);
+        response.put("flowerSizes", flowerSizes);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")

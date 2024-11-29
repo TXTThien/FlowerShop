@@ -3,6 +3,8 @@ package org.example.controller.Admin;
 import lombok.RequiredArgsConstructor;
 import org.example.entity.Banner;
 
+import org.example.entity.Category;
+import org.example.entity.Flower;
 import org.example.entity.Purpose;
 import org.example.repository.CategoryRepository;
 import org.example.repository.FlowerRepository;
@@ -14,7 +16,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.example.entity.enums.Status;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/admin/banner")
@@ -28,8 +32,20 @@ public class AdminBannerController {
     private final CategoryRepository categoryRepository;
 
     @GetMapping
-    public List<Banner> getAllBanners() {
-        return bannerService.findAll();
+    public ResponseEntity<?> getAllBanners() {
+        List<Flower> flowers = flowerRepository.findAll();
+        List<Banner> banners = bannerService.findAll();
+        List<Category> categories = categoryRepository.findAll();
+        List<Purpose> purposes = purposeRepository.findAll();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("flowers", flowers);
+        response.put("categories", categories);
+        response.put("purposes", purposes);
+        response.put("banners", banners);
+
+        return ResponseEntity.ok(response);
+
     }
     @PostMapping
     public ResponseEntity<?> createBanner(@RequestBody Banner banner) {
