@@ -36,7 +36,7 @@ public class OrderDetail {
     private Integer quantity;
 
 
-    @Column(name = "Price", nullable = false, precision = 10, scale = 2)
+    @Column(name = "Price", nullable = false, precision = 50, scale = 2)
     private BigDecimal price;
 
     @Enumerated(EnumType.STRING)

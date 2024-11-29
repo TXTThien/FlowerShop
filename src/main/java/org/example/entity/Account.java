@@ -52,7 +52,7 @@ public class Account implements UserDetails {
     @Column(name = "Email", length = 100, nullable = false)
     private String email;
 
-    @Column(name = "Consume", precision = 10, scale = 2)
+    @Column(name = "Consume", precision = 50, scale = 2)
     private BigDecimal consume;
 
     @OneToOne(fetch = FetchType.LAZY)

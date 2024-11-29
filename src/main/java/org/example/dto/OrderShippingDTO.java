@@ -35,6 +35,8 @@ public class OrderShippingDTO {
     private Condition condition;
     private String Note;
     private String[] FlowerName;
+    private String[] SizeName;
+    private BigDecimal[] Price;
     private Integer[] Quantity;
     private Float[] Length;
     private Float[] Height;

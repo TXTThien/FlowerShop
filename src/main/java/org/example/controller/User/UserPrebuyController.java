@@ -118,6 +118,7 @@ public class UserPrebuyController {
         try {
             int id = getIDAccountFromAuthService.common();
             Account account = accountService.getAccountById(id);
+            System.out.println("Price: "+ Arrays.toString(prices));
 
             Order newBill = new Order();
             newBill.setAccountID(account);
@@ -190,6 +191,7 @@ public class UserPrebuyController {
 
     public ResponseEntity<?> buyVNPay(int[] cartIDs, int accountId,BigDecimal[] prices, BuyInfo buyInfo) {
         try {
+            System.out.println("Price: "+ Arrays.toString(prices));
             Account account = accountService.getAccountById(accountId);
             Order newBill = new Order();
             newBill.setAccountID(account);

@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -165,7 +166,16 @@ public class ShipperAccountController {
                 .map(orderDetail -> orderDetail.getFlowerSize().getWeight()) // Trích xuất tên hoa từ FlowerSize
                 .toList();
         orderShippingDTO.setWeight(Weight.toArray(new Float[0]));
-
+        List<String> Sizename = order.getOrderDetails()
+                .stream()
+                .map(orderDetail -> orderDetail.getFlowerSize().getSizeName()) // Trích xuất tên hoa từ FlowerSize
+                .toList();
+        orderShippingDTO.setSizeName(Sizename.toArray(new String[0]));
+        List<BigDecimal> Price = order.getOrderDetails()
+                .stream()
+                .map(orderDetail -> orderDetail.getFlowerSize().getPrice()) // Trích xuất tên hoa từ FlowerSize
+                .toList();
+        orderShippingDTO.setPrice(Price.toArray(new BigDecimal[0]));
         Map<String, Object> response = new HashMap<>();
         response.put("orderShippingDTO", orderShippingDTO);
 
