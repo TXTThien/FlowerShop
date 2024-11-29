@@ -334,15 +334,11 @@ public class ShipperAccountController {
                 List<Type> types = typeService.findAllOrderByMinConsumeAsc();
                 Type appropriateType = null;
                 for (Type type : types) {
-                    if (consume.compareTo(type.getMinConsume()) >= 0) {
-                        appropriateType = type;
+                    if (total.compareTo(type.getMinConsume()) >= 0) {
+                        account.setType(type); // Cập nhật Type
                     } else {
-                        break;
+                        break; // Dừng kiểm tra nếu consume không đạt mức tiếp theo
                     }
-                }
-
-                if (appropriateType != null) {
-                    account.setType(appropriateType);
                 }
             }
             shipping.setCompleteDate(LocalDateTime.now());
