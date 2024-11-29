@@ -3,6 +3,7 @@ package org.example.controller.Staff;
 import lombok.RequiredArgsConstructor;
 import org.example.auth.ChangePassword;
 import org.example.dto.CommentRepCommentDTO;
+import org.example.dto.ListCommentDTO;
 import org.example.dto.RepCommentDTO;
 import org.example.entity.Account;
 import org.example.entity.Comment;
@@ -22,7 +23,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -99,19 +103,78 @@ public class StaffAccountController {
         return ResponseEntity.ok("Đổi mật khẩu thành công.");
     }
     @GetMapping("/commentcomplete")
-    public ResponseEntity<List<Comment>> getListCommentComplete(){
+    public ResponseEntity<?> getListCommentComplete(){
         int id = getIDAccountFromAuthService.common();
         List<Comment> orderList = commentService.findCommentComplete(id);
-        return ResponseEntity.ok(orderList);
+        List<ListCommentDTO> listCommentDTOS = new ArrayList<>();
+        for (Comment comment : orderList) {
+            ListCommentDTO commentDTO = new ListCommentDTO();
+            commentDTO.setCommentID(comment.getCommentID());
+            commentDTO.setCommentType(comment.getCommentType());
+            commentDTO.setTitle(comment.getTitle());
+            commentDTO.setText(comment.getText());
+            commentDTO.setDate(comment.getDate());
+            commentDTO.setStative(comment.getStative());
+            List<RepComment> repComments = repCommentRepository.findRepCommentByComment_CommentIDAndStatus(comment.getCommentID(), Status.ENABLE);
+            commentDTO.setNumberRep(repComments.size());
+            listCommentDTOS.add(commentDTO);
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("comment", listCommentDTOS);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/commentprocess")
-    public ResponseEntity<List<Comment>> getListCommentProcess(){
+    public ResponseEntity<?> getListCommentProcess(){
         int id = getIDAccountFromAuthService.common();
         List<Comment> orderList = commentService.findCommentProcess(id);
-        return ResponseEntity.ok(orderList);
+        List<ListCommentDTO> listCommentDTOS = new ArrayList<>();
+        for (Comment comment : orderList) {
+            ListCommentDTO commentDTO = new ListCommentDTO();
+            commentDTO.setCommentID(comment.getCommentID());
+            commentDTO.setCommentType(comment.getCommentType());
+            commentDTO.setTitle(comment.getTitle());
+            commentDTO.setText(comment.getText());
+            commentDTO.setDate(comment.getDate());
+            commentDTO.setStative(comment.getStative());
+            List<RepComment> repComments = repCommentRepository.findRepCommentByComment_CommentIDAndStatus(comment.getCommentID(), Status.ENABLE);
+            commentDTO.setNumberRep(repComments.size());
+            listCommentDTOS.add(commentDTO);
+        }
+        Map<String, Object> response = new HashMap<>();
+        response.put("comment", listCommentDTOS);
+        return ResponseEntity.ok(response);
     }
+    @GetMapping("/comment/{id}")
+    public ResponseEntity<?> getRepCommentInfo(@PathVariable("id") int id) {
+        Comment comment = commentService.findCommentByID(id);
+        CommentRepCommentDTO commentDTO = new CommentRepCommentDTO();
+        commentDTO.setCommentID(comment.getCommentID());
+        commentDTO.setCommentTitle(comment.getTitle());
+        commentDTO.setCommentText(comment.getText());
+        commentDTO.setCommentDate(comment.getDate());
+        commentDTO.setCommentStatus(comment.getStatus().toString());
+        commentDTO.setCommentStative(comment.getStative().toString());
+        commentDTO.setCommentType(comment.getCommentType().getCommenttypename());
+        commentDTO.setImage(comment.getImage());
+        List<CommentRepCommentDTO.RepCommentDTO> repCommentDTOList = comment.getRepComments().stream()
+                .map(repComment -> new CommentRepCommentDTO.RepCommentDTO(
+                        repComment.getRepcommentID(),
+                        repComment.getAccount().getAccountID(),
+                        repComment.getAccount().getName(),
+                        repComment.getAccount().getAvatar(),
+                        repComment.getRepcommentdate(),
+                        repComment.getRepcommenttext(),
+                        repComment.getStatus().toString(),
+                        repComment.getImage()))
+                .collect(Collectors.toList());
+        commentDTO.setRepComments(repCommentDTOList);
+        Map<String, Object> response = new HashMap<>();
+        response.put("commentDTO", commentDTO);
 
+        return ResponseEntity.ok(response);
+    }
     @PostMapping("/commentprocess/{commentid}")
     public ResponseEntity<?> postRepCommentProcess(@PathVariable int commentid, @RequestBody RepCommentDTO repCommentDTO){
         Comment comment = commentService.findCommentByID(commentid);
@@ -127,7 +190,9 @@ public class StaffAccountController {
             repComment.setImage(repCommentDTO.getImage());
             repComment.setRepcommenttext(repCommentDTO.getRepcommenttext());
             repCommentRepository.save(repComment);
-            return ResponseEntity.ok(comment);
+            Map<String, Object> response = new HashMap<>();
+            response.put("repComment", repComment);
+            return ResponseEntity.ok(response);
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Comment hien tai khong the tra loi");
     }
@@ -137,6 +202,8 @@ public class StaffAccountController {
 
         comment.setStative(Stative.Complete);
         commentRepository.save(comment);
-        return ResponseEntity.ok(comment);
+        Map<String, Object> response = new HashMap<>();
+        response.put("repComment", comment);
+        return ResponseEntity.ok(response);
     }
 }
