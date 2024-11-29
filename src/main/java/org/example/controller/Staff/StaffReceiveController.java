@@ -18,7 +18,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/staff")
@@ -31,9 +33,12 @@ public class StaffReceiveController {
     private final GetIDAccountFromAuthService getIDAccountFromAuthService;
     private final IAccountService accountService;
     @GetMapping
-    public ResponseEntity<List<Comment>> getCommentWaiting() {
+    public ResponseEntity<?> getCommentWaiting() {
         List<Comment> categories = commentService.findCommentWaiting();
-        return ResponseEntity.ok(categories);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("comment", categories);
+        return ResponseEntity.ok(response);
     }
     @GetMapping("/{id}")
     public ResponseEntity<Comment> getDetailCommentWaiting(@PathVariable Integer id) {

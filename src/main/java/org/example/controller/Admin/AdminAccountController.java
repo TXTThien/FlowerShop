@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.auth.RegisterRequestForAdmin;
 import org.example.entity.Account;
 
+import org.example.entity.Type;
 import org.example.repository.AccountRepository;
 import org.example.service.Impl.AccountServiceImpl;
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +54,8 @@ public class AdminAccountController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Username " + registerRequest.getUsername() + " already exists.");
         }
-
+        Type type = new Type();
+        type.setTypeID(1);
         Account account = Account.builder()
                 .name(registerRequest.getName())
                 .username(registerRequest.getUsername())
@@ -62,6 +65,9 @@ public class AdminAccountController {
                 .address(registerRequest.getAddress())
                 .status(registerRequest.getStatus())
                 .role(registerRequest.getRole())
+                .consume(BigDecimal.ZERO)
+                .type(type)
+                .avatar( "https://storage.googleapis.com/webproject-65086.appspot.com/avatar-15.png")
                 .build();
         try {
             Account newAccount = accountRepository.save(account);

@@ -32,7 +32,6 @@ public class StaffFlowerController {
         response.put("flower", categories);
         response.put("category", categoryList);
         response.put("purpose", purposes);
-
         return ResponseEntity.ok(response);
     }
 
