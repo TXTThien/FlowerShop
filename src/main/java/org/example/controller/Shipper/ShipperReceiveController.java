@@ -15,7 +15,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -27,12 +29,15 @@ public class ShipperReceiveController {
     private final GetIDAccountFromAuthService getIDAccountFromAuthService;
     private final IAccountService accountService;
     @GetMapping
-    public ResponseEntity<List<Order>> getAllOrders() {
+    public ResponseEntity<?> getAllOrders() {
         List<Order> categories = orderService.findOrderNoShipping();
-        return ResponseEntity.ok(categories);
+        Map<String, Object> response = new HashMap<>();
+        response.put("orderList", categories);
+        return ResponseEntity.ok(response);
+
     }
     @GetMapping("/{id}")
-    public ResponseEntity<OrderShippingDTO> getOrder(@PathVariable Integer id) {
+    public ResponseEntity<?> getOrder(@PathVariable Integer id) {
         Order order= orderService.findOrderByOrderID(id);
         OrderShippingDTO orderShippingDTO = new OrderShippingDTO();
 
@@ -75,7 +80,9 @@ public class ShipperReceiveController {
                 .map(orderDetail -> orderDetail.getFlowerSize().getWeight()) // Trích xuất tên hoa từ FlowerSize
                 .toList();
         orderShippingDTO.setWeight(Weight.toArray(new Float[0]));
-        return ResponseEntity.ok(orderShippingDTO);
+        Map<String, Object> response = new HashMap<>();
+        response.put("orderList", orderShippingDTO);
+        return ResponseEntity.ok(response);
     }
     @RequestMapping("/{orderID}/receive")
     public ResponseEntity<?> receiveOrders(@PathVariable int orderID) {
