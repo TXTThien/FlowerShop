@@ -3,6 +3,7 @@ package org.example.controller.User;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.CommentDTO;
 import org.example.dto.CommentRepCommentDTO;
+import org.example.dto.ListCommentDTO;
 import org.example.dto.RepCommentDTO;
 import org.example.entity.Account;
 import org.example.entity.Comment;
@@ -22,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,11 +48,27 @@ public class CommentController {
         List<CommentType> commentTypes = commentTypeService.findAllEnable();
         List<Comment> comments = commentService.findCommentByAccountIDEnable(idAccount);
 
+        List<ListCommentDTO> listCommentDTOS = new ArrayList<>();
+
+        for (Comment comment : comments) {
+            ListCommentDTO commentDTO = new ListCommentDTO();
+            commentDTO.setCommentID(comment.getCommentID());
+            commentDTO.setCommentType(comment.getCommentType());
+            commentDTO.setTitle(comment.getTitle());
+            commentDTO.setText(comment.getText());
+            commentDTO.setDate(comment.getDate());
+            commentDTO.setStative(comment.getStative());
+            List<RepComment> repComments = repCommentRepository.findRepCommentByComment_CommentIDAndStatus(comment.getCommentID(), Status.ENABLE);
+            commentDTO.setNumberRep(repComments.size());
+            listCommentDTOS.add(commentDTO);
+        }
+
         Map<String, Object> response = new HashMap<>();
         response.put("commentTypes", commentTypes);
-        response.put("comments", comments);
+        response.put("comments", listCommentDTOS);  // Dùng listCommentDTOS thay vì comments
         return ResponseEntity.ok(response);
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getRepCommentInfo(@PathVariable("id") int id) {
         Comment comment = commentService.findCommentByID(id);
@@ -61,19 +79,24 @@ public class CommentController {
         commentDTO.setCommentDate(comment.getDate());
         commentDTO.setCommentStatus(comment.getStatus().toString());
         commentDTO.setCommentStative(comment.getStative().toString());
+        commentDTO.setCommentType(comment.getCommentType().getCommenttypename());
         commentDTO.setImage(comment.getImage());
         List<CommentRepCommentDTO.RepCommentDTO> repCommentDTOList = comment.getRepComments().stream()
                 .map(repComment -> new CommentRepCommentDTO.RepCommentDTO(
                         repComment.getRepcommentID(),
-                        repComment.getAccount().getAccountID(),  // Giả sử AccountID là ID của tài khoản
-                        repComment.getAccount().getName(),      // Giả sử bạn muốn trả về tên tài khoản
+                        repComment.getAccount().getAccountID(),
+                        repComment.getAccount().getName(),
+                        repComment.getAccount().getAvatar(),
                         repComment.getRepcommentdate(),
                         repComment.getRepcommenttext(),
                         repComment.getStatus().toString(),
                         repComment.getImage()))
                 .collect(Collectors.toList());
         commentDTO.setRepComments(repCommentDTOList);
-        return ResponseEntity.ok(commentDTO);
+        Map<String, Object> response = new HashMap<>();
+        response.put("commentDTO", commentDTO);
+
+        return ResponseEntity.ok(response);
     }
     @PostMapping("")
     public ResponseEntity<?> createComment(@RequestBody CommentDTO commentDTO) {

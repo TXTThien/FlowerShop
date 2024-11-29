@@ -104,60 +104,14 @@ public class StaffAccountController {
         List<Comment> orderList = commentService.findCommentComplete(id);
         return ResponseEntity.ok(orderList);
     }
-    @GetMapping("/commentcomplete/{commentid}")
-    public ResponseEntity<CommentRepCommentDTO> getCommentComplete(@PathVariable int commentid){
-        Comment comment = commentService.findCommentByID(commentid);
-        CommentRepCommentDTO commentDTO = new CommentRepCommentDTO();
-        commentDTO.setCommentID(comment.getCommentID());
-        commentDTO.setCommentTitle(comment.getTitle());
-        commentDTO.setCommentText(comment.getText());
-        commentDTO.setCommentDate(comment.getDate());
-        commentDTO.setCommentStatus(comment.getStatus().toString());
-        commentDTO.setCommentStative(comment.getStative().toString());
-        commentDTO.setImage(comment.getImage());
-        List<CommentRepCommentDTO.RepCommentDTO> repCommentDTOList = comment.getRepComments().stream()
-                .map(repComment -> new CommentRepCommentDTO.RepCommentDTO(
-                        repComment.getRepcommentID(),
-                        repComment.getAccount().getAccountID(),  // Giả sử AccountID là ID của tài khoản
-                        repComment.getAccount().getName(),      // Giả sử bạn muốn trả về tên tài khoản
-                        repComment.getRepcommentdate(),
-                        repComment.getRepcommenttext(),
-                        repComment.getStatus().toString(),
-                        repComment.getImage()))
-                .collect(Collectors.toList());
-        commentDTO.setRepComments(repCommentDTOList);
-        return ResponseEntity.ok(commentDTO);
-    }
+
     @GetMapping("/commentprocess")
     public ResponseEntity<List<Comment>> getListCommentProcess(){
         int id = getIDAccountFromAuthService.common();
         List<Comment> orderList = commentService.findCommentProcess(id);
         return ResponseEntity.ok(orderList);
     }
-    @GetMapping("/commentprocess/{commentid}")
-    public ResponseEntity<?> getCommentProcess(@PathVariable int commentid){
-        Comment comment = commentService.findCommentByID(commentid);
-        CommentRepCommentDTO commentDTO = new CommentRepCommentDTO();
-        commentDTO.setCommentID(comment.getCommentID());
-        commentDTO.setCommentTitle(comment.getTitle());
-        commentDTO.setCommentText(comment.getText());
-        commentDTO.setCommentDate(comment.getDate());
-        commentDTO.setCommentStatus(comment.getStatus().toString());
-        commentDTO.setCommentStative(comment.getStative().toString());
-        commentDTO.setImage(comment.getImage());
-        List<CommentRepCommentDTO.RepCommentDTO> repCommentDTOList = comment.getRepComments().stream()
-                .map(repComment -> new CommentRepCommentDTO.RepCommentDTO(
-                        repComment.getRepcommentID(),
-                        repComment.getAccount().getAccountID(),  // Giả sử AccountID là ID của tài khoản
-                        repComment.getAccount().getName(),      // Giả sử bạn muốn trả về tên tài khoản
-                        repComment.getRepcommentdate(),
-                        repComment.getRepcommenttext(),
-                        repComment.getStatus().toString(),
-                        repComment.getImage()))
-                .collect(Collectors.toList());
-        commentDTO.setRepComments(repCommentDTOList);
-        return ResponseEntity.ok(commentDTO);
-    }
+
     @PostMapping("/commentprocess/{commentid}")
     public ResponseEntity<?> postRepCommentProcess(@PathVariable int commentid, @RequestBody RepCommentDTO repCommentDTO){
         Comment comment = commentService.findCommentByID(commentid);

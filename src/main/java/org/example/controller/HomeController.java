@@ -45,10 +45,10 @@ public class HomeController {
                 response.put("redirectUrl", "http://localhost:8000/dashboard");
             }
             else if (account.getRole() == Role.shipper){
-                response.put("redirectUrl", "http://localhost:8000/shipper");
+                response.put("redirectUrl", "http://localhost:8000/shipperaccount");
             }
             else if (account.getRole() == Role.staff){
-                response.put("redirectUrl", "http://localhost:8000/staff");
+                response.put("redirectUrl", "http://localhost:8000/staffaccount");
             }
         }
         else {

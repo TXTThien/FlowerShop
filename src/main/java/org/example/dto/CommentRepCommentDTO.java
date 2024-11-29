@@ -19,6 +19,7 @@ public class CommentRepCommentDTO {
     private Integer commentID;
     private String commentTitle;
     private String commentText;
+    private String commentType;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime commentDate;
@@ -39,6 +40,7 @@ public class CommentRepCommentDTO {
         private Integer repcommentID;
         private Integer accountID; // ID của tài khoản
         private String accountName; // Tên tài khoản (nếu cần)
+        private String avatarRep;
 
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private LocalDateTime repcommentDate;
