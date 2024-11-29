@@ -126,7 +126,7 @@ public class FlowerDetailController {
         int idAccount = getIDAccountService.common();
         Account account = accountService.getAccountById(idAccount);
         try {
-            Wishlist findWishlist = wishlistRepository.findWishlistByFlowerFlowerIDAndStatus(flowerID.getFlowerID(), Status.ENABLE);
+            Wishlist findWishlist = wishlistRepository.findWishlistByFlowerFlowerIDAndAccountIDAccountIDAndStatus(flowerID.getFlowerID(), idAccount, Status.ENABLE);
             if (findWishlist == null) {
                 Wishlist wishlist = new Wishlist();
                 wishlist.setFlower(flowerID);

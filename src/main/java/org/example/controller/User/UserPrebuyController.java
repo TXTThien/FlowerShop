@@ -161,23 +161,7 @@ public class UserPrebuyController {
             }
             newBill.setTotalAmount(totalAmount);
             orderRepository.save(newBill);
-            BigDecimal consume = account.getConsume().add(totalAmount);
-            account.setConsume(consume);
 
-            List<Type> types = typeService.findAllOrderByMinConsumeAsc();
-
-            Type appropriateType = null;
-            for (Type type : types) {
-                if (consume.compareTo(type.getMinConsume()) >= 0) {
-                    appropriateType = type;
-                } else {
-                    break;
-                }
-            }
-
-            if (appropriateType != null) {
-                account.setType(appropriateType);
-            }
 
             accountService.save(account);
             return ResponseEntity.status(HttpStatus.CREATED)
@@ -212,8 +196,7 @@ public class UserPrebuyController {
                 Cart fcart = cartService.findCartByCartID(cartID);
                 int quantity = fcart.getQuantity();
                 BigDecimal price = prices[i];
-                BigDecimal total = price.multiply(BigDecimal.valueOf(quantity));
-                totalAmount = totalAmount.add(total);  // Tính tổng số tiền trong vòng lặp
+                totalAmount = totalAmount.add(price);
 
                 Cart cart = cartService.findCartByCartID(cartID);
                 if (cart == null) {

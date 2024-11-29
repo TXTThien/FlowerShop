@@ -38,7 +38,9 @@ public class StaffOrderController {
         commentType.setDeliveryAddress(categoryDetails.getDeliveryAddress());
         commentType.setPhoneNumber(categoryDetails.getPhoneNumber());
         commentType.setName(categoryDetails.getName());
-        commentType.setShipping(categoryDetails.getShipping());
+        if (categoryDetails.getShipping() !=null){
+            commentType.setShipping(categoryDetails.getShipping());
+        }
         commentType.setNote(categoryDetails.getNote());
         commentType.setCondition(categoryDetails.getCondition());
 

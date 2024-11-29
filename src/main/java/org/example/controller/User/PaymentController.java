@@ -44,6 +44,7 @@ public class PaymentController {
         price = prices;
         buyInfo = buyInfos;
         System.out.println(buyInfo);
+        System.out.println("Price: "+ Arrays.toString(prices));
         return ResponseEntity.ok("Cart updated successfully.");
     }
     @GetMapping("/pay")
@@ -114,7 +115,7 @@ public class PaymentController {
     }
     @GetMapping("/payment_info")
     public void transaction(@RequestParam Map<String, String> params, HttpServletRequest request, HttpServletResponse response) throws IOException {
-
+        System.out.println("Price: "+ Arrays.toString(price));
         String responseCode = params.get("vnp_ResponseCode");
         int accountId = (int) request.getSession().getAttribute("accountID");
         if ("00".equals(responseCode)) {

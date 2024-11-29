@@ -2,6 +2,7 @@ package org.example.controller.Shipper;
 
 import lombok.RequiredArgsConstructor;
 import org.example.dto.OrderShippingDTO;
+import org.example.dto.ShippingRequest;
 import org.example.entity.Account;
 import org.example.entity.Order;
 import org.example.entity.OrderDetail;
@@ -15,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,15 +82,24 @@ public class ShipperReceiveController {
                 .map(orderDetail -> orderDetail.getFlowerSize().getWeight()) // Trích xuất tên hoa từ FlowerSize
                 .toList();
         orderShippingDTO.setWeight(Weight.toArray(new Float[0]));
+        List<String> Sizename = order.getOrderDetails()
+                .stream()
+                .map(orderDetail -> orderDetail.getFlowerSize().getSizeName()) // Trích xuất tên hoa từ FlowerSize
+                .toList();
+        orderShippingDTO.setSizeName(Sizename.toArray(new String[0]));
+        List<BigDecimal> Price = order.getOrderDetails()
+                .stream()
+                .map(orderDetail -> orderDetail.getFlowerSize().getPrice()) // Trích xuất tên hoa từ FlowerSize
+                .toList();
+        orderShippingDTO.setPrice(Price.toArray(new BigDecimal[0]));
         Map<String, Object> response = new HashMap<>();
         response.put("orderList", orderShippingDTO);
         return ResponseEntity.ok(response);
     }
-    @RequestMapping("/{orderID}/receive")
-    public ResponseEntity<?> receiveOrders(@PathVariable int orderID) {
+    @PostMapping("/{orderID}/receive")
+    public ResponseEntity<?> receiveOrders(@PathVariable int orderID, @RequestBody ShippingRequest shippingRequest) {
         try {
             int id = getIDAccountFromAuthService.common();
-
             Account account = accountService.getAccountById(id);
             if (account == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Account not found.");
@@ -101,13 +112,13 @@ public class ShipperReceiveController {
 
             Shipping shipping = new Shipping();
             shipping.setAccountID(account);
-
+            if (shippingRequest.getNote() != null) {
+                shipping.setNote(shippingRequest.getNote());
+            }
             shipping.setStatus(Status.ENABLE);
 
             shippingRepository.save(shipping);
-
             order.setShipping(shipping);
-
             orderService.update(order);
 
             return ResponseEntity.ok("Order received successfully.");
@@ -115,5 +126,6 @@ public class ShipperReceiveController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
         }
     }
+
 
 }

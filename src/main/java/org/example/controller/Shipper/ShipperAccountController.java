@@ -4,16 +4,15 @@ import lombok.RequiredArgsConstructor;
 import org.aspectj.weaver.ast.Or;
 import org.example.auth.ChangePassword;
 import org.example.dto.OrderShippingDTO;
-import org.example.entity.Account;
-import org.example.entity.Order;
-import org.example.entity.OrderDetail;
-import org.example.entity.Shipping;
+import org.example.entity.*;
 import org.example.entity.enums.Condition;
+import org.example.entity.enums.IsPaid;
 import org.example.entity.enums.Status;
 import org.example.repository.AccountRepository;
 import org.example.repository.ShippingRepository;
 import org.example.service.IAccountService;
 import org.example.service.IOrderService;
+import org.example.service.ITypeService;
 import org.example.service.securityService.GetIDAccountFromAuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +36,7 @@ public class ShipperAccountController {
     private final IAccountService accountService;
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
-
+    private final ITypeService typeService;
     @GetMapping("")
     public ResponseEntity<Account> getAccountInfo() {
         int idAccount = getIDAccountFromAuthService.common();
@@ -115,7 +114,7 @@ public class ShipperAccountController {
         int id = getIDAccountFromAuthService.common();
         Order order = orderService.findOrderByOrderID(orderid);
         OrderShippingDTO orderShippingDTO = new OrderShippingDTO();
-
+        orderShippingDTO.setShipperName(order.getShipping().getAccountID().getName());
         orderShippingDTO.setOrderID(order.getOrderID());
         orderShippingDTO.setShippingID(order.getShipping().getShippingID());
         orderShippingDTO.setShipperID(order.getShipping().getAccountID().getAccountID());
@@ -321,15 +320,37 @@ public class ShipperAccountController {
     @RequestMapping("/haveship/{orderid}/success")
     public ResponseEntity<String> getSuccess(@PathVariable int orderid, @RequestBody(required = false) String shippernote){
         Order order = orderService.findOrderByOrderID(orderid);
+        Account account = order.getAccountID();
         Shipping shipping = order.getShipping();
+        BigDecimal consume = account.getConsume();
         if (order.getCondition() == Condition.Shipper_Delivering||order.getCondition() == Condition.First_Attempt_Failed||order.getCondition() == Condition.Second_Attempt_Failed||order.getCondition() == Condition.Third_Attempt_Failed)
         {
             order.setCondition(Condition.Delivered_Successfully);
+            if(order.getPaid()==IsPaid.No)
+            {
+                order.setPaid(IsPaid.Yes);
+                BigDecimal total = consume.add(order.getTotalAmount());
+                account.setConsume(total);
+                List<Type> types = typeService.findAllOrderByMinConsumeAsc();
+                Type appropriateType = null;
+                for (Type type : types) {
+                    if (consume.compareTo(type.getMinConsume()) >= 0) {
+                        appropriateType = type;
+                    } else {
+                        break;
+                    }
+                }
+
+                if (appropriateType != null) {
+                    account.setType(appropriateType);
+                }
+            }
             shipping.setCompleteDate(LocalDateTime.now());
             if (shippernote!=null)
             {
                 shipping.setNote(shippernote);
             }
+            accountService.save(account);
             shippingRepository.save(shipping);
             orderService.update(order);
             return ResponseEntity.ok("Giao thành công!");

@@ -92,7 +92,7 @@ public class AuthenticationController {
             response.put("role", account.getRole());
             response.put("consume", account.getConsume());
             response.put("avatar", account.getAvatar());
-            response.put("type", account.getType());
+            response.put("typeName", account.getType().getTypeName());
 
 
             return ResponseEntity.ok(response);
