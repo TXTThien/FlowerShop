@@ -21,7 +21,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -99,14 +101,16 @@ public class ShipperAccountController {
 
 
     @GetMapping("/ordership")
-    public ResponseEntity<List<Order>> getOrderToShip(){
+    public ResponseEntity<?> getOrderToShip(){
         int id = getIDAccountFromAuthService.common();
         List<Order> orderList = orderService.findOrderByShipperID(id);
-        return ResponseEntity.ok(orderList);
+        Map<String, Object> response = new HashMap<>();
+        response.put("orderList", orderList);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/ordership/{orderid}")
-    public ResponseEntity<OrderShippingDTO> getOrderID(@PathVariable int orderid){
+    public ResponseEntity<?> getOrderID(@PathVariable int orderid){
         int id = getIDAccountFromAuthService.common();
         Order order = orderService.findOrderByOrderID(orderid);
         OrderShippingDTO orderShippingDTO = new OrderShippingDTO();
@@ -161,7 +165,11 @@ public class ShipperAccountController {
                 .map(orderDetail -> orderDetail.getFlowerSize().getWeight()) // Trích xuất tên hoa từ FlowerSize
                 .toList();
         orderShippingDTO.setWeight(Weight.toArray(new Float[0]));
-        return ResponseEntity.ok(orderShippingDTO);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("orderShippingDTO", orderShippingDTO);
+
+        return ResponseEntity.ok(response);
     }
     @RequestMapping("/haveship/{orderid}/start")
     public ResponseEntity<String> getStart(@PathVariable int orderid, @RequestParam(required = false) String shippernote){
@@ -225,6 +233,7 @@ public class ShipperAccountController {
             {
                 shipping.setNote(shippernote);
             }
+            shipping.setCompleteDate(LocalDateTime.now());
             shippingRepository.save(shipping);
             orderService.update(order);
             return ResponseEntity.ok("Trả về shop!");
@@ -232,13 +241,15 @@ public class ShipperAccountController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Đơn hàng không trong trạng thái vận chuyển.");
     }
     @GetMapping("/haveship")
-    public ResponseEntity<List<Order>> getOrderHaveShip(){
+    public ResponseEntity<?> getOrderHaveShip(){
         int id = getIDAccountFromAuthService.common();
         List<Order> orderList = orderService.findOrderByShipperIDAndCondition(id);
-        return ResponseEntity.ok(orderList);
+        Map<String, Object> response = new HashMap<>();
+        response.put("orderList", orderList);
+        return ResponseEntity.ok(response);
     }
     @GetMapping("/haveship/{orderid}")
-    public ResponseEntity<OrderShippingDTO> getHaveShipOrderID(@PathVariable int orderid){
+    public ResponseEntity<?> getHaveShipOrderID(@PathVariable int orderid){
         int id = getIDAccountFromAuthService.common();
         Order order = orderService.findOrderByOrderID(orderid);
         OrderShippingDTO orderShippingDTO = new OrderShippingDTO();
@@ -293,7 +304,9 @@ public class ShipperAccountController {
                 .map(orderDetail -> orderDetail.getFlowerSize().getWeight()) // Trích xuất tên hoa từ FlowerSize
                 .toList();
         orderShippingDTO.setWeight(Weight.toArray(new Float[0]));
-        return ResponseEntity.ok(orderShippingDTO);
+        Map<String, Object> response = new HashMap<>();
+        response.put("orderShippingDTO", orderShippingDTO);
+        return ResponseEntity.ok(response);
     }
     @RequestMapping("/haveship/{orderid}/success")
     public ResponseEntity<String> getSuccess(@PathVariable int orderid, @RequestBody(required = false) String shippernote){

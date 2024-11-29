@@ -136,7 +136,7 @@ public class UserPrebuyController {
             for (int i = 0; i < cartIDs.length; i++) {
                 int cartID = cartIDs[i];
                 BigDecimal price = prices[i];
-                totalAmount = totalAmount.add(price);  // Tính tổng số tiền trong vòng lặp
+                totalAmount = totalAmount.add(price);
 
                 Cart cart = cartService.findCartByCartID(cartID);
                 if (cart == null) {
@@ -146,7 +146,6 @@ public class UserPrebuyController {
 
                 int number = cart.getQuantity();
                 FlowerSize FlowerSize = cart.getFlowerSize();
-                prebuyService.createBillInfo(newBill, cartID,price);
 
                 OrderDetail orderDetail = new OrderDetail();
                 orderDetail.setOrderID(newBill);  // Gán Order đã lưu vào OrderDetail
@@ -219,7 +218,6 @@ public class UserPrebuyController {
 
                 int number = cart.getQuantity();
                 FlowerSize FlowerSize = cart.getFlowerSize();
-                prebuyService.createBillInfo(newBill, cartID,price);
 
                 OrderDetail orderDetail = new OrderDetail();
                 orderDetail.setOrderID(newBill);  // Gán Order đã lưu vào OrderDetail
