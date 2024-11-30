@@ -45,10 +45,10 @@ public class FlowerSize {
     @Column(name = "Stock", nullable = false)
     private Integer stock;
 
-    @Column(name = "Price", nullable = false, precision = 10, scale = 2)
+    @Column(name = "Price", nullable = false, precision = 50, scale = 2)
     private BigDecimal price;
 
-    @Column(name = "Cost", nullable = false, precision = 10, scale = 2)
+    @Column(name = "Cost", nullable = false, precision = 50, scale = 2)
     private BigDecimal cost;
 
     @Enumerated(EnumType.STRING)

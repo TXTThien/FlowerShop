@@ -46,7 +46,7 @@ public class Order {
     @Column(name = "Ispaid",nullable = false)
     protected IsPaid paid;
 
-    @Column(name = "total_amount", nullable = false, precision = 10, scale = 2)
+    @Column(name = "total_amount", nullable = false, precision = 50, scale = 2)
     private BigDecimal totalAmount;
 
     @Column(name = "delivery_address", nullable = false)

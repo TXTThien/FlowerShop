@@ -78,7 +78,7 @@ public class AuthenticationController {
         return ResponseEntity.ok(service.authenticate(request));
     }
     @GetMapping("/account")
-    public ResponseEntity<?> getAccountInfo(@RequestParam Integer accountID) {
+        public ResponseEntity<?> getAccountInfo(@RequestParam Integer accountID) {
         Map<String, Object> response = new HashMap<>();
         Account account = accountService.getAccountById(accountID);
 
