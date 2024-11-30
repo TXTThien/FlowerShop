@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +28,8 @@ public interface FlowerSizeRepository  extends JpaRepository<FlowerSize, Integer
             "ORDER BY fs.price ASC")
     List<FlowerSize> findLowestPriceByFlowerID(@Param("flowerID") Integer flowerID, Pageable pageable);
 
+    @Query("SELECT  SUM(f.cost) FROM FlowerSize f")
+    BigDecimal calculateCost();
     FlowerSize findFlowerSizeByFlowerFlowerIDAndSizeNameAndStatus(int id, String size, Status status);
 
 }

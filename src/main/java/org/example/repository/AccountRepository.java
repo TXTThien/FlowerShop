@@ -2,6 +2,7 @@ package org.example.repository;
 
 import jakarta.transaction.Transactional;
 import org.example.entity.*;
+import org.example.entity.enums.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -20,6 +21,10 @@ public interface AccountRepository extends JpaRepository<Account, Integer> {
     Optional<? extends Account> findByEmail(String username);
     Optional<? extends Account> findByUsernameAndPassword(String username, String password);
     Optional<Account> findAccountByEmail(String email);
+    List<Account>findAccountsByRole(Role role);
+
+    @Query("SELECT a.type.typeID, COUNT(a.accountID) FROM Account a GROUP BY a.type.typeID")
+    List<Object[]> countAccountsByType();
     Account findAccountByAccountID(int accountid);
     Optional<Account> findAccountByUsername(String username);
     @Transactional

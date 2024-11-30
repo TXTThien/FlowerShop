@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import org.example.auth.RegisterRequest;
 import org.example.auth.RegisterRequestForAdmin;
 import org.example.entity.*;
+import org.example.entity.enums.Role;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,4 +26,7 @@ public interface IAccountService {
     void updateAccountInfo(Account account);
 
     void harddeleteAccount(int id);
+
+    List<Account> getAccountByRole(Role role);
+    List<Object[]> getUserAccountByType ();
 }

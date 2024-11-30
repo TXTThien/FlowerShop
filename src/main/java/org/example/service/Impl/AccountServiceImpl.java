@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 @Service
 @RequiredArgsConstructor
@@ -110,6 +111,16 @@ public class AccountServiceImpl implements IAccountService {
     @Transactional
     public void harddeleteAccount(int id) {
         accountRepository.deleteById(id);
+    }
+
+    @Override
+    public List<Account> getAccountByRole(Role role) {
+        return accountRepository.findAccountsByRole(role);
+    }
+
+    @Override
+    public List<Object[]> getUserAccountByType() {
+        return accountRepository.countAccountsByType();
     }
 
 }
