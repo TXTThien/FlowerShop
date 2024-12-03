@@ -49,6 +49,6 @@ public class Discount {
     private LocalDateTime endDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "Status", nullable = false)
+    @Column(name = "Status")
     protected Status status;
 }
