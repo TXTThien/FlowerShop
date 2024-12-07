@@ -80,4 +80,9 @@ public class OrderServiceImpl implements IOrderService {
         conditions.add(Condition.In_Transit);
         return orderRepository.findOrderByShipping_AccountID_AccountIDAndConditionInOrderByOrderIDDesc(id,conditions);
     }
+
+    @Override
+    public List<Order> findOrderByCondition(Condition condition) {
+        return orderRepository.findOrdersByConditionAndStatus(condition, Status.ENABLE);
+    }
 }

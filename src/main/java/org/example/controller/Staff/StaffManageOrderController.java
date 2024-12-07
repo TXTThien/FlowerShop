@@ -1,10 +1,13 @@
 package org.example.controller.Staff;
 
 import lombok.RequiredArgsConstructor;
+import org.aspectj.weaver.ast.Or;
+import org.example.dto.ShipToOrderDTO;
 import org.example.entity.Account;
 import org.example.entity.Comment;
 import org.example.entity.Order;
 import org.example.entity.Shipping;
+import org.example.entity.enums.Condition;
 import org.example.entity.enums.Role;
 import org.example.entity.enums.Status;
 import org.example.repository.OrderRepository;
@@ -20,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/staff")
+@RequestMapping("/staffmanager")
 @RequiredArgsConstructor
 public class StaffManageOrderController {
     private final IOrderService orderService;
@@ -36,16 +39,38 @@ public class StaffManageOrderController {
         response.put("accounts", accounts);
         return ResponseEntity.ok(response);
     }
-    @RequestMapping("/ordernoship/ship")
-    public ResponseEntity<?> getOrderShip(@RequestBody Order orderid, @RequestBody Account accountid) {
+    @PostMapping("/ordernoship/ship")
+    public ResponseEntity<?> getOrderShip(@RequestBody ShipToOrderDTO shipToOrderDTO) {
         Shipping shipping = new Shipping();
+        Account account = accountService.getAccountById(shipToOrderDTO.getAccountid());
         shipping.setStatus(Status.ENABLE);
-        shipping.setAccountID(accountid);
+        shipping.setAccountID(account);
         shipping.setStartDate(LocalDateTime.now());
         shippingRepository.save(shipping);
-        Order order = orderService.findOrderByOrderID(orderid.getOrderID());
+        Order order = orderService.findOrderByOrderID(shipToOrderDTO.getOrderid());
         order.setShipping(shipping);
         orderService.update(order);
         return ResponseEntity.ok("Shipping created and associated successfully");
+    }
+    @GetMapping("/cancelprocessing")
+    public ResponseEntity<?> getOrderCancelProcessing() {
+        List<Order> orders = orderService.findOrderByCondition(Condition.Cancel_is_Processing);
+        Map<String, Object> response = new HashMap<>();
+        response.put("orders", orders);
+        return ResponseEntity.ok(response);
+    }
+    @PostMapping("/cancelprocessing/yes")
+    public ResponseEntity<?> getOkOrderCancelProcessing(@RequestBody Order orderid) {
+        Order order = orderService.findOrderByOrderID(orderid.getOrderID());
+        order.setCondition(Condition.Cancelled);
+        orderService.update(order);
+        return ResponseEntity.ok("Order cancel");
+    }
+    @PostMapping("/cancelprocessing/no")
+    public ResponseEntity<?> getDeniedOrderCancelProcessing(@RequestBody Order orderid) {
+        Order order = orderService.findOrderByOrderID(orderid.getOrderID());
+        order.setCondition(Condition.Prepare);
+        orderService.update(order);
+        return ResponseEntity.ok("Order not cancel");
     }
 }

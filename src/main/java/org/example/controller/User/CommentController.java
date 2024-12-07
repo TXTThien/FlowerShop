@@ -133,14 +133,13 @@ public class CommentController {
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Comment đang chờ xử lý.");
     }
-    @RequestMapping("/{commentid}/complete")
+    @PostMapping("/{commentid}/complete")
     public ResponseEntity<?> CompleteRepCommentProcess(@PathVariable int commentid){
         Comment comment = commentService.findCommentByID(commentid);
 
         comment.setStative(Stative.Complete);
         commentRepository.save(comment);
-        Map<String, Object> response = new HashMap<>();
-        response.put("repComment", comment);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok("Complete ok");
+
     }
 }
