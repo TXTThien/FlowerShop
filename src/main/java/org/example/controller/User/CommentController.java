@@ -120,7 +120,7 @@ public class CommentController {
         int idAccount = getIDAccountService.common();
         Account account = accountRepository.findAccountByAccountID(idAccount);
         Comment comment = commentService.findCommentByID(id);
-        if (comment.getStative() == Stative.Processing){
+        if (comment.getStative() == Stative.Processing || comment.getStative() == Stative.Waiting){
             RepComment repComment = new RepComment();
             repComment.setComment(comment);
             repComment.setAccount(account);
@@ -132,5 +132,15 @@ public class CommentController {
             return ResponseEntity.ok(repComment);
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Comment đang chờ xử lý.");
+    }
+    @RequestMapping("/{commentid}/complete")
+    public ResponseEntity<?> CompleteRepCommentProcess(@PathVariable int commentid){
+        Comment comment = commentService.findCommentByID(commentid);
+
+        comment.setStative(Stative.Complete);
+        commentRepository.save(comment);
+        Map<String, Object> response = new HashMap<>();
+        response.put("repComment", comment);
+        return ResponseEntity.ok(response);
     }
 }

@@ -7,6 +7,7 @@ import java.util.List;
 public interface IWishlistService {
     List<Wishlist> findWishlistByAccountID(int id);
     Wishlist findByID(int id);
+    Wishlist findByFlowerIDAndAccountID(int flowerid, int accountid);
 
     void harddeleteAccount(Integer id);
 }

@@ -49,7 +49,7 @@ public class FlowerDetailController {
         flowerDTO.setPurpose(product.getPurpose());
         FlowerSize minFlowerSize = flowerSizeService.findCheapestPriceByFlowerID(product.getFlowerID());
         flowerDTO.setPrice(minFlowerSize.getPrice());
-
+        int idAccount = getIDAccountService.common();
         List<Review> reviewList = reviewService.findReviewByProductID (id);
         List<FlowerImages> imageList = flowerImageService.findImagesByProductID(id);
         List<FlowerSize> FlowerSizesList = flowerSizeService.findFlowerSizeByProductID(id);
@@ -85,6 +85,12 @@ public class FlowerDetailController {
 
         int howManyBought = flowerService.HowManyBought(id);
         Map<String, Object> response = new HashMap<>();
+        if (idAccount > 0) {
+            Wishlist wishlist = wishlistRepository.findWishlistByFlowerFlowerIDAndAccountIDAccountIDAndStatus(id, idAccount, Status.ENABLE);
+            if (wishlist != null) {
+                response.put("wishlist", wishlist);
+            }
+        }
 
         if (product != null && product.getStatus() == Status.ENABLE) {
             response.put("product", flowerDTO);
@@ -122,24 +128,35 @@ public class FlowerDetailController {
         }
     }
     @PostMapping("/addToWishlist")
-    public ResponseEntity<?> AddToWishlist(@RequestBody Flower flowerID) {
+    public ResponseEntity<?> addToWishlist(@RequestBody Flower flowerID) {
         int idAccount = getIDAccountService.common();
         Account account = accountService.getAccountById(idAccount);
+
+        if (account == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Account not found.");
+        }
+
         try {
-            Wishlist findWishlist = wishlistRepository.findWishlistByFlowerFlowerIDAndAccountIDAccountIDAndStatus(flowerID.getFlowerID(), idAccount, Status.ENABLE);
-            if (findWishlist == null) {
+            Wishlist existingWishlist = wishlistRepository.findWishlistByFlowerFlowerIDAndAccountIDAccountIDAndStatus(
+                    flowerID.getFlowerID(), idAccount, Status.ENABLE);
+
+            if (existingWishlist == null) {
                 Wishlist wishlist = new Wishlist();
                 wishlist.setFlower(flowerID);
                 wishlist.setAccountID(account);
                 wishlist.setStatus(Status.ENABLE);
                 wishlistRepository.save(wishlist);
+
                 return ResponseEntity.status(HttpStatus.CREATED).body(wishlist);
             } else {
-                return ResponseEntity.status(HttpStatus.CONFLICT).body("This flower is already in your wishlist.");
+                wishlistRepository.deleteById(existingWishlist.getWishListID());
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("This flower has been removed from your wishlist.");
             }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while adding the flower to the wishlist: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while managing the wishlist: " + e.getMessage());
         }
     }
+
 
 }
