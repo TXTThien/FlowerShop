@@ -32,7 +32,7 @@ public class OrderServiceImpl implements IOrderService {
         conditions.add(Condition.In_Transit);
         conditions.add(Condition.Prepare);
         conditions.add(Condition.Processing);
-        return orderRepository.findOrdersByShippingIsNullAndStatusAndConditionInOrderByOrderIDDesc(Status.ENABLE, conditions);
+        return orderRepository.findOrdersByShippingIsNullAndStatusAndConditionIn(Status.ENABLE, conditions);
     }
 
     @Override
