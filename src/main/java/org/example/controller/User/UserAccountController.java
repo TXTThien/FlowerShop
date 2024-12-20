@@ -4,19 +4,14 @@ import lombok.RequiredArgsConstructor;
 import org.example.auth.ChangePassword;
 import org.example.dto.BuyHistoryDTO;
 import org.example.dto.OrderHistory;
-import org.example.entity.Account;
-import org.example.entity.Order;
-import org.example.entity.OrderDetail;
-import org.example.entity.Review;
+import org.example.entity.*;
 import org.example.entity.enums.Condition;
 import org.example.entity.enums.IsPaid;
 import org.example.entity.enums.Role;
 import org.example.entity.enums.Status;
 import org.example.repository.AccountRepository;
-import org.example.service.IAccountService;
-import org.example.service.IOrderDetailService;
-import org.example.service.IOrderService;
-import org.example.service.IReviewService;
+import org.example.repository.FlowerSizeRepository;
+import org.example.service.*;
 import org.example.service.Impl.AccountServiceImpl;
 import org.example.service.securityService.AuthService;
 import org.example.service.securityService.GetIDAccountFromAuthService;
@@ -42,6 +37,8 @@ public class UserAccountController {
     private final IOrderDetailService orderDetailService;
     private final IReviewService reviewService;
     private final IOrderService orderService;
+    private final IFlowerSizeService flowerSizeService;
+    private final FlowerSizeRepository flowerSizeRepository;
 
     @GetMapping("")
     public ResponseEntity<Account> getAccountInfo() {
@@ -214,7 +211,7 @@ public class UserAccountController {
     @DeleteMapping("/cancel")
     public ResponseEntity<Void> cancelOrder(@RequestParam Integer OrderID) {
         Order order = orderService.findOrderByOrderID(OrderID);
-
+        List <OrderDetail> orderDetails = orderDetailService.findOrderDetailByOrderID(OrderID);
         if (order == null)
             return ResponseEntity.notFound().build();
         if (order.getPaid() == IsPaid.No) {
@@ -225,6 +222,13 @@ public class UserAccountController {
                 return ResponseEntity.noContent().build();
             } else if (order.getCondition() == Condition.Pending) {
                 order.setCondition(Condition.Cancelled);
+                for (OrderDetail orderDetail : orderDetails)
+                {
+                    FlowerSize flowerSize = flowerSizeService.findFlowerSizeByID(orderDetail.getFlowerSize().getFlowerSizeID());
+                    flowerSize.setStock(flowerSize.getStock()+orderDetail.getQuantity());
+                    flowerSizeRepository.save(flowerSize);
+                }
+
                 orderService.update(order);
                 return ResponseEntity.noContent().build();
             }
