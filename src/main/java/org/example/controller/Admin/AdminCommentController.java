@@ -1,11 +1,15 @@
 package org.example.controller.Admin;
 
 import lombok.RequiredArgsConstructor;
+import org.example.entity.Account;
 import org.example.entity.Category;
 import org.example.entity.Comment;
+import org.example.entity.CommentType;
 import org.example.entity.enums.Stative;
 import org.example.entity.enums.Status;
+import org.example.repository.AccountRepository;
 import org.example.repository.CommentRepository;
+import org.example.repository.CommentTypeRepository;
 import org.example.service.ICategoryService;
 import org.example.service.ICommentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,18 +17,31 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/v1/admin/comment")
 @RequiredArgsConstructor
 public class AdminCommentController {
     private final ICommentService commentService;
     private final CommentRepository commentRepository;
+    private final AccountRepository accountRepository;
+    private final CommentTypeRepository commentTypeRepository;
 
     @GetMapping
-    public ResponseEntity<List<Comment>> getAllCategories() {
+    public ResponseEntity<?> getAllCategories() {
         List<Comment> comments = commentRepository.findAll();
-        return ResponseEntity.ok(comments);
+        List<Account> accounts = accountRepository.findAll();
+        List<CommentType> commentTypes = commentTypeRepository.findAll();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("comments", comments);
+        response.put("accounts", accounts);
+        response.put("commentTypes", commentTypes);
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
