@@ -23,7 +23,6 @@ public class AccountServiceImpl implements IAccountService {
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
 
-
     @Override
     public Account getAccountById(Integer accountId) {
         Optional<Account> optionalAccount = accountRepository.findById(accountId);

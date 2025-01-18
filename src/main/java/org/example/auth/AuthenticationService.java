@@ -26,6 +26,7 @@ public class AuthenticationService {
     private final TokenRepository tokenRepository;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+
     @Autowired
     private final IAccountService accountService;
     public AuthenticationResponse register(RegisterRequest request) {
@@ -76,7 +77,7 @@ public class AuthenticationService {
     }
 
 
-    private void saveUserToken(Account user, String jwtToken) {
+    public void saveUserToken(Account user, String jwtToken) {
         var token = Token.builder()
                 .user(user)
                 .token(jwtToken)
@@ -86,7 +87,7 @@ public class AuthenticationService {
                 .build();
         tokenRepository.save(token);
     }
-    private void revokeAllUserTokens(Account user) {
+    public void revokeAllUserTokens(Account user) {
         var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getAccountID());
         if (validUserTokens.isEmpty())
             return;

@@ -37,6 +37,9 @@ public class UserAccountController {
     private final IOrderDetailService orderDetailService;
     private final IReviewService reviewService;
     private final IOrderService orderService;
+    private final IPreOrderService preOrderService;
+    private final IPreorderdetailService preorderdetailService;
+
     private final IFlowerSizeService flowerSizeService;
     private final FlowerSizeRepository flowerSizeRepository;
 
@@ -159,18 +162,20 @@ public class UserAccountController {
     public ResponseEntity<String> updateAccountByAccountID(
             @RequestBody Account updateAccountRequest) {
         int idAccount = getIDAccountService.common();
-
-
+        System.out.println("Số điện thoại: "+updateAccountRequest.getPhoneNumber());
         Account currentAccount = accountRepository.findAccountByAccountID(idAccount);
 
         if (currentAccount == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Tài khoản không tồn tại.");
         }
+        System.out.println("Vo2");
 
         if (updateAccountRequest.getName() != null) {
+            System.out.println("Name: "+updateAccountRequest.getName());
             currentAccount.setName(updateAccountRequest.getName());
         }
         if (updateAccountRequest.getPhoneNumber() != null) {
+            System.out.println("Số điện thoại: "+updateAccountRequest.getPhoneNumber());
             currentAccount.setPhoneNumber(updateAccountRequest.getPhoneNumber());
         }
         if (updateAccountRequest.getAddress() != null) {
@@ -237,5 +242,21 @@ public class UserAccountController {
         return ResponseEntity.noContent().build();
 
     }
-
+    @GetMapping("/preorder")
+    public ResponseEntity<Map<String, Object>> getPreOrder() {
+        int idAccount = getIDAccountService.common();
+        List<Preorder> preorders = preOrderService.findPreorderByAccount(idAccount);
+        Map<String, Object> response = new HashMap<>();
+        response.put("preorders", preorders);
+        return ResponseEntity.ok(response);
+    }
+    @GetMapping("/preorder/{id}")
+    public ResponseEntity<Map<String, Object>> getPreOrderDetail(@PathVariable int id) {
+        Preorder preorder = preOrderService.findPreorderByPreorderID(id);
+        List<Preorderdetail>preorderdetails = preorderdetailService.findPreorderdetailByPreorder(preorder);
+        Map<String, Object> response = new HashMap<>();
+        response.put("preorders", preorder);
+        response.put("preorderdetails", preorderdetails);
+        return ResponseEntity.ok(response);
+    }
 }

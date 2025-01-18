@@ -29,10 +29,10 @@ public class Account implements UserDetails {
     @Column(name = "AccountID", nullable = false)
     private Integer accountID;
 
-    @Column(name = "Username", length = 50, nullable = false)
+    @Column(name = "Username", length = 100, nullable = false)
     private String username;
 
-    @Column(name = "Password", nullable = false)
+    @Column(name = "Password")
     @JsonIgnore
     private String password;
 
@@ -40,13 +40,13 @@ public class Account implements UserDetails {
     @Column(name="Role", nullable = false)
     protected Role role;
 
-    @Column(name = "Phonenumber", length = 15, nullable = false)
+    @Column(name = "Phonenumber", length = 15)
     private String phoneNumber;
 
-    @Column(name = "Address", length = 500, nullable = false)
+    @Column(name = "Address", length = 500)
     private String address;
 
-    @Column(name = "Fullname", length = 100, nullable = false)
+    @Column(name = "Fullname", length = 100)
     private String name;
 
     @Column(name = "Email", length = 100, nullable = false)

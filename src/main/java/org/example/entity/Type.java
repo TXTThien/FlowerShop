@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 @Setter
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity(name = "Type")
-@Table(name = "type", schema = "shopaonam")
+@Table(name = "type", schema = "flowershop")
 public class Type {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

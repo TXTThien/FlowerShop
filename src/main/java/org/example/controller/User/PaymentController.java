@@ -36,13 +36,15 @@ public class PaymentController {
     int [] cartID;
     int [] quantity;
     BigDecimal[] price;
+    BigDecimal[] paid;
     BuyInfo buyInfo;
     @PostMapping ("/setCart")
-    public ResponseEntity<String> setCart(@RequestParam("cartID") int[] cartIDs, @RequestParam("quantities") int [] quantities , @RequestParam("price") BigDecimal[] prices, @RequestBody BuyInfo buyInfos){
+    public ResponseEntity<String> setCart(@RequestParam("cartID") int[] cartIDs, @RequestParam("quantities") int [] quantities , @RequestParam("price") BigDecimal[] prices,@RequestParam(value= "paid", required = false) BigDecimal[] paids, @RequestBody BuyInfo buyInfos){
         cartID = cartIDs;
         quantity = quantities;
         price = prices;
         buyInfo = buyInfos;
+        paid = paids;
         System.out.println(buyInfo);
         System.out.println("Price: "+ Arrays.toString(prices));
         return ResponseEntity.ok("Cart updated successfully.");
@@ -119,7 +121,7 @@ public class PaymentController {
         String responseCode = params.get("vnp_ResponseCode");
         int accountId = (int) request.getSession().getAttribute("accountID");
         if ("00".equals(responseCode)) {
-            prebuyController.buyVNPay(cartID, accountId,price,buyInfo);
+            prebuyController.buyVNPay(cartID, accountId,price,paid,buyInfo);
             response.sendRedirect("http://localhost:8000/PaymentSuccess");
 
         } else {

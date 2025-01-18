@@ -5,7 +5,9 @@ import org.example.dto.FlowerDTO;
 import org.example.dto.PrebuyDTO;
 import org.example.entity.*;
 import org.example.entity.enums.Status;
+import org.example.entity.enums.Type;
 import org.example.repository.CartRepository;
+import org.example.repository.PreOrderRepository;
 import org.example.repository.WishlistRepository;
 import org.example.service.*;
 import org.example.service.securityService.GetIDAccountFromAuthService;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.swing.text.html.Option;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +33,7 @@ public class FlowerDetailController {
     private final IFlowerSizeService flowerSizeService;
     private final IFlowerImageService flowerImageService;
     private final WishlistRepository wishlistRepository;
+    private final PreOrderRepository preOrderRepository;
 
     private final ICartService cartService;
     private final IAccountService accountService;
@@ -49,6 +53,7 @@ public class FlowerDetailController {
         flowerDTO.setPurpose(product.getPurpose());
         FlowerSize minFlowerSize = flowerSizeService.findCheapestPriceByFlowerID(product.getFlowerID());
         flowerDTO.setPrice(minFlowerSize.getPrice());
+
         int idAccount = getIDAccountService.common();
         List<Review> reviewList = reviewService.findReviewByProductID (id);
         List<FlowerImages> imageList = flowerImageService.findImagesByProductID(id);
@@ -92,7 +97,7 @@ public class FlowerDetailController {
             }
         }
 
-        if (product != null && product.getStatus() == Status.ENABLE) {
+        if (product.getStatus() == Status.ENABLE) {
             response.put("product", flowerDTO);
             response.put("reviews", reviewList);
             response.put("productSizes", FlowerSizesList);
@@ -119,7 +124,7 @@ public class FlowerDetailController {
             cart.setQuantity(prebuyDTO.getNumber());
             cart.setAccountID(account);
             cart.setStatus(Status.ENABLE);
-
+            cart.setType(Type.Order);
             Cart createCart = cartService.createCart(cart);
             return ResponseEntity.status(HttpStatus.CREATED).body(createCart);
 
@@ -157,6 +162,26 @@ public class FlowerDetailController {
                     .body("An error occurred while managing the wishlist: " + e.getMessage());
         }
     }
+    @PostMapping("/addPreorder")
+    public  ResponseEntity<?> Preorder (@RequestBody PrebuyDTO prebuyDTO){
+        int idAccount = getIDAccountService.common();
+        Account account = accountService.getAccountById(idAccount);
+        FlowerSize FlowerSize =  flowerSizeService.findFlowerSizeByID(prebuyDTO.getProductSizeID());
 
+        try {
+            Cart cart = new Cart();
+            cart.setFlowerSize(FlowerSize);
+            cart.setQuantity(prebuyDTO.getNumber());
+            cart.setAccountID(account);
+            cart.setStatus(Status.ENABLE);
+            cart.setType(Type.Order);
+            cart.setType(Type.Preorder);
+            Cart createCart = cartService.createCart(cart);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createCart);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while creating the cart.");
+        }
+    }
 
 }

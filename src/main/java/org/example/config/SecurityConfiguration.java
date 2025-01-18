@@ -107,6 +107,7 @@ public class SecurityConfiguration {
 
                             .anyRequest().authenticated();
                 })
+                // Cấu hình provider và JWT filter
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .formLogin(form -> form
@@ -117,13 +118,16 @@ public class SecurityConfiguration {
                         .failureUrl("/login?error")
                         .permitAll()
                 )
+                // Đăng xuất
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/flowershop")
-                );
+                )
+                ;
 
         return http.build();
     }
+
 
 
 }

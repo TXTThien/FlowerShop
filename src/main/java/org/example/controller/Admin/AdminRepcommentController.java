@@ -1,25 +1,41 @@
 package org.example.controller.Admin;
 
 import lombok.RequiredArgsConstructor;
+import org.example.entity.Account;
+import org.example.entity.Comment;
 import org.example.entity.Purpose;
 import org.example.entity.RepComment;
 import org.example.entity.enums.Status;
+import org.example.repository.AccountRepository;
+import org.example.repository.CommentRepository;
 import org.example.repository.PurposeRepository;
 import org.example.repository.RepCommentRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/admin/repcomment")
 @RequiredArgsConstructor
 public class AdminRepcommentController {
     private final RepCommentRepository repCommentRepository;
+    private final AccountRepository accountRepository;
+    private final CommentRepository commentRepository;
+
     @GetMapping
-    public ResponseEntity<List<RepComment>> getAllCategories() {
-        List<RepComment> categories = repCommentRepository.findAll();
-        return ResponseEntity.ok(categories);
+    public ResponseEntity<?> getAllCategories() {
+        List<RepComment> repComments = repCommentRepository.findAll();
+        List<Account> accounts  = accountRepository.findAll();
+        List<Comment> comments = commentRepository.findAll();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("repComments", repComments);
+        response.put("accounts", accounts);
+        response.put("comments", comments);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")

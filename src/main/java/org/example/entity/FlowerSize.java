@@ -2,6 +2,7 @@ package org.example.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.example.entity.enums.Preorderable;
 import org.example.entity.enums.Status;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -54,6 +55,10 @@ public class FlowerSize {
     @Enumerated(EnumType.STRING)
     @Column(name = "Status", nullable = false)
     protected Status status;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "Preorderable", nullable = false)
+    protected Preorderable preorderable;
 
     @JsonIgnore
     @OneToMany(mappedBy = "flowerSize", fetch = FetchType.LAZY)

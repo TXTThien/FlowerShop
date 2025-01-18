@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.entity.enums.Status;
+import org.example.entity.enums.Type;
 
 @Builder
 @AllArgsConstructor
@@ -38,4 +39,8 @@ public class Cart {
     @Enumerated(EnumType.STRING)
     @Column(name = "Status", nullable = false)
     protected Status status;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "Type", nullable = false)
+    protected Type type;
 }

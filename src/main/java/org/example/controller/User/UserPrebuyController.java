@@ -6,6 +6,7 @@ import org.example.dto.BuyInfo;
 import org.example.dto.CartDTO;
 import org.example.dto.CartUpdateRequest;
 import org.example.entity.*;
+import org.example.entity.enums.Cancelenable;
 import org.example.entity.enums.Condition;
 import org.example.entity.enums.IsPaid;
 import org.example.entity.enums.Status;
@@ -38,57 +39,107 @@ public class UserPrebuyController {
     private final IAccountService accountService;
     private final ITypeService typeService;
     private final AccountRepository accountRepository;
+    private final PreorderdetailRepository preorderdetailRepository;
+    private final PreOrderRepository preOrderRepository;
 
     private final GetIDAccountFromAuthService getIDAccountFromAuthService;
 
     @GetMapping("")
     public ResponseEntity<?> getCart(HttpServletRequest request) {
         int id = getIDAccountFromAuthService.common();
+
+        // Fetch account details
         Account account = accountRepository.findAccountByAccountID(id);
-        List<Cart> cartList = cartService.findCartsByAccountID(id);
+        if (account == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Account not found for ID: " + id);
+        }
+
+        // Fetch cart details
+        List<Cart> cartorderList = cartService.findCartsByAccountID(id, org.example.entity.enums.Type.Order );
+        List<Cart> cartpreorderList = cartService.findCartsByAccountID(id, org.example.entity.enums.Type.Preorder );
+
+        if (cartpreorderList == null || cartpreorderList.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Cart not found for Account ID: " + id);
+        }
+
+        // Fetch discounts
         List<Discount> discounts = discountRepository.findAll();
-        Map<String, Object> response = new HashMap<>();
+
+        // Set account ID in session
         request.getSession().setAttribute("accountID", id);
 
-        if (cartList != null) {
-            List<CartDTO> cartDTOList = cartList.stream().map(cart -> {
-                CartDTO cartDTO = new CartDTO();
-                cartDTO.setCartID(cart.getCartID());
-                cartDTO.setSizeChoose(cart.getFlowerSize().getSizeName());
-                cartDTO.setNumber(cart.getQuantity());
-                cartDTO.setStatus(cart.getStatus());
-                cartDTO.setProductID(cart.getFlowerSize().getFlower().getFlowerID());
-                cartDTO.setAvatar(cart.getFlowerSize().getFlower().getImage());
-                cartDTO.setProductTitle(cart.getFlowerSize().getFlower().getName());
-                BigDecimal priceWithBonus = cart.getFlowerSize().getPrice();
-                cartDTO.setProductPrice(priceWithBonus);
-                cartDTO.setPurposeID(cart.getFlowerSize().getFlower().getPurpose().getPurposeID());
-                cartDTO.setCategoryID(cart.getFlowerSize().getFlower().getCategory().getCategoryID()); // Truy cập CategoryID
+        // Build cartDTO list
+        List<CartDTO> cartOrderList = cartorderList.stream().map(cart -> {
+            CartDTO cartDTO = new CartDTO();
+            cartDTO.setCartID(cart.getCartID());
+            cartDTO.setSizeChoose(cart.getFlowerSize().getSizeName());
+            cartDTO.setNumber(cart.getQuantity());
+            cartDTO.setStatus(cart.getStatus());
+            cartDTO.setProductID(cart.getFlowerSize().getFlower().getFlowerID());
+            cartDTO.setAvatar(cart.getFlowerSize().getFlower().getImage());
+            cartDTO.setProductTitle(cart.getFlowerSize().getFlower().getName());
+            cartDTO.setProductPrice(cart.getFlowerSize().getPrice());
+            cartDTO.setPurposeID(cart.getFlowerSize().getFlower().getPurpose().getPurposeID());
+            cartDTO.setCategoryID(cart.getFlowerSize().getFlower().getCategory().getCategoryID());
+            cartDTO.setType(String.valueOf(org.example.entity.enums.Type.Order));
+            // Fetch sizes and stock information
+            List<String> sizes = cart.getFlowerSize().getFlower().getFlowerSizes()
+                    .stream()
+                    .map(FlowerSize::getSizeName)
+                    .collect(Collectors.toList());
+            List<Integer> stockList = flowerSizeService.findFlowerSizeByProductID(cart.getFlowerSize().getFlower().getFlowerID())
+                    .stream()
+                    .map(FlowerSize::getStock)
+                    .collect(Collectors.toList());
+
+            cartDTO.setSizes(sizes);
+            cartDTO.setStock(stockList);
+
+            return cartDTO;
+        }).collect(Collectors.toList());
+        List<CartDTO> cartPreorderList = cartpreorderList.stream().map(cart -> {
+            CartDTO cartDTO = new CartDTO();
+            cartDTO.setCartID(cart.getCartID());
+            cartDTO.setSizeChoose(cart.getFlowerSize().getSizeName());
+            cartDTO.setNumber(cart.getQuantity());
+            cartDTO.setStatus(cart.getStatus());
+            cartDTO.setProductID(cart.getFlowerSize().getFlower().getFlowerID());
+            cartDTO.setAvatar(cart.getFlowerSize().getFlower().getImage());
+            cartDTO.setProductTitle(cart.getFlowerSize().getFlower().getName());
+            cartDTO.setProductPrice(cart.getFlowerSize().getPrice());
+            cartDTO.setPurposeID(cart.getFlowerSize().getFlower().getPurpose().getPurposeID());
+            cartDTO.setCategoryID(cart.getFlowerSize().getFlower().getCategory().getCategoryID());
+            cartDTO.setType(String.valueOf(org.example.entity.enums.Type.Preorder));
+            // Fetch sizes and stock information
+            List<String> sizes = cart.getFlowerSize().getFlower().getFlowerSizes()
+                    .stream()
+                    .map(FlowerSize::getSizeName)
+                    .collect(Collectors.toList());
+            List<Integer> stockList = flowerSizeService.findFlowerSizeByProductID(cart.getFlowerSize().getFlower().getFlowerID())
+                    .stream()
+                    .map(FlowerSize::getStock)
+                    .collect(Collectors.toList());
+
+            cartDTO.setSizes(sizes);
+            cartDTO.setStock(stockList);
+
+            return cartDTO;
+        }).collect(Collectors.toList());
 
 
-                List<String> sizes = cart.getFlowerSize().getFlower().getFlowerSizes()
-                        .stream()
-                        .map(FlowerSize::getSizeName)
-                        .collect(Collectors.toList());
-                List<FlowerSize> FlowerSizes = flowerSizeService.findFlowerSizeByProductID(cart.getFlowerSize().getFlower().getFlowerID());
-                List<Integer> stockList = new ArrayList<>();
-                for (int i = 0; i < FlowerSizes.size(); i++) {
-                    FlowerSize FlowerSize = FlowerSizes.get(i);
-                    stockList.add(FlowerSize.getStock());
-                }
-                cartDTO.setSizes(sizes);
-                cartDTO.setStock(stockList);
+        // Prepare response
+        Map<String, Object> response = new HashMap<>();
+        response.put("account", account);
+        response.put("cartorder", cartOrderList);
+        response.put("cartpreorder", cartPreorderList);
+        response.put("discount", discounts);
 
-                return cartDTO;
-            }).collect(Collectors.toList());
-            response.put("account",account);
-            response.put("cart",cartDTOList);
-            response.put("discount", discounts);
-            return ResponseEntity.ok(response);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        return ResponseEntity.ok(response);
     }
+
+
     @PutMapping("/{id}")
     public ResponseEntity<?> updateCart(@PathVariable Integer id, @RequestBody CartUpdateRequest request) {
 
@@ -114,56 +165,96 @@ public class UserPrebuyController {
         return ResponseEntity.noContent().build();
     }
     @PostMapping("/buy")
-    public ResponseEntity<?> buyProduct(@RequestParam("cartID") int[] cartIDs, @RequestParam("price") BigDecimal[] prices, @RequestBody BuyInfo buyInfo) {
+    public ResponseEntity<?> buyProduct(@RequestParam("cartID") int[] cartIDs, @RequestParam("price") BigDecimal[] prices, @RequestParam(value= "paid", required = false) BigDecimal[] paids, @RequestBody BuyInfo buyInfo) {
         try {
             int id = getIDAccountFromAuthService.common();
             Account account = accountService.getAccountById(id);
-            System.out.println("Price: "+ Arrays.toString(prices));
+            int firstCartID = cartIDs[0];
+            Cart firstCart = cartService.findCartByCartID(firstCartID);
+            if (firstCart.getType()== org.example.entity.enums.Type.Order)
+            {
+                Order newBill = new Order();
+                newBill.setAccountID(account);
+                newBill.setPaid(IsPaid.No);
+                newBill.setStatus(Status.ENABLE);
+                newBill.setDate(LocalDateTime.now());
+                newBill.setCondition(Condition.Pending);
+                newBill.setName(buyInfo.getName());
+                newBill.setNote(buyInfo.getNote());
+                newBill.setDeliveryAddress(buyInfo.getAddress());
+                newBill.setPhoneNumber(buyInfo.getPhone());
+                BigDecimal totalAmount = new BigDecimal(0);
+                newBill.setTotalAmount(totalAmount);
+                orderRepository.save(newBill);
 
-            Order newBill = new Order();
-            newBill.setAccountID(account);
-            newBill.setPaid(IsPaid.No);
-            newBill.setStatus(Status.ENABLE);
-            newBill.setDate(LocalDateTime.now());
-            newBill.setCondition(Condition.Pending);
-            newBill.setName(buyInfo.getName());
-            newBill.setNote(buyInfo.getNote());
-            newBill.setDeliveryAddress(buyInfo.getAddress());
-            newBill.setPhoneNumber(buyInfo.getPhone());
-            BigDecimal totalAmount = new BigDecimal(0);
-            newBill.setTotalAmount(totalAmount);
-            orderRepository.save(newBill);
+                for (int i = 0; i < cartIDs.length; i++) {
+                    int cartID = cartIDs[i];
+                    BigDecimal price = prices[i];
+                    totalAmount = totalAmount.add(price);
 
-            for (int i = 0; i < cartIDs.length; i++) {
-                int cartID = cartIDs[i];
-                BigDecimal price = prices[i];
-                totalAmount = totalAmount.add(price);
+                    Cart cart = cartService.findCartByCartID(cartID);
+                    if (cart == null) {
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                .body("Cart item with ID " + cartID + " not found.");
+                    }
 
-                Cart cart = cartService.findCartByCartID(cartID);
-                if (cart == null) {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body("Cart item with ID " + cartID + " not found.");
+                    int number = cart.getQuantity();
+                    FlowerSize FlowerSize = cart.getFlowerSize();
+
+                    OrderDetail orderDetail = new OrderDetail();
+                    orderDetail.setOrderID(newBill);  // Gán Order đã lưu vào OrderDetail
+                    orderDetail.setFlowerSize(cart.getFlowerSize());
+                    orderDetail.setQuantity(cart.getQuantity());
+                    orderDetail.setPrice(price);
+                    orderDetail.setStatus(Status.ENABLE);
+                    cartService.deleteBoughtCart(cartID);
+                    flowerSizeService.updateStock(FlowerSize.getFlowerSizeID(), number);
+                    orderDetailRepository.save(orderDetail);
+
                 }
-
-                int number = cart.getQuantity();
-                FlowerSize FlowerSize = cart.getFlowerSize();
-
-                OrderDetail orderDetail = new OrderDetail();
-                orderDetail.setOrderID(newBill);  // Gán Order đã lưu vào OrderDetail
-                orderDetail.setFlowerSize(cart.getFlowerSize());
-                orderDetail.setQuantity(cart.getQuantity());
-                orderDetail.setPrice(price);
-                orderDetail.setStatus(Status.ENABLE);
-                cartService.deleteBoughtCart(cartID);
-                flowerSizeService.updateStock(FlowerSize.getFlowerSizeID(), number);
-                orderDetailRepository.save(orderDetail);
-
+                newBill.setTotalAmount(totalAmount);
+                orderRepository.save(newBill);
             }
-            newBill.setTotalAmount(totalAmount);
-            orderRepository.save(newBill);
+            else {
+                Preorder newPreorder = new Preorder();
+                newPreorder.setAccount(account);
+                newPreorder.setStatus(Status.ENABLE);
+                newPreorder.setDate(LocalDateTime.now());
+                newPreorder.setName(buyInfo.getName());
+                newPreorder.setNote(buyInfo.getNote());
+                newPreorder.setDeliveryAddress(buyInfo.getAddress());
+                newPreorder.setPhoneNumber(buyInfo.getPhone());
+                BigDecimal totalAmount = new BigDecimal(0);
+                newPreorder.setTotalAmount(totalAmount);
+                newPreorder.setCancelenable(Cancelenable.YES);
+                preOrderRepository.save(newPreorder);
 
+                for (int i = 0; i < cartIDs.length; i++) {
+                    int cartID = cartIDs[i];
+                    BigDecimal price = prices[i];
+                    BigDecimal paid = paids[i];
 
-            accountService.save(account);
+                    totalAmount = totalAmount.add(price);
+
+                    Cart cart = cartService.findCartByCartID(cartID);
+                    if (cart == null) {
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                .body("Cart item with ID " + cartID + " not found.");
+                    }
+                    Preorderdetail preorderdetail = new Preorderdetail();
+                    preorderdetail.setPreorderID(newPreorder);
+                    preorderdetail.setFlowerSize(cart.getFlowerSize());
+                    preorderdetail.setQuantity(cart.getQuantity());
+                    preorderdetail.setPrice(price);
+                    preorderdetail.setStatus(Status.ENABLE);
+                    preorderdetail.setPaid(paid);
+                    cartService.deleteBoughtCart(cartID);
+                    preorderdetailRepository.save(preorderdetail);
+                }
+                newPreorder.setTotalAmount(totalAmount);
+                preOrderRepository.save(newPreorder);
+            }
+
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body("Product purchased successfully.");
 
@@ -173,72 +264,114 @@ public class UserPrebuyController {
         }
     }
 
-    public ResponseEntity<?> buyVNPay(int[] cartIDs, int accountId,BigDecimal[] prices, BuyInfo buyInfo) {
+    public ResponseEntity<?> buyVNPay(int[] cartIDs, int accountId,BigDecimal[] prices, BigDecimal[] paids, BuyInfo buyInfo) {
         try {
-            System.out.println("Price: "+ Arrays.toString(prices));
             Account account = accountService.getAccountById(accountId);
-            Order newBill = new Order();
-            newBill.setAccountID(account);
-            newBill.setPaid(IsPaid.Yes);
-            newBill.setStatus(Status.ENABLE);
-            newBill.setDate(LocalDateTime.now());
-            newBill.setCondition(Condition.Pending);
-            newBill.setName(buyInfo.getName());
-            newBill.setNote(buyInfo.getNote());
-            newBill.setDeliveryAddress(buyInfo.getAddress());
-            newBill.setPhoneNumber(buyInfo.getPhone());
-            BigDecimal totalAmount = new BigDecimal(0);
-            newBill.setTotalAmount(totalAmount);
-            orderRepository.save(newBill);
+            int firstCartID = cartIDs[0];
+            Cart firstCart = cartService.findCartByCartID(firstCartID);
+            if (firstCart.getType()== org.example.entity.enums.Type.Order)
+            {
+                Order newBill = new Order();
+                newBill.setAccountID(account);
+                newBill.setPaid(IsPaid.No);
+                newBill.setStatus(Status.ENABLE);
+                newBill.setDate(LocalDateTime.now());
+                newBill.setCondition(Condition.Pending);
+                newBill.setName(buyInfo.getName());
+                newBill.setNote(buyInfo.getNote());
+                newBill.setDeliveryAddress(buyInfo.getAddress());
+                newBill.setPhoneNumber(buyInfo.getPhone());
+                BigDecimal totalAmount = new BigDecimal(0);
+                newBill.setTotalAmount(totalAmount);
+                orderRepository.save(newBill);
 
-            for (int i = 0; i < cartIDs.length; i++) {
-                int cartID = cartIDs[i];
-                Cart fcart = cartService.findCartByCartID(cartID);
-                int quantity = fcart.getQuantity();
-                BigDecimal price = prices[i];
-                totalAmount = totalAmount.add(price);
+                for (int i = 0; i < cartIDs.length; i++) {
+                    int cartID = cartIDs[i];
+                    BigDecimal price = prices[i];
+                    totalAmount = totalAmount.add(price);
 
-                Cart cart = cartService.findCartByCartID(cartID);
-                if (cart == null) {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                            .body("Cart item with ID " + cartID + " not found.");
+                    Cart cart = cartService.findCartByCartID(cartID);
+                    if (cart == null) {
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                .body("Cart item with ID " + cartID + " not found.");
+                    }
+
+                    int number = cart.getQuantity();
+                    FlowerSize FlowerSize = cart.getFlowerSize();
+
+                    OrderDetail orderDetail = new OrderDetail();
+                    orderDetail.setOrderID(newBill);  // Gán Order đã lưu vào OrderDetail
+                    orderDetail.setFlowerSize(cart.getFlowerSize());
+                    orderDetail.setQuantity(cart.getQuantity());
+                    orderDetail.setPrice(price);
+                    orderDetail.setStatus(Status.ENABLE);
+                    cartService.deleteBoughtCart(cartID);
+                    flowerSizeService.updateStock(FlowerSize.getFlowerSizeID(), number);
+                    orderDetailRepository.save(orderDetail);
+
+                }
+                newBill.setTotalAmount(totalAmount);
+                orderRepository.save(newBill);
+                BigDecimal consume = account.getConsume().add(totalAmount);
+                account.setConsume(consume);
+
+                List<Type> types = typeService.findAllOrderByMinConsumeAsc();
+
+                Type appropriateType = null;
+                for (Type type : types) {
+                    if (consume.compareTo(type.getMinConsume()) >= 0) {
+                        appropriateType = type;
+                    } else {
+                        break;
+                    }
                 }
 
-                int number = cart.getQuantity();
-                FlowerSize FlowerSize = cart.getFlowerSize();
-
-                OrderDetail orderDetail = new OrderDetail();
-                orderDetail.setOrderID(newBill);  // Gán Order đã lưu vào OrderDetail
-                orderDetail.setFlowerSize(cart.getFlowerSize());
-                orderDetail.setQuantity(cart.getQuantity());
-                orderDetail.setPrice(price);
-                orderDetail.setStatus(Status.ENABLE);
-                cartService.deleteBoughtCart(cartID);
-                flowerSizeService.updateStock(FlowerSize.getFlowerSizeID(), number);
-                orderDetailRepository.save(orderDetail);
-
-            }
-            newBill.setTotalAmount(totalAmount);
-            orderRepository.save(newBill);
-            BigDecimal consume = account.getConsume().add(totalAmount);
-            account.setConsume(consume);
-
-            List<Type> types = typeService.findAllOrderByMinConsumeAsc();
-
-            Type appropriateType = null;
-            for (Type type : types) {
-                if (consume.compareTo(type.getMinConsume()) >= 0) {
-                    appropriateType = type;
-                } else {
-                    break;
+                if (appropriateType != null) {
+                    account.setType(appropriateType);
                 }
+
+                accountService.save(account);
+            }
+            else {
+                Preorder newPreorder = new Preorder();
+                newPreorder.setAccount(account);
+                newPreorder.setStatus(Status.ENABLE);
+                newPreorder.setDate(LocalDateTime.now());
+                newPreorder.setName(buyInfo.getName());
+                newPreorder.setNote(buyInfo.getNote());
+                newPreorder.setDeliveryAddress(buyInfo.getAddress());
+                newPreorder.setPhoneNumber(buyInfo.getPhone());
+                BigDecimal totalAmount = new BigDecimal(0);
+                newPreorder.setTotalAmount(totalAmount);
+                newPreorder.setCancelenable(Cancelenable.YES);
+                preOrderRepository.save(newPreorder);
+
+                for (int i = 0; i < cartIDs.length; i++) {
+                    int cartID = cartIDs[i];
+                    BigDecimal price = prices[i];
+                    BigDecimal paid = paids[i];
+
+                    totalAmount = totalAmount.add(price);
+
+                    Cart cart = cartService.findCartByCartID(cartID);
+                    if (cart == null) {
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                .body("Cart item with ID " + cartID + " not found.");
+                    }
+                    Preorderdetail preorderdetail = new Preorderdetail();
+                    preorderdetail.setPreorderID(newPreorder);
+                    preorderdetail.setFlowerSize(cart.getFlowerSize());
+                    preorderdetail.setQuantity(cart.getQuantity());
+                    preorderdetail.setPrice(price);
+                    preorderdetail.setStatus(Status.ENABLE);
+                    preorderdetail.setPaid(paid);
+                    cartService.deleteBoughtCart(cartID);
+                    preorderdetailRepository.save(preorderdetail);
+                }
+                newPreorder.setTotalAmount(totalAmount);
+                preOrderRepository.save(newPreorder);
             }
 
-            if (appropriateType != null) {
-                account.setType(appropriateType);
-            }
-
-            accountService.save(account);
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body("Product purchased successfully.");
 

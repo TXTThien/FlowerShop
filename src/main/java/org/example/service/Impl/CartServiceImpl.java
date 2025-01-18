@@ -3,6 +3,7 @@ package org.example.service.Impl;
 import lombok.RequiredArgsConstructor;
 import org.example.entity.Cart;
 import org.example.entity.enums.Status;
+import org.example.entity.enums.Type;
 import org.example.repository.CartRepository;
 import org.example.service.ICartService;
 import org.springframework.stereotype.Service;
@@ -70,8 +71,8 @@ public class CartServiceImpl implements ICartService {
     }
 
     @Override
-    public List<Cart> findCartsByAccountID(int id) {
-        return cartRepository.findCartByAccountID_AccountIDAndStatusOrderByCartIDDesc(id,Status.ENABLE);
+    public List<Cart> findCartsByAccountID(int id, Type type) {
+        return cartRepository.findCartByAccountID_AccountIDAndStatusAndTypeOrderByCartIDDesc(id,Status.ENABLE, type);
     }
 
     @Override

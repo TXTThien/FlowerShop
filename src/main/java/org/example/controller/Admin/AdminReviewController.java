@@ -1,25 +1,35 @@
 package org.example.controller.Admin;
 
 import lombok.RequiredArgsConstructor;
-import org.example.entity.RepComment;
-import org.example.entity.Review;
+import org.example.entity.*;
 import org.example.entity.enums.Status;
-import org.example.repository.RepCommentRepository;
-import org.example.repository.ReviewRepository;
+import org.example.repository.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/admin/review")
 @RequiredArgsConstructor
 public class AdminReviewController {
     private final ReviewRepository reviewRepository;
+    private final AccountRepository accountRepository;
+    private final FlowerRepository flowerRepository;
     @GetMapping
-    public ResponseEntity<List<Review>> getAllCategories() {
-        List<Review> categories = reviewRepository.findAll();
-        return ResponseEntity.ok(categories);
+    public ResponseEntity<?> getAllCategories() {
+        List<Review> reviews = reviewRepository.findAll();
+        List<Account> accounts  = accountRepository.findAll();
+        List<Flower> flowers = flowerRepository.findAll();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("reviews", reviews);
+        response.put("accounts", accounts);
+        response.put("flowers", flowers);
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")

@@ -1,6 +1,7 @@
 package org.example.service;
 
 import org.example.entity.Cart;
+import org.example.entity.enums.Type;
 
 import java.util.List;
 
@@ -14,7 +15,7 @@ public interface ICartService {
 
     void hardDeleteCart(Integer id);
 
-    List<Cart> findCartsByAccountID(int id);
+    List<Cart> findCartsByAccountID(int id, Type type);
 
     Cart findCartByCartID(int cartID);
 }

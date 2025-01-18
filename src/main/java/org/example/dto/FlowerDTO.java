@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.entity.Category;
 import org.example.entity.Purpose;
+import org.example.entity.enums.Preorderable;
 
 import java.math.BigDecimal;
 
@@ -22,4 +23,5 @@ public class FlowerDTO {
     private Category category;
     private Purpose purpose;
     private BigDecimal price;
+    private Preorderable preorderable;
 }

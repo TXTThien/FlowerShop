@@ -26,4 +26,5 @@ public class CartDTO {
     private List<Integer> stock;
     private Integer purposeID;
     private Integer categoryID;
+    private String Type;
 }
