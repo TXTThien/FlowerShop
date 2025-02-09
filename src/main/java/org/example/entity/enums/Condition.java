@@ -12,6 +12,8 @@ public enum Condition {
     Cancelled,
     Delivered_Successfully,
     Return_to_shop,
+    Refund,
+    Refund_is_Processing,
     Cancel_is_Processing;
     @Override
     public String toString() {

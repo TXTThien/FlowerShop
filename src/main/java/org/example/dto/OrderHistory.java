@@ -27,6 +27,7 @@ public class OrderHistory {
     private String Name;
     private Condition Condition;
     private String Note;
+    private BigDecimal Paid;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime shipStart;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")

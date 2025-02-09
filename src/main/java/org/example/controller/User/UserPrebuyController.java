@@ -2,14 +2,13 @@ package org.example.controller.User;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.example.controller.EmailController;
 import org.example.dto.BuyInfo;
 import org.example.dto.CartDTO;
 import org.example.dto.CartUpdateRequest;
 import org.example.entity.*;
-import org.example.entity.enums.Cancelenable;
-import org.example.entity.enums.Condition;
-import org.example.entity.enums.IsPaid;
-import org.example.entity.enums.Status;
+import org.example.entity.Type;
+import org.example.entity.enums.*;
 import org.example.repository.*;
 import org.example.repository.OrderRepository;
 import org.example.service.*;
@@ -41,7 +40,7 @@ public class UserPrebuyController {
     private final AccountRepository accountRepository;
     private final PreorderdetailRepository preorderdetailRepository;
     private final PreOrderRepository preOrderRepository;
-
+    private final EmailController emailController;
     private final GetIDAccountFromAuthService getIDAccountFromAuthService;
 
     @GetMapping("")
@@ -184,6 +183,7 @@ public class UserPrebuyController {
                 newBill.setDeliveryAddress(buyInfo.getAddress());
                 newBill.setPhoneNumber(buyInfo.getPhone());
                 BigDecimal totalAmount = new BigDecimal(0);
+                newBill.setHadpaid(totalAmount);
                 newBill.setTotalAmount(totalAmount);
                 orderRepository.save(newBill);
 
@@ -214,6 +214,7 @@ public class UserPrebuyController {
                 }
                 newBill.setTotalAmount(totalAmount);
                 orderRepository.save(newBill);
+                emailController.BuySuccess(newBill);
             }
             else {
                 Preorder newPreorder = new Preorder();
@@ -226,7 +227,7 @@ public class UserPrebuyController {
                 newPreorder.setPhoneNumber(buyInfo.getPhone());
                 BigDecimal totalAmount = new BigDecimal(0);
                 newPreorder.setTotalAmount(totalAmount);
-                newPreorder.setCancelenable(Cancelenable.YES);
+                newPreorder.setPrecondition(Precondition.Waiting);
                 preOrderRepository.save(newPreorder);
 
                 for (int i = 0; i < cartIDs.length; i++) {
@@ -253,6 +254,8 @@ public class UserPrebuyController {
                 }
                 newPreorder.setTotalAmount(totalAmount);
                 preOrderRepository.save(newPreorder);
+                emailController.PreorderSuccess(newPreorder);
+
             }
 
             return ResponseEntity.status(HttpStatus.CREATED)
@@ -264,7 +267,7 @@ public class UserPrebuyController {
         }
     }
 
-    public ResponseEntity<?> buyVNPay(int[] cartIDs, int accountId,BigDecimal[] prices, BigDecimal[] paids, BuyInfo buyInfo) {
+    public ResponseEntity<?> buyVNPay(int[] cartIDs, int accountId,BigDecimal[] prices, BigDecimal[] paids, BuyInfo buyInfo, String vnp_TransactionNo) {
         try {
             Account account = accountService.getAccountById(accountId);
             int firstCartID = cartIDs[0];
@@ -273,12 +276,13 @@ public class UserPrebuyController {
             {
                 Order newBill = new Order();
                 newBill.setAccountID(account);
-                newBill.setPaid(IsPaid.No);
+                newBill.setPaid(IsPaid.Yes);
                 newBill.setStatus(Status.ENABLE);
                 newBill.setDate(LocalDateTime.now());
                 newBill.setCondition(Condition.Pending);
                 newBill.setName(buyInfo.getName());
                 newBill.setNote(buyInfo.getNote());
+                newBill.setVnp_TransactionNo(vnp_TransactionNo);
                 newBill.setDeliveryAddress(buyInfo.getAddress());
                 newBill.setPhoneNumber(buyInfo.getPhone());
                 BigDecimal totalAmount = new BigDecimal(0);
@@ -311,6 +315,7 @@ public class UserPrebuyController {
 
                 }
                 newBill.setTotalAmount(totalAmount);
+                newBill.setHadpaid(totalAmount);
                 orderRepository.save(newBill);
                 BigDecimal consume = account.getConsume().add(totalAmount);
                 account.setConsume(consume);
@@ -331,6 +336,7 @@ public class UserPrebuyController {
                 }
 
                 accountService.save(account);
+                emailController.BuySuccess(newBill);
             }
             else {
                 Preorder newPreorder = new Preorder();
@@ -341,9 +347,11 @@ public class UserPrebuyController {
                 newPreorder.setNote(buyInfo.getNote());
                 newPreorder.setDeliveryAddress(buyInfo.getAddress());
                 newPreorder.setPhoneNumber(buyInfo.getPhone());
+                newPreorder.setVnp_TransactionNo(vnp_TransactionNo);
+                newPreorder.setPrecondition(Precondition.Waiting);
                 BigDecimal totalAmount = new BigDecimal(0);
+                BigDecimal hadPaid = new BigDecimal(0);
                 newPreorder.setTotalAmount(totalAmount);
-                newPreorder.setCancelenable(Cancelenable.YES);
                 preOrderRepository.save(newPreorder);
 
                 for (int i = 0; i < cartIDs.length; i++) {
@@ -352,7 +360,7 @@ public class UserPrebuyController {
                     BigDecimal paid = paids[i];
 
                     totalAmount = totalAmount.add(price);
-
+                    hadPaid = hadPaid.add(paid);
                     Cart cart = cartService.findCartByCartID(cartID);
                     if (cart == null) {
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -367,9 +375,28 @@ public class UserPrebuyController {
                     preorderdetail.setPaid(paid);
                     cartService.deleteBoughtCart(cartID);
                     preorderdetailRepository.save(preorderdetail);
+
+                    BigDecimal consume = account.getConsume().add(hadPaid);
+                    account.setConsume(consume);
+                    List<Type> types = typeService.findAllOrderByMinConsumeAsc();
+
+                    Type appropriateType = null;
+                    for (Type type : types) {
+                        if (consume.compareTo(type.getMinConsume()) >= 0) {
+                            appropriateType = type;
+                        } else {
+                            break;
+                        }
+                    }
+
+                    if (appropriateType != null) {
+                        account.setType(appropriateType);
+                    }
                 }
+                accountRepository.save(account);
                 newPreorder.setTotalAmount(totalAmount);
                 preOrderRepository.save(newPreorder);
+                emailController.PreorderSuccess(newPreorder);
             }
 
             return ResponseEntity.status(HttpStatus.CREATED)

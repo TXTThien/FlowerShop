@@ -118,10 +118,11 @@ public class PaymentController {
     @GetMapping("/payment_info")
     public void transaction(@RequestParam Map<String, String> params, HttpServletRequest request, HttpServletResponse response) throws IOException {
         System.out.println("Price: "+ Arrays.toString(price));
+        String transactionId = params.get("vnp_TransactionNo");
         String responseCode = params.get("vnp_ResponseCode");
         int accountId = (int) request.getSession().getAttribute("accountID");
         if ("00".equals(responseCode)) {
-            prebuyController.buyVNPay(cartID, accountId,price,paid,buyInfo);
+            prebuyController.buyVNPay(cartID, accountId,price,paid,buyInfo,transactionId);
             response.sendRedirect("http://localhost:8000/PaymentSuccess");
 
         } else {

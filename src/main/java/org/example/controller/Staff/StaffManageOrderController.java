@@ -14,9 +14,11 @@ import org.example.service.IAccountService;
 import org.example.service.IFlowerSizeService;
 import org.example.service.IOrderDetailService;
 import org.example.service.IOrderService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -42,6 +44,7 @@ public class StaffManageOrderController {
         response.put("accounts", accounts);
         return ResponseEntity.ok(response);
     }
+
     @PostMapping("/ordernoship/ship")
     public ResponseEntity<?> getOrderShip(@RequestBody ShipToOrderDTO shipToOrderDTO) {
         Shipping shipping = new Shipping();
@@ -55,6 +58,7 @@ public class StaffManageOrderController {
         orderService.update(order);
         return ResponseEntity.ok("Shipping created and associated successfully");
     }
+
     @GetMapping("/cancelprocessing")
     public ResponseEntity<?> getOrderCancelProcessing() {
         List<Order> orders = orderService.findOrderByCondition(Condition.Cancel_is_Processing);
@@ -62,24 +66,42 @@ public class StaffManageOrderController {
         response.put("orders", orders);
         return ResponseEntity.ok(response);
     }
+
     @PostMapping("/cancelprocessing/yes")
-    public ResponseEntity<?> getOkOrderCancelProcessing(@RequestBody Order orderid) {
-        Order order = orderService.findOrderByOrderID(orderid.getOrderID());
-        List <OrderDetail> orderDetails = orderDetailService.findOrderDetailByOrderID(orderid.getOrderID());
-        order.setCondition(Condition.Cancelled);
-        for (OrderDetail orderDetail : orderDetails)
-        {
-            FlowerSize flowerSize = flowerSizeService.findFlowerSizeByID(orderDetail.getFlowerSize().getFlowerSizeID());
-            flowerSize.setStock(flowerSize.getStock()+orderDetail.getQuantity());
-            flowerSizeRepository.save(flowerSize);
+    public ResponseEntity<?> getOkOrderCancelProcessing(@RequestBody Order requestOrder) {
+        Order order = orderService.findOrderByOrderID(requestOrder.getOrderID());
+
+        if (order == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found");
         }
+
+        List<OrderDetail> orderDetails = orderDetailService.findOrderDetailByOrderID(requestOrder.getOrderID());
+
+        if (orderDetails == null || orderDetails.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order details not found");
+        }
+        if (order.getHadpaid().equals(BigDecimal.ZERO)) {
+            order.setCondition(Condition.Cancelled);
+        } else {
+            order.setCondition(Condition.Refund);
+        }
+
+        for (OrderDetail orderDetail : orderDetails) {
+            FlowerSize flowerSize = flowerSizeService.findFlowerSizeByID(orderDetail.getFlowerSize().getFlowerSizeID());
+            if (flowerSize != null) {
+                flowerSize.setStock(flowerSize.getStock() + orderDetail.getQuantity());
+                flowerSizeRepository.save(flowerSize);
+            }
+        }
+
         orderService.update(order);
-        return ResponseEntity.ok("Order cancel");
+        return ResponseEntity.ok("Order canceled successfully");
     }
+
     @PostMapping("/cancelprocessing/no")
     public ResponseEntity<?> getDeniedOrderCancelProcessing(@RequestBody Order orderid) {
         Order order = orderService.findOrderByOrderID(orderid.getOrderID());
-        order.setCondition(Condition.Prepare);
+        order.setCondition(Condition.In_Transit);
         orderService.update(order);
         return ResponseEntity.ok("Order not cancel");
     }

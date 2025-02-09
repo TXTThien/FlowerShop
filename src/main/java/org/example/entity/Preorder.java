@@ -1,11 +1,9 @@
 package org.example.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
-import org.example.entity.enums.Cancelenable;
-import org.example.entity.enums.Condition;
+import org.example.entity.enums.Precondition;
 import org.example.entity.enums.Status;
 
 import java.math.BigDecimal;
@@ -51,8 +49,12 @@ public class Preorder {
     @Column(name = "Status", nullable = false)
     protected Status status;
 
+    @Column(name = "vnp_TransactionNo")
+    private String vnp_TransactionNo;
+
+
     @Enumerated(EnumType.STRING)
-    @Column(name = "Cancelenable", nullable = false)
-    protected Cancelenable cancelenable;
+    @Column(name = "Precondition", nullable = false)
+    protected Precondition precondition;
 
 }

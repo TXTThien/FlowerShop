@@ -329,7 +329,7 @@ public class ShipperAccountController {
             if(order.getPaid()==IsPaid.No)
             {
                 order.setPaid(IsPaid.Yes);
-                BigDecimal total = consume.add(order.getTotalAmount());
+                BigDecimal total = consume.add(order.getTotalAmount().subtract(order.getHadpaid()));
                 account.setConsume(total);
                 List<Type> types = typeService.findAllOrderByMinConsumeAsc();
                 Type appropriateType = null;

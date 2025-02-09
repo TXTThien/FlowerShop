@@ -49,17 +49,23 @@ public class Order {
     @Column(name = "total_amount", nullable = false, precision = 50, scale = 2)
     private BigDecimal totalAmount;
 
+    @Column(name = "Paid", precision = 50, scale = 2)
+    private BigDecimal hadpaid;
+
     @Column(name = "delivery_address", nullable = false)
     private String deliveryAddress;
 
     @Column(name = "phone_number",length = 15, nullable = false)
     private String phoneNumber;
 
-    @Column(name = "Name",length = 255, nullable = false)
+    @Column(name = "Name", nullable = false)
     private String name;
 
     @Column(name = "Note")
     private String note;
+
+    @Column(name = "vnp_TransactionNo")
+    private String vnp_TransactionNo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ShippingID")

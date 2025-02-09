@@ -3,9 +3,11 @@ package org.example.controller.Staff;
 import lombok.RequiredArgsConstructor;
 import org.example.entity.Flower;
 import org.example.entity.FlowerSize;
+import org.example.entity.enums.Preorderable;
 import org.example.entity.enums.Status;
 import org.example.repository.FlowerRepository;
 import org.example.repository.FlowerSizeRepository;
+import org.example.service.IFlowerSizeService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +21,7 @@ import java.util.Map;
 public class StaffFlowerSizeController {
     private final FlowerSizeRepository flowerSizeRepository;
     private final FlowerRepository flowerRepository;
+    private final IFlowerSizeService flowerSizeService;
 
     @GetMapping
     public ResponseEntity<?> getAllCategories() {
@@ -77,5 +80,38 @@ public class StaffFlowerSizeController {
         flowerSizeRepository.save(category);
 
         return ResponseEntity.noContent().build();
+    }
+    @RequestMapping("/preorderable")
+    public void Preorderable (){
+        List<FlowerSize> flowerSizes = flowerSizeRepository.findAll();
+        int count = 0;
+        for (FlowerSize flowerSize : flowerSizes) {
+            if (flowerSize.getPreorderable() == Preorderable.NO)
+                count++;
+        }
+        if (count == flowerSizes.size())
+        {
+            for (FlowerSize flowerSize : flowerSizes) {
+                flowerSize.setPreorderable(Preorderable.YES);
+                flowerSizeRepository.save(flowerSize);
+            }
+        }
+        else
+        {
+            for (FlowerSize flowerSize : flowerSizes) {
+                flowerSize.setPreorderable(Preorderable.NO);
+                flowerSizeRepository.save(flowerSize);
+            }
+        }
+    }
+
+    @RequestMapping("/preorderable/{id}")
+    public void PreorderableID(@PathVariable int id){
+        FlowerSize flowerSize = flowerSizeService.findFlowerSizeByID(id);
+        if (flowerSize.getPreorderable()==Preorderable.NO)
+            flowerSize.setPreorderable(Preorderable.YES);
+        else
+            flowerSize.setPreorderable(Preorderable.NO);
+        flowerSizeRepository.save(flowerSize);
     }
 }
