@@ -58,10 +58,6 @@ public class UserPrebuyController {
         List<Cart> cartorderList = cartService.findCartsByAccountID(id, org.example.entity.enums.Type.Order );
         List<Cart> cartpreorderList = cartService.findCartsByAccountID(id, org.example.entity.enums.Type.Preorder );
 
-        if (cartpreorderList == null || cartpreorderList.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Cart not found for Account ID: " + id);
-        }
 
         // Fetch discounts
         List<Discount> discounts = discountRepository.findAll();
@@ -215,7 +211,7 @@ public class UserPrebuyController {
                 }
                 newBill.setTotalAmount(totalAmount);
                 orderRepository.save(newBill);
-                emailController.BuySuccess(newBill);
+                emailController.BuySuccess(newBill,id);
             }
             else {
                 Preorder newPreorder = new Preorder();
@@ -250,12 +246,13 @@ public class UserPrebuyController {
                     preorderdetail.setPrice(price);
                     preorderdetail.setStatus(Status.ENABLE);
                     preorderdetail.setPaid(paid);
+
                     cartService.deleteBoughtCart(cartID);
                     preorderdetailRepository.save(preorderdetail);
                 }
                 newPreorder.setTotalAmount(totalAmount);
                 preOrderRepository.save(newPreorder);
-                emailController.PreorderSuccess(newPreorder);
+                emailController.PreorderSuccess(newPreorder,id);
 
             }
 
@@ -315,7 +312,9 @@ public class UserPrebuyController {
                     flowerSizeService.updateStock(FlowerSize.getFlowerSizeID(), number);
                     orderDetailRepository.save(orderDetail);
 
+
                 }
+
                 newBill.setTotalAmount(totalAmount);
                 newBill.setHadpaid(totalAmount);
                 orderRepository.save(newBill);
@@ -338,7 +337,7 @@ public class UserPrebuyController {
                 }
 
                 accountService.save(account);
-                emailController.BuySuccess(newBill);
+                emailController.BuySuccess(newBill,accountId);
             }
             else {
                 Preorder newPreorder = new Preorder();
@@ -398,7 +397,7 @@ public class UserPrebuyController {
                 accountRepository.save(account);
                 newPreorder.setTotalAmount(totalAmount);
                 preOrderRepository.save(newPreorder);
-                emailController.PreorderSuccess(newPreorder);
+                emailController.PreorderSuccess(newPreorder,accountId);
             }
 
             return ResponseEntity.status(HttpStatus.CREATED)

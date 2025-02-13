@@ -31,13 +31,11 @@ public class EmailController {
     private final IAccountService accountService;
     private final IPreorderdetailService preorderdetailService;
 
-    public void BuySuccess(Order order) {
-        int idAccount = getIDAccountFromAuthService.common();
+    public void BuySuccess(Order order, int idAccount) {
         Account account = accountService.getAccountById(idAccount);
         String email = account.getEmail();
         String subject = "Thông báo đặt hàng thành công";
         String text;
-
         if (order.getPaid() == IsPaid.Yes) {
             text = "Bạn đã thanh toán thành công, mã số đơn hàng: " + order.getOrderID() + "\n" +
                     "Mã thanh toán: " + order.getVnp_TransactionNo() + "\n" +
@@ -46,6 +44,7 @@ public class EmailController {
                     "Hãy lưu giữ lại mã thanh toán và mã số đơn hàng nếu có khiếu nại hoặc yêu cầu hoàn trả tiền.";
         } else if (order.getPaid() == IsPaid.No && order.getHadpaid().compareTo(BigDecimal.ZERO) != 0) {
             BigDecimal havePay = order.getTotalAmount().subtract(order.getHadpaid());
+
             text = "Bạn đã đặt hàng thành công, mã số đơn hàng: " + order.getOrderID() + "\n" +
                     "Mã thanh toán: " + order.getVnp_TransactionNo() + "\n" +
                     "Số tiền đã thanh toán: " + order.getHadpaid() + "\n" +
@@ -59,8 +58,7 @@ public class EmailController {
         emailService.sendSimpleMessage(email, subject, text);
     }
 
-    public void PreorderSuccess(Preorder preorder) {
-        int idAccount = getIDAccountFromAuthService.common();
+    public void PreorderSuccess(Preorder preorder,int idAccount) {
         Account account = accountService.getAccountById(idAccount);
         String email = account.getEmail();
         String subject = "Thông báo đặt trước thành công";
