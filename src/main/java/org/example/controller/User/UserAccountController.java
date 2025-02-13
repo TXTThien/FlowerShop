@@ -130,7 +130,7 @@ public class UserAccountController {
         orderHistory.setAddress(order.getDeliveryAddress());
         orderHistory.setPhone(order.getPhoneNumber());
         orderHistory.setName(order.getName());
-        orderHistory.setPaid(order.getTotalAmount().subtract(order.getHadpaid()));
+        orderHistory.setPaid((order.getHadpaid()));
         orderHistory.setCondition(order.getCondition());
         if (order.getNote() != null) {
             orderHistory.setNote(order.getNote());
@@ -228,7 +228,7 @@ public class UserAccountController {
         } else if (order.getCondition() == Condition.Pending) {
             List<OrderDetail> orderDetails = orderDetailService.findOrderDetailByOrderID(orderID);
 
-            if (order.getHadpaid().equals(BigDecimal.ZERO)) {
+            if (order.getHadpaid() == null || order.getHadpaid().compareTo(BigDecimal.ZERO) == 0) {
                 order.setCondition(Condition.Cancelled);
             } else {
                 order.setCondition(Condition.Refund);

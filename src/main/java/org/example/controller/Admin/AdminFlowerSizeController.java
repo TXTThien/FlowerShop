@@ -4,10 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.example.entity.Flower;
 import org.example.entity.FlowerImages;
 import org.example.entity.FlowerSize;
+import org.example.entity.enums.Preorderable;
 import org.example.entity.enums.Status;
 import org.example.repository.FlowerImagesRepository;
 import org.example.repository.FlowerRepository;
 import org.example.repository.FlowerSizeRepository;
+import org.example.service.IFlowerSizeService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +23,7 @@ import java.util.Map;
 public class AdminFlowerSizeController {
     private final FlowerSizeRepository flowerSizeRepository;
     private final FlowerRepository flowerRepository;
-
+    private final IFlowerSizeService flowerSizeService;
     @GetMapping
     public ResponseEntity<?> getAllCategories() {
         List<FlowerSize> flowerSizes = flowerSizeRepository.findAll();
@@ -63,7 +65,7 @@ public class AdminFlowerSizeController {
         commentType.setStock(categoryDetails.getStock());
         commentType.setCost(categoryDetails.getCost());
         commentType.setPrice(categoryDetails.getPrice());
-
+        commentType.setPreorderable(categoryDetails.getPreorderable());
         FlowerSize updatedCategory = flowerSizeRepository.save(commentType);
         return ResponseEntity.ok(updatedCategory);
     }
@@ -80,13 +82,37 @@ public class AdminFlowerSizeController {
 
         return ResponseEntity.noContent().build();
     }
-    @DeleteMapping("/harddelete/{id}")
-    public ResponseEntity<Void> deleteBanner(@PathVariable Integer id) {
-        FlowerSize category = flowerSizeRepository.findById(id).orElse(null);
-        if (category == null) {
-            return ResponseEntity.notFound().build();
+    @RequestMapping("/preorderable")
+    public void Preorderable (){
+        List<FlowerSize> flowerSizes = flowerSizeRepository.findAll();
+        int count = 0;
+        for (FlowerSize flowerSize : flowerSizes) {
+            if (flowerSize.getPreorderable() == Preorderable.NO)
+                count++;
         }
-        flowerSizeRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
+        if (count == flowerSizes.size())
+        {
+            for (FlowerSize flowerSize : flowerSizes) {
+                flowerSize.setPreorderable(Preorderable.YES);
+                flowerSizeRepository.save(flowerSize);
+            }
+        }
+        else
+        {
+            for (FlowerSize flowerSize : flowerSizes) {
+                flowerSize.setPreorderable(Preorderable.NO);
+                flowerSizeRepository.save(flowerSize);
+            }
+        }
+    }
+
+    @RequestMapping("/preorderable/{id}")
+    public void PreorderableID(@PathVariable int id){
+        FlowerSize flowerSize = flowerSizeService.findFlowerSizeByID(id);
+        if (flowerSize.getPreorderable()==Preorderable.NO)
+            flowerSize.setPreorderable(Preorderable.YES);
+        else
+            flowerSize.setPreorderable(Preorderable.NO);
+        flowerSizeRepository.save(flowerSize);
     }
 }

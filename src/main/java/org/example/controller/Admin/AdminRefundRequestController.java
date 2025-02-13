@@ -1,4 +1,4 @@
-package org.example.controller.Staff;
+package org.example.controller.Admin;
 
 import lombok.RequiredArgsConstructor;
 import org.example.dto.AdminStaffRefund;
@@ -8,24 +8,24 @@ import org.example.entity.enums.Precondition;
 import org.example.entity.enums.Status;
 import org.example.repository.OrderRepository;
 import org.example.repository.PreOrderRepository;
-import org.example.repository.PreorderdetailRepository;
 import org.example.repository.RefundResponsitory;
 import org.example.service.IAccountService;
 import org.example.service.IPreorderdetailService;
 import org.example.service.IRefundService;
 import org.example.service.ITypeService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/staff/refund")
+@RequestMapping("/api/v1/admin/refund")
 @RequiredArgsConstructor
-public class StaffRefundRequestController {
+public class AdminRefundRequestController {
     private final RefundResponsitory refundResponsitory;
     private final IPreorderdetailService preorderdetailService;
     private final PreOrderRepository preOrderRepository;
@@ -37,7 +37,8 @@ public class StaffRefundRequestController {
     public ResponseEntity<?> getRefund() {
         List<Refund> refunds = refundResponsitory.findAll();
         List<AdminStaffRefund> adminStaffRefund = new ArrayList<>();
-
+        List<Preorder> preorders = preOrderRepository.findAll();
+        List<Order> orders = orderRepository.findAll();
         for (int i = 0; i < refunds.size(); i++) {
             AdminStaffRefund staffRefund = new AdminStaffRefund(); // Tạo đối tượng mới
             staffRefund.setRefund(refunds.get(i));
@@ -59,6 +60,8 @@ public class StaffRefundRequestController {
         }
 
         Map<String, Object> response = new HashMap<>();
+        response.put("preorders", preorders);
+        response.put("orders", orders);
         response.put("refunds", adminStaffRefund);
         return ResponseEntity.ok(response);
     }
@@ -66,6 +69,9 @@ public class StaffRefundRequestController {
     @PutMapping("/{id}")
     public void editRefund(@PathVariable int id, @RequestBody Refund newrefund){
         Refund refund = refundResponsitory.findRefundById(id);
+        refund.setOrderID(newrefund.getOrderID());
+        refund.setPreorderID(newrefund.getPreorderID());
+        refund.setDate(newrefund.getDate());
         refund.setNumber(newrefund.getNumber());
         refund.setBank(newrefund.getBank());
         refund.setStatus(newrefund.getStatus());
@@ -135,5 +141,4 @@ public class StaffRefundRequestController {
             accountService.save(account);
         }
     }
-
 }

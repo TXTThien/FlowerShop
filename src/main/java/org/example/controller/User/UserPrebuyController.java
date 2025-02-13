@@ -206,6 +206,7 @@ public class UserPrebuyController {
                     orderDetail.setFlowerSize(cart.getFlowerSize());
                     orderDetail.setQuantity(cart.getQuantity());
                     orderDetail.setPrice(price);
+                    orderDetail.setPaid(BigDecimal.ZERO);
                     orderDetail.setStatus(Status.ENABLE);
                     cartService.deleteBoughtCart(cartID);
                     flowerSizeService.updateStock(FlowerSize.getFlowerSizeID(), number);
@@ -308,6 +309,7 @@ public class UserPrebuyController {
                     orderDetail.setFlowerSize(cart.getFlowerSize());
                     orderDetail.setQuantity(cart.getQuantity());
                     orderDetail.setPrice(price);
+                    orderDetail.setPaid(price);
                     orderDetail.setStatus(Status.ENABLE);
                     cartService.deleteBoughtCart(cartID);
                     flowerSizeService.updateStock(FlowerSize.getFlowerSizeID(), number);

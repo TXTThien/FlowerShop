@@ -42,4 +42,7 @@ public class OrderDetail {
     @Enumerated(EnumType.STRING)
     @Column(name = "Status", nullable = false)
     protected Status status;
+
+    @Column(name = "Paid", precision = 50, scale = 2)
+    private BigDecimal paid;
 }

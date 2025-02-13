@@ -1,14 +1,13 @@
-package org.example.controller.Staff;
+package org.example.controller.Admin;
 
 import lombok.RequiredArgsConstructor;
-import org.aspectj.weaver.ast.Or;
 import org.example.dto.PreorderList;
 import org.example.entity.*;
-import org.example.entity.enums.*;
-import org.example.repository.OrderDetailRepository;
-import org.example.repository.OrderRepository;
-import org.example.repository.PreOrderRepository;
-import org.example.repository.PreorderdetailRepository;
+import org.example.entity.enums.Condition;
+import org.example.entity.enums.IsPaid;
+import org.example.entity.enums.Precondition;
+import org.example.entity.enums.Status;
+import org.example.repository.*;
 import org.example.service.IAccountService;
 import org.example.service.IPreOrderService;
 import org.example.service.IPreorderdetailService;
@@ -24,9 +23,9 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/staff/preorder")
+@RequestMapping("/api/v1/admin/preorder")
 @RequiredArgsConstructor
-public class StaffPreorderController {
+public class AdminPreorderController {
     private final IPreorderdetailService preorderdetailService;
     private final PreorderdetailRepository preorderdetailRepository;
     private final PreOrderRepository preOrderRepository;
@@ -35,7 +34,7 @@ public class StaffPreorderController {
     private final OrderRepository orderRepository;
     private final IAccountService accountService;
     private final ITypeService typeService;
-
+    private final AccountRepository accountRepository;
     @GetMapping
     public ResponseEntity<List<Preorder>> getAllCategories() {
         List<Preorder> categories = preOrderRepository.findAll();
@@ -44,8 +43,10 @@ public class StaffPreorderController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getPreOrder(@PathVariable int id){
         Preorder preorder = preOrderService.findPreorderByPreorderID(id);
+        List<Account> accounts = accountRepository.findAll();
         List<Preorderdetail> preorderdetails = preorderdetailService.findPreorderdetailByPreorder(preorder);
         Map<String, Object> response = new HashMap<>();
+        response.put("accounts", accounts);
         response.put("preorders", preorder);
         response.put("preorderdetails", preorderdetails);
         return ResponseEntity.ok(response);
@@ -80,6 +81,9 @@ public class StaffPreorderController {
         existingPreorder.setName(preorder.getName());
         existingPreorder.setStatus(preorder.getStatus());
         existingPreorder.setNote(preorder.getNote());
+        existingPreorder.setDate(preorder.getDate());
+        existingPreorder.setAccount(preorder.getAccount());
+        existingPreorder.setVnp_TransactionNo(preorder.getVnp_TransactionNo());
         existingPreorder.setPhoneNumber(preorder.getPhoneNumber());
         existingPreorder.setDeliveryAddress(preorder.getDeliveryAddress());
         preOrderRepository.save(existingPreorder);

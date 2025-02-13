@@ -29,6 +29,7 @@ public class OrderShippingDTO {
     private LocalDateTime date;
     private IsPaid isPaid;
     private BigDecimal Total;
+    private BigDecimal hadPaid;
     private String Address;
     private String Phone;
     private String Name;
@@ -37,6 +38,7 @@ public class OrderShippingDTO {
     private String[] FlowerName;
     private String[] SizeName;
     private BigDecimal[] Price;
+    private BigDecimal[] Paid;
     private Integer[] Quantity;
     private Float[] Length;
     private Float[] Height;

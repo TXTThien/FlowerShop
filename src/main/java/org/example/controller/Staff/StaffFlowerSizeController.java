@@ -64,7 +64,7 @@ public class StaffFlowerSizeController {
         commentType.setStock(categoryDetails.getStock());
         commentType.setCost(categoryDetails.getCost());
         commentType.setPrice(categoryDetails.getPrice());
-
+        commentType.setPreorderable(categoryDetails.getPreorderable());
         FlowerSize updatedCategory = flowerSizeRepository.save(commentType);
         return ResponseEntity.ok(updatedCategory);
     }

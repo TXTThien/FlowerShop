@@ -11,6 +11,7 @@ import org.example.entity.enums.Status;
 import org.example.repository.AccountRepository;
 import org.example.repository.ShippingRepository;
 import org.example.service.IAccountService;
+import org.example.service.IOrderDetailService;
 import org.example.service.IOrderService;
 import org.example.service.ITypeService;
 import org.example.service.securityService.GetIDAccountFromAuthService;
@@ -31,6 +32,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ShipperAccountController {
     private final IOrderService orderService;
+    private final IOrderDetailService orderDetailService;
     private final ShippingRepository shippingRepository;
     private final GetIDAccountFromAuthService getIDAccountFromAuthService;
     private final IAccountService accountService;
@@ -115,6 +117,7 @@ public class ShipperAccountController {
         Order order = orderService.findOrderByOrderID(orderid);
         OrderShippingDTO orderShippingDTO = new OrderShippingDTO();
         orderShippingDTO.setShipperName(order.getShipping().getAccountID().getName());
+        orderShippingDTO.setHadPaid(order.getHadpaid());
         orderShippingDTO.setOrderID(order.getOrderID());
         orderShippingDTO.setShippingID(order.getShipping().getShippingID());
         orderShippingDTO.setShipperID(order.getShipping().getAccountID().getAccountID());
@@ -172,9 +175,14 @@ public class ShipperAccountController {
         orderShippingDTO.setSizeName(Sizename.toArray(new String[0]));
         List<BigDecimal> Price = order.getOrderDetails()
                 .stream()
-                .map(orderDetail -> orderDetail.getFlowerSize().getPrice()) // Trích xuất tên hoa từ FlowerSize
+                .map(OrderDetail::getPrice) // Trích xuất tên hoa từ FlowerSize
                 .toList();
         orderShippingDTO.setPrice(Price.toArray(new BigDecimal[0]));
+        List<BigDecimal> Paid = order.getOrderDetails()
+                .stream()
+                .map(OrderDetail::getPaid) // Trích xuất tên hoa từ FlowerSize
+                .toList();
+        orderShippingDTO.setPaid(Paid.toArray(new BigDecimal[0]));
         Map<String, Object> response = new HashMap<>();
         response.put("orderShippingDTO", orderShippingDTO);
 
@@ -262,7 +270,7 @@ public class ShipperAccountController {
         int id = getIDAccountFromAuthService.common();
         Order order = orderService.findOrderByOrderID(orderid);
         OrderShippingDTO orderShippingDTO = new OrderShippingDTO();
-
+        orderShippingDTO.setHadPaid(order.getHadpaid());
         orderShippingDTO.setOrderID(order.getOrderID());
         orderShippingDTO.setShippingID(order.getShipping().getShippingID());
         orderShippingDTO.setShipperID(order.getShipping().getAccountID().getAccountID());
@@ -313,6 +321,11 @@ public class ShipperAccountController {
                 .map(orderDetail -> orderDetail.getFlowerSize().getWeight()) // Trích xuất tên hoa từ FlowerSize
                 .toList();
         orderShippingDTO.setWeight(Weight.toArray(new Float[0]));
+        List<BigDecimal> Price = order.getOrderDetails()
+                .stream()
+                .map(OrderDetail::getPrice) // Trích xuất tên hoa từ FlowerSize
+                .toList();
+        orderShippingDTO.setPrice(Price.toArray(new BigDecimal[0]));
         Map<String, Object> response = new HashMap<>();
         response.put("orderShippingDTO", orderShippingDTO);
         return ResponseEntity.ok(response);
@@ -328,6 +341,12 @@ public class ShipperAccountController {
             order.setCondition(Condition.Delivered_Successfully);
             if(order.getPaid()==IsPaid.No)
             {
+                order.setHadpaid(order.getTotalAmount());
+                List<OrderDetail> orderDetails = orderDetailService.findOrderDetailByOrderID(orderid);
+                for (int i = 0;i<orderDetails.size();i++)
+                {
+                    orderDetails.get(i).setPaid(orderDetails.get(i).getPrice());
+                }
                 order.setPaid(IsPaid.Yes);
                 BigDecimal total = consume.add(order.getTotalAmount().subtract(order.getHadpaid()));
                 account.setConsume(total);

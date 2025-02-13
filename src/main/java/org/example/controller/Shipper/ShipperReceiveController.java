@@ -42,7 +42,7 @@ public class ShipperReceiveController {
     public ResponseEntity<?> getOrder(@PathVariable Integer id) {
         Order order= orderService.findOrderByOrderID(id);
         OrderShippingDTO orderShippingDTO = new OrderShippingDTO();
-
+        orderShippingDTO.setHadPaid(order.getHadpaid());
         orderShippingDTO.setOrderID(order.getOrderID());
         orderShippingDTO.setDate(order.getDate());
         orderShippingDTO.setIsPaid(order.getPaid());
@@ -89,9 +89,14 @@ public class ShipperReceiveController {
         orderShippingDTO.setSizeName(Sizename.toArray(new String[0]));
         List<BigDecimal> Price = order.getOrderDetails()
                 .stream()
-                .map(orderDetail -> orderDetail.getFlowerSize().getPrice()) // Trích xuất tên hoa từ FlowerSize
+                .map(OrderDetail::getPrice) // Trích xuất tên hoa từ FlowerSize
                 .toList();
         orderShippingDTO.setPrice(Price.toArray(new BigDecimal[0]));
+        List<BigDecimal> Paid = order.getOrderDetails()
+                .stream()
+                .map(OrderDetail::getPaid) // Trích xuất tên hoa từ FlowerSize
+                .toList();
+        orderShippingDTO.setPaid(Paid.toArray(new BigDecimal[0]));
         Map<String, Object> response = new HashMap<>();
         response.put("orderList", orderShippingDTO);
         return ResponseEntity.ok(response);

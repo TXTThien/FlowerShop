@@ -52,8 +52,6 @@ public class AdminOrderController {
         commentType.setShipping(categoryDetails.getShipping());
         commentType.setNote(categoryDetails.getNote());
         commentType.setCondition(categoryDetails.getCondition());
-
-
         Order updatedCategory = orderRepository.save(commentType);
         return ResponseEntity.ok(updatedCategory);
     }

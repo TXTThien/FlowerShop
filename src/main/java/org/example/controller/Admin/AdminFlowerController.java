@@ -26,14 +26,13 @@ public class AdminFlowerController {
 
     @GetMapping
     public ResponseEntity<?> getAllCategories() {
-        List<Flower> flowers = flowerRepository.findAll();
-        List<Category> categories = categoryRepository.findAll();
+        List<Flower> categories = flowerRepository.findAll();
+        List<Category> categoryList = categoryRepository.findAll();
         List<Purpose> purposes = purposeRepository.findAll();
-
         Map<String, Object> response = new HashMap<>();
-        response.put("flowers", flowers);
-        response.put("categories", categories);
-        response.put("purposes", purposes);
+        response.put("flower", categories);
+        response.put("category", categoryList);
+        response.put("purpose", purposes);
         return ResponseEntity.ok(response);
     }
 
@@ -81,15 +80,7 @@ public class AdminFlowerController {
 
         return ResponseEntity.noContent().build();
     }
-    @DeleteMapping("/harddelete/{id}")
-    public ResponseEntity<Void> deleteBanner(@PathVariable Integer id) {
-        Flower category = flowerRepository.findById(id).orElse(null);
-        if (category == null) {
-            return ResponseEntity.notFound().build();
-        }
-        flowerRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
-    }
+
 }
 
 
