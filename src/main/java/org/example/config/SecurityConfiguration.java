@@ -54,7 +54,8 @@ public class SecurityConfiguration {
             "/news/**",
             "/info",
             "/cart",
-
+            "/blog/**",
+            "/testapp/hello"
     };
 
     private final JwtAuthenticationFilter jwtAuthFilter;
@@ -67,7 +68,7 @@ public class SecurityConfiguration {
                 .cors(cors -> cors
                         .configurationSource(request -> {
                             CorsConfiguration config = new CorsConfiguration();
-                            config.setAllowedOrigins(List.of("http://localhost:8000"));
+                            config.setAllowedOrigins(List.of("http://localhost:8000", "http://192.168.68.102"));
                             config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                             config.setAllowedHeaders(List.of("*"));
                             config.setExposedHeaders(List.of("Authorization"));
