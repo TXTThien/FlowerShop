@@ -19,7 +19,7 @@ public class BlogInteract {
     private Integer bloginteractid;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "blogid")
+    @JoinColumn(name = "bloglike")
     private Blog bloglike;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -27,7 +27,7 @@ public class BlogInteract {
     private Account account;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "commentid")
+    @JoinColumn(name = "commentlike")
     private BlogComment blogComment;
 
     @ManyToOne(fetch = FetchType.LAZY)

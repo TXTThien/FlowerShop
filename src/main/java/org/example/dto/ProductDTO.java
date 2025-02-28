@@ -15,6 +15,6 @@ public class ProductDTO {
     private Integer ProductID;
     private String avatar;
     private String title;
-    private Long sold;
+    private Integer sold;
     private BigDecimal price;
 }

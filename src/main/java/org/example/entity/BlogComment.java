@@ -23,7 +23,7 @@ public class BlogComment {
     private Integer blogcommentid;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "blogid", nullable = false)
+    @JoinColumn(name = "blogid")
     private Blog blog;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -40,10 +40,7 @@ public class BlogComment {
     @Column(name ="date", nullable = false)
     private LocalDateTime date;
 
-    @Column(name = "like")
+    @Column(name = "`like`")
     private BigInteger like;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "Status", nullable = false)
-    protected Status status;
 }

@@ -1,4 +1,5 @@
 package org.example.service;
+import org.example.dto.FlowerDTO;
 import org.example.dto.ProductDTO;
 import org.example.entity.Flower;
 import org.example.entity.*;
@@ -26,4 +27,6 @@ public interface IFlowerService {
     List<Flower> findByPurpose(String purpose, Status status);
 
     List<Flower> sortFlower(int category, int propose);
+
+    List<ProductDTO> getFlowerDTOsByFlowerIds(List<Integer> flowerIds);
 }

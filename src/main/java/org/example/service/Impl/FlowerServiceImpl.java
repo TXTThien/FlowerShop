@@ -1,6 +1,7 @@
 package org.example.service.Impl;
 
 import lombok.RequiredArgsConstructor;
+import org.example.dto.FlowerDTO;
 import org.example.repository.CategoryRepository;
 import org.example.repository.PurposeRepository;
 import org.example.service.IFlowerService;
@@ -120,4 +121,9 @@ public class FlowerServiceImpl implements IFlowerService {
     public List<Flower> sortFlower(int category, int purpose) {
         return flowerRepository.sortProduct(category,purpose);
     }
+
+    public List<ProductDTO> getFlowerDTOsByFlowerIds(List<Integer> flowerIds) {
+        return flowerRepository.findProductDTOs(flowerIds);
+    }
+
 }

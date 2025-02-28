@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/account")
@@ -41,6 +42,9 @@ public class UserAccountController {
     private final FlowerSizeRepository flowerSizeRepository;
     private final OrderRepository orderRepository;
     private final GetIDAccountFromAuthService getIDAccountFromAuthService;
+    private final IBlogService iBlogService;
+    private final IBlogInteractService iBlogInteractService;
+    private final IBlogCommentService iBlogCommentService;
     @GetMapping("")
     public ResponseEntity<Account> getAccountInfo() {
         int idAccount = getIDAccountService.common();
@@ -52,7 +56,17 @@ public class UserAccountController {
         }
     }
 
-
+    @GetMapping("/blogpin")
+    public ResponseEntity<?> getBlog() {
+        List<Blog> blogs = iBlogInteractService.findBlogPin(getIDAccountFromAuthService.common())
+                .stream()
+                .filter(blogInteract -> blogInteract.getBlogpin() != null)  // Lọc những giá trị null
+                .map(blogInteract -> iBlogService.findBlogByBlogID(blogInteract.getBlogpin().getBlogid()))
+                .collect(Collectors.toList());
+        Map<String, Object> response = new HashMap<>();
+        response.put("blogs", blogs);
+        return ResponseEntity.ok(response);
+    }
     @GetMapping("/bought")
     public ResponseEntity<Map<String, Object>> getHistoryBought() {
         int idAccount = getIDAccountService.common();

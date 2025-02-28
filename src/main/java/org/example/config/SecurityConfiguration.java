@@ -54,7 +54,7 @@ public class SecurityConfiguration {
             "/news/**",
             "/info",
             "/cart",
-            "/blog/**",
+            "/blog",
             "/testapp/hello"
     };
 
@@ -68,7 +68,7 @@ public class SecurityConfiguration {
                 .cors(cors -> cors
                         .configurationSource(request -> {
                             CorsConfiguration config = new CorsConfiguration();
-                            config.setAllowedOrigins(List.of("http://localhost:8000", "http://192.168.68.102"));
+                            config.setAllowedOrigins(List.of("http://localhost:8000", "http://192.168.68.103"));
                             config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                             config.setAllowedHeaders(List.of("*"));
                             config.setExposedHeaders(List.of("Authorization"));
@@ -91,6 +91,7 @@ public class SecurityConfiguration {
                             .requestMatchers("/api/v1/admin/**").hasAuthority(admin.name())
                             .requestMatchers("/api/v1/staff/**").hasAuthority(staff.name())
                             .requestMatchers("/wishlist/**").hasAuthority(user.name())
+                            .requestMatchers("/blog/**").hasAnyAuthority(user.name(), admin.name(),staff.name(), shipper.name())
 
 
                             .requestMatchers("/api/v1/upload/**").permitAll()

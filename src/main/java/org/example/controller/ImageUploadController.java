@@ -2,6 +2,7 @@ package org.example.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.service.IImageUploadService;
+import org.example.service.securityService.GetIDAccountFromAuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +19,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ImageUploadController {
     private final IImageUploadService imageUploadService;
-
+    private final GetIDAccountFromAuthService getIDAccountFromAuthService;
     @PostMapping("")
     public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file) throws IOException {
         Map<String, Object> response = new HashMap<>();

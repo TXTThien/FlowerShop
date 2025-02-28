@@ -27,7 +27,5 @@ public class BlogFlower {
     @JoinColumn(name = "blogid", nullable = false)
     private Blog blog;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    protected Status status;
+
 }

@@ -23,7 +23,10 @@ public class Blog {
     @Column(name = "content", length = 1000)
     private String content;
 
-    @Column(name = "like")
+    @Column(name = "title", length = 500)
+    private String title;
+
+    @Column(name = "`like`")
     private BigInteger like;
 
     @Column(name = "date")
@@ -31,5 +34,9 @@ public class Blog {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "Status", nullable = false)
-    protected Status status;;
+    protected Status status;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "accountid", nullable = false)
+    private Account account;
 }

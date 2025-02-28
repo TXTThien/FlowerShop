@@ -37,7 +37,7 @@ public interface FlowerRepository extends JpaRepository<Flower, Integer>{
                              @Param("purposeid") Integer purposeid);
 
 
-    @Query("SELECT new org.example.dto.ProductDTO(f.flowerID, f.image, f.name, SUM(bi.quantity), MIN(fs.price)) " +
+    @Query("SELECT new org.example.dto.ProductDTO(f.flowerID, f.image, f.name, CAST(COALESCE(SUM(bi.quantity), 0) AS int), MIN(fs.price)) " +
             "FROM Flower f " +
             "JOIN FlowerSize fs ON fs.flower = f " +
             "JOIN OrderDetail bi ON bi.flowerSize.flowerSizeID = fs.flowerSizeID " +
@@ -53,6 +53,16 @@ public interface FlowerRepository extends JpaRepository<Flower, Integer>{
             "JOIN OrderDetail bi ON bi.flowerSize = ps " +
             "WHERE bi.status = 'ENABLE' AND p.flowerID = :id")
     int HowManyBought(@Param("id") int id);
+
+    @Query("SELECT new org.example.dto.ProductDTO(f.flowerID, f.image, f.name, " +
+            "CAST(COALESCE(SUM(bi.quantity), 0) AS int), MIN(fs.price)) " +
+            "FROM Flower f " +
+            "JOIN FlowerSize fs ON fs.flower = f " +
+            "LEFT JOIN OrderDetail bi ON bi.flowerSize.flowerSizeID = fs.flowerSizeID AND bi.status = 'ENABLE' " +
+            "WHERE f.flowerID IN :ids " +
+            "GROUP BY f.flowerID, f.image, f.name")
+    List<ProductDTO> findProductDTOs(@Param("ids") List<Integer> ids);
+
 
 
 }
