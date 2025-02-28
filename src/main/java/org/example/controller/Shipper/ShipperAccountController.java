@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.aspectj.weaver.ast.Or;
 import org.example.auth.ChangePassword;
 import org.example.dto.OrderShippingDTO;
+import org.example.dto.ShipperNoteImage;
 import org.example.entity.*;
 import org.example.entity.enums.Condition;
 import org.example.entity.enums.IsPaid;
@@ -207,15 +208,19 @@ public class ShipperAccountController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Đơn hàng không trong trạng thái vận chuyển.");
     }
     @RequestMapping("/haveship/{orderid}/fail")
-    public ResponseEntity<String> getFail(@PathVariable int orderid, @RequestBody(required = false) String shippernote){
+    public ResponseEntity<String> getFail(@PathVariable int orderid, @RequestBody(required = false) ShipperNoteImage shipperNoteImage){
         Order order = orderService.findOrderByOrderID(orderid);
         Shipping shipping = order.getShipping();
         if (order.getCondition() == Condition.Shipper_Delivering)
         {
             order.setCondition(Condition.First_Attempt_Failed);
-            if (shippernote!=null)
+            if (shipperNoteImage.getImage()!=null)
             {
-                shipping.setNote(shippernote);
+                order.setPicture(shipperNoteImage.getImage());
+            }
+            if (shipperNoteImage.getText()!=null)
+            {
+                order.setText(shipperNoteImage.getText());
             }
             shippingRepository.save(shipping);
             orderService.update(order);
@@ -224,9 +229,13 @@ public class ShipperAccountController {
         else if (order.getCondition() == Condition.First_Attempt_Failed)
         {
             order.setCondition(Condition.Second_Attempt_Failed);
-            if (shippernote!=null)
+            if (shipperNoteImage.getImage()!=null)
             {
-                shipping.setNote(shippernote);
+                order.setPicture(shipperNoteImage.getImage());
+            }
+            if (shipperNoteImage.getText()!=null)
+            {
+                order.setText(shipperNoteImage.getText());
             }
             shippingRepository.save(shipping);
             orderService.update(order);
@@ -235,9 +244,13 @@ public class ShipperAccountController {
         else if (order.getCondition() == Condition.Second_Attempt_Failed)
         {
             order.setCondition(Condition.Third_Attempt_Failed);
-            if (shippernote!=null)
+            if (shipperNoteImage.getImage()!=null)
             {
-                shipping.setNote(shippernote);
+                order.setPicture(shipperNoteImage.getImage());
+            }
+            if (shipperNoteImage.getText()!=null)
+            {
+                order.setText(shipperNoteImage.getText());
             }
             shippingRepository.save(shipping);
             orderService.update(order);
@@ -246,9 +259,13 @@ public class ShipperAccountController {
         else if (order.getCondition() == Condition.Third_Attempt_Failed)
         {
             order.setCondition(Condition.Return_to_shop);
-            if (shippernote!=null)
+            if (shipperNoteImage.getImage()!=null)
             {
-                shipping.setNote(shippernote);
+                order.setPicture(shipperNoteImage.getImage());
+            }
+            if (shipperNoteImage.getText()!=null)
+            {
+                order.setText(shipperNoteImage.getText());
             }
             shipping.setCompleteDate(LocalDateTime.now());
             shippingRepository.save(shipping);
@@ -331,7 +348,7 @@ public class ShipperAccountController {
         return ResponseEntity.ok(response);
     }
     @RequestMapping("/haveship/{orderid}/success")
-    public ResponseEntity<String> getSuccess(@PathVariable int orderid, @RequestBody(required = false) String shippernote){
+    public ResponseEntity<String> getSuccess(@PathVariable int orderid, @RequestBody(required = false) ShipperNoteImage shipperNoteImage){
         Order order = orderService.findOrderByOrderID(orderid);
         Account account = order.getAccountID();
         Shipping shipping = order.getShipping();
@@ -361,9 +378,13 @@ public class ShipperAccountController {
                 }
             }
             shipping.setCompleteDate(LocalDateTime.now());
-            if (shippernote!=null)
+            if (shipperNoteImage.getImage()!=null)
             {
-                shipping.setNote(shippernote);
+                order.setPicture(shipperNoteImage.getImage());
+            }
+            if (shipperNoteImage.getText()!=null)
+            {
+                order.setText(shipperNoteImage.getText());
             }
             accountService.save(account);
             shippingRepository.save(shipping);

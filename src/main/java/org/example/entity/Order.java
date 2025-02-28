@@ -77,4 +77,10 @@ public class Order {
 
     @OneToMany(mappedBy = "orderID", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderDetail> orderDetails;
+
+    @Column(name = "picture",length = 10000)
+    private String picture;
+
+    @Column(name = "text")
+    private String text;
 }
