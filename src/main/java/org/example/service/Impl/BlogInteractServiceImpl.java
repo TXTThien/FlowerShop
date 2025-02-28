@@ -40,6 +40,6 @@ public class BlogInteractServiceImpl implements IBlogInteractService {
 
     @Override
     public List<BlogInteract> findBlogPin(int common) {
-        return blogInteractRepository.findBlogInteractsByAccount_AccountIDAndBlogpinNotEmpty(common);
+        return blogInteractRepository.findByAccount_AccountIDAndBlogpinIsNotNull(common);
     }
 }

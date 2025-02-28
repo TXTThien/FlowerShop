@@ -19,6 +19,8 @@ public interface BlogInteractRepository extends JpaRepository<BlogInteract, Inte
 
     BlogInteract findBlogInteractByAccount_AccountIDAndBlogpin_Blogid(int accountid, int blogid);
 
-    @Query("SELECT b FROM BlogInteract b WHERE b.account.accountID = :accountid AND b.blogpin IS NOT NULL AND b.blogpin <> ''")
-    List<BlogInteract> findBlogInteractsByAccount_AccountIDAndBlogpinNotEmpty(@Param("accountid") int accountid);
+    List<BlogInteract> findByAccount_AccountIDAndBlogpinIsNotNull(int accountid);
+
+
+
 }
