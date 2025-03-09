@@ -1,6 +1,7 @@
 package org.example.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.example.controller.User.UserPrebuyController;
 import org.example.dto.FlowerDTO;
 import org.example.dto.PrebuyDTO;
 import org.example.entity.*;
@@ -34,7 +35,7 @@ public class FlowerDetailController {
     private final IFlowerImageService flowerImageService;
     private final WishlistRepository wishlistRepository;
     private final PreOrderRepository preOrderRepository;
-
+    private final UserPrebuyController userPrebuyController;
     private final ICartService cartService;
     private final IAccountService accountService;
 
@@ -126,6 +127,7 @@ public class FlowerDetailController {
             cart.setStatus(Status.ENABLE);
             cart.setType(Type.Order);
             Cart createCart = cartService.createCart(cart);
+            userPrebuyController.notifyCartUpdate(idAccount, userPrebuyController.cartCount(idAccount));
             return ResponseEntity.status(HttpStatus.CREATED).body(createCart);
 
         } catch (Exception e) {
@@ -177,6 +179,7 @@ public class FlowerDetailController {
             cart.setType(Type.Order);
             cart.setType(Type.Preorder);
             Cart createCart = cartService.createCart(cart);
+            userPrebuyController.notifyCartUpdate(idAccount, userPrebuyController.cartCount(idAccount));
             return ResponseEntity.status(HttpStatus.CREATED).body(createCart);
 
         } catch (Exception e) {

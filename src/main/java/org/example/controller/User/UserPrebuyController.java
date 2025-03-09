@@ -15,6 +15,7 @@ import org.example.service.*;
 import org.example.service.securityService.GetIDAccountFromAuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.Console;
@@ -42,7 +43,18 @@ public class UserPrebuyController {
     private final PreOrderRepository preOrderRepository;
     private final EmailController emailController;
     private final GetIDAccountFromAuthService getIDAccountFromAuthService;
-
+    private final SimpMessagingTemplate messagingTemplate;
+    public void notifyCartUpdate(int accountId, int newCartCount) {
+        Map<String, Object> message = new HashMap<>();
+        message.put("accountId", accountId);
+        message.put("cartCount", newCartCount);
+        messagingTemplate.convertAndSend("/topic/cart-update", message);
+    }
+    public int cartCount (int accountid){
+        List<Cart> cartorderList = cartService.findCartsByAccountID(accountid, org.example.entity.enums.Type.Order );
+        List<Cart> cartpreorderList = cartService.findCartsByAccountID(accountid, org.example.entity.enums.Type.Preorder );
+        return cartpreorderList.size() + cartorderList.size();
+    }
     @GetMapping("")
     public ResponseEntity<?> getCart(HttpServletRequest request) {
         int id = getIDAccountFromAuthService.common();
@@ -156,7 +168,10 @@ public class UserPrebuyController {
     }
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteCart(@PathVariable Integer id){
+        int idAccount = getIDAccountFromAuthService.common();
         cartService.hardDeleteCart(id);
+        notifyCartUpdate(idAccount, cartCount(idAccount));
+
         return ResponseEntity.noContent().build();
     }
     @PostMapping("/buy")

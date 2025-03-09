@@ -77,6 +77,7 @@ public class SecurityConfiguration {
                             return config;
                         })
                 )
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/ws/**"))
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(withDefaults())
                 .exceptionHandling(e -> e
@@ -86,6 +87,7 @@ public class SecurityConfiguration {
                 )
                 .authorizeHttpRequests(req -> {
                     req
+                            .requestMatchers("/ws/**").permitAll()
                             .requestMatchers("/").permitAll()
                             .requestMatchers(WHITE_LIST_URL).permitAll()
                             .requestMatchers("/api/v1/admin/**").hasAuthority(admin.name())
