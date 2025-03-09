@@ -1,7 +1,10 @@
-package org.example.controller.Staff;
+package org.example.controller.Admin;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.*;
+import org.example.dto.BlogCommentDTO;
+import org.example.dto.BlogInfoDTO;
+import org.example.dto.CreateBlogDTO;
+import org.example.dto.ProductDTO;
 import org.example.entity.*;
 import org.example.entity.enums.Status;
 import org.example.repository.BlogFlowerRepository;
@@ -22,9 +25,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/v1/staff/blog")
+@RequestMapping("/api/v1/admin/blog")
 @RequiredArgsConstructor
-public class StaffBlogController {
+public class AdminBlogController {
     private final IBlogService iBlogService;
     private final IBlogImageService iBlogImageService;
     private final IBlogInteractService iBlogInteractService;
@@ -39,7 +42,7 @@ public class StaffBlogController {
 
     @GetMapping("")
     public ResponseEntity<?> getBlog() {
-        List<Blog> blogs = iBlogService.findStaffBlog(getIDAccountFromAuthService.common());
+        List<Blog> blogs = blogRepository.findAll();
         Map<String, Object> response = new HashMap<>();
         response.put("blogs", blogs);
         return ResponseEntity.ok(response);
@@ -155,18 +158,14 @@ public class StaffBlogController {
     }
 
 
-
     @PutMapping("/{id}")
     public ResponseEntity<?> putBlogID(@RequestBody CreateBlogDTO newblog, @PathVariable int id) {
         try {
             Blog existingBlog = iBlogService.findBlogByBlogID(id);
-            int accountid = getIDAccountFromAuthService.common();
             if (existingBlog == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Blog not found");
             }
-            if (accountid != existingBlog.getAccount().getAccountID()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You can not update this blog");
-            }
+
             existingBlog.setTitle(newblog.getTitle());
             existingBlog.setContent(newblog.getContent());
             existingBlog.setStatus(newblog.getStatus());
@@ -225,19 +224,14 @@ public class StaffBlogController {
         }
     }
 
-
-
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteBlog(@PathVariable int id) {
         try {
             Blog existingBlog = iBlogService.findBlogByBlogIDForStaff(id);
-            int accountid = getIDAccountFromAuthService.common();
             if (existingBlog == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Blog not found");
             }
-            if (accountid != existingBlog.getAccount().getAccountID()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You can not delete this blog");
-            }
+
             if (existingBlog.getStatus() == Status.ENABLE)
             {
                 existingBlog.setStatus(Status.DISABLE);
@@ -252,5 +246,4 @@ public class StaffBlogController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error updating blog: " + e.getMessage());
         }
     }
-
 }

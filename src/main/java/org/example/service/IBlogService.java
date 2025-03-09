@@ -10,4 +10,6 @@ public interface IBlogService {
     List<Blog> findAll();
 
     List<Blog> findStaffBlog(int accountid);
+
+    Blog findBlogByBlogIDForStaff(int id);
 }

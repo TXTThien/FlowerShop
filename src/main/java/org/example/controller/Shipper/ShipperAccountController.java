@@ -222,6 +222,10 @@ public class ShipperAccountController {
             {
                 order.setText(shipperNoteImage.getText());
             }
+            else if (shipperNoteImage.getText() == null)
+            {
+                order.setText("Giao thất bại lần 1");
+            }
             shippingRepository.save(shipping);
             orderService.update(order);
             return ResponseEntity.ok("Thất bại lần 1!");
@@ -236,6 +240,10 @@ public class ShipperAccountController {
             if (shipperNoteImage.getText()!=null)
             {
                 order.setText(shipperNoteImage.getText());
+            }
+            else if (shipperNoteImage.getText() == null)
+            {
+                order.setText("Giao thất bại lần 2");
             }
             shippingRepository.save(shipping);
             orderService.update(order);
@@ -252,6 +260,10 @@ public class ShipperAccountController {
             {
                 order.setText(shipperNoteImage.getText());
             }
+            else if (shipperNoteImage.getText() == null)
+            {
+                order.setText("Giao thất bại lần 3");
+            }
             shippingRepository.save(shipping);
             orderService.update(order);
             return ResponseEntity.ok("Thất bại lần 3!");
@@ -266,6 +278,10 @@ public class ShipperAccountController {
             if (shipperNoteImage.getText()!=null)
             {
                 order.setText(shipperNoteImage.getText());
+            }
+            else if (shipperNoteImage.getText() == null)
+            {
+                order.setText("Đơn hàng giao thất bại");
             }
             shipping.setCompleteDate(LocalDateTime.now());
             shippingRepository.save(shipping);
@@ -352,6 +368,7 @@ public class ShipperAccountController {
         Order order = orderService.findOrderByOrderID(orderid);
         Account account = order.getAccountID();
         Shipping shipping = order.getShipping();
+        String success= "Giao thành công";
         BigDecimal consume = account.getConsume();
         if (order.getCondition() == Condition.Shipper_Delivering||order.getCondition() == Condition.First_Attempt_Failed||order.getCondition() == Condition.Second_Attempt_Failed||order.getCondition() == Condition.Third_Attempt_Failed)
         {
@@ -385,6 +402,10 @@ public class ShipperAccountController {
             if (shipperNoteImage.getText()!=null)
             {
                 order.setText(shipperNoteImage.getText());
+            }
+            else if (shipperNoteImage.getText() == null)
+            {
+                order.setText(success);
             }
             accountService.save(account);
             shippingRepository.save(shipping);

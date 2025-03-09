@@ -21,4 +21,9 @@ public class BlogImageServiceImpl implements IBlogImageService {
     public List<BlogImage> findBlogImagesByBlogID(Integer blogid) {
         return blogImageRepository.findBlogImageByBlog_Blogid(blogid);
     }
+
+    @Override
+    public BlogImage findBlogImageByBlogImageID(int id) {
+        return blogImageRepository.findBlogImageByImageblogid(id);
+    }
 }

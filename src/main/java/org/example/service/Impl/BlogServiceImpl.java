@@ -28,5 +28,10 @@ public class BlogServiceImpl implements IBlogService {
         return blogRepository.findBlogsByAccount_AccountID(id);
     }
 
+    @Override
+    public Blog findBlogByBlogIDForStaff(int id) {
+        return blogRepository.findBlogsByBlogid(id);
+    }
+
 
 }

@@ -15,4 +15,6 @@ public interface BlogRepository extends JpaRepository<Blog, Integer> {
 
     List<Blog> findBlogsByAccount_AccountID(int id);
 
+    Blog findBlogsByBlogid(int blogid);
+
 }

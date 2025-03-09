@@ -113,6 +113,7 @@ public class BlogController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getBlogID(@PathVariable int id) {
         int accountid = getIDAccountFromAuthService.common();
+        List<BlogInfoDTO> blogInfoDTOList = new ArrayList<>();
         BlogInfoDTO blogInfoDTO = new BlogInfoDTO();
 
         // Tìm blog theo ID
@@ -161,8 +162,17 @@ public class BlogController {
                 .collect(Collectors.toList());
 
         List<ProductDTO> flowerDTOList = flowerService.getFlowerDTOsByFlowerIds(flowerIds);
-
+        BlogInteract pinBlog = iBlogInteractService.findBlogInteractByAccountIDAndBlogpinID(accountid,blog.getBlogid());
+        if (pinBlog != null)
+        {
+            blogInfoDTO.setPinBlog(Boolean.TRUE);
+        }
+        else
+        {
+            blogInfoDTO.setPinBlog(Boolean.FALSE);
+        }
         blogInfoDTO.setBlog(blog);
+        Collections.reverse(blogCommentDTOS);
         blogInfoDTO.setBlogCommentDTOS(blogCommentDTOS);
         blogInfoDTO.setBlogImages(blogImages);
         blogInfoDTO.setBlogFlower(flowerDTOList);
@@ -174,7 +184,9 @@ public class BlogController {
         blogInfoDTO.setNumberComments(totalComments);
 
         blogInfoDTO.setLikeBlog(blogInteracts != null && !blogInteracts.isEmpty());
-
-        return ResponseEntity.ok(blogInfoDTO);
+        blogInfoDTOList.add(blogInfoDTO);
+        Map<String, Object> response = new HashMap<>();
+        response.put("BlogInfo", blogInfoDTOList);
+        return ResponseEntity.ok(response);
     }
 }

@@ -11,4 +11,6 @@ import java.util.List;
 public interface BlogImageRepository extends JpaRepository<BlogImage, Integer> {
     List<BlogImage> findBlogImagesByBlogComment_Blogcommentid(int id);
     List<BlogImage> findBlogImageByBlog_Blogid(int blogid);
+
+    BlogImage findBlogImageByImageblogid(int id);
 }

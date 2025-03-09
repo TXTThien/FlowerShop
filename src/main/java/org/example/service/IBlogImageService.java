@@ -8,4 +8,6 @@ public interface IBlogImageService {
     List<BlogImage> findBlogImagesByCommentID(Integer blogcommentid);
 
     List<BlogImage> findBlogImagesByBlogID(Integer blogid);
+
+    BlogImage findBlogImageByBlogImageID(int id);
 }
