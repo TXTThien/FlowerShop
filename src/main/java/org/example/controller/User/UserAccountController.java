@@ -2,6 +2,7 @@ package org.example.controller.User;
 
 import lombok.RequiredArgsConstructor;
 import org.example.auth.ChangePassword;
+import org.example.controller.NotificationController;
 import org.example.dto.BuyHistoryDTO;
 import org.example.dto.OrderHistory;
 import org.example.dto.RefundRequest;
@@ -104,6 +105,7 @@ public class UserAccountController {
             orderHistory.setPhone(order.getPhoneNumber());
             orderHistory.setName(order.getName());
             orderHistory.setPaid(order.getHadpaid());
+            orderHistory.setConfirm(order.getConfirm());
             orderHistory.setCondition(order.getCondition());
             if (order.getNote() != null) {
                 orderHistory.setNote(order.getNote());
@@ -137,6 +139,7 @@ public class UserAccountController {
         Order order = orderService.findOrderByOrderID(id);
         List<OrderDetail> orderDetails = orderDetailService.findOrderDetailByOrderID(id);
         OrderHistory orderHistory = new OrderHistory();
+        orderHistory.setConfirm(order.getConfirm());
         orderHistory.setOrderID(order.getOrderID());
         orderHistory.setDate(order.getDate());
         orderHistory.setIsPaid(order.getPaid());
@@ -182,7 +185,6 @@ public class UserAccountController {
         if (currentAccount == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Tài khoản không tồn tại.");
         }
-        System.out.println("Vo2");
 
         if (updateAccountRequest.getName() != null) {
             System.out.println("Name: " + updateAccountRequest.getName());
@@ -293,6 +295,7 @@ public class UserAccountController {
         if (preorder.getPrecondition() == Precondition.Waiting) {
             preorder.setPrecondition(Precondition.Refund);
             preOrderRepository.save(preorder);
+
             return ResponseEntity.noContent().build(); // Trả về 204
         }
 
@@ -379,6 +382,21 @@ public class UserAccountController {
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Mã giao dịch không khớp.");
         }
+    }
+
+    @PostMapping("/confirm-success")
+    public ResponseEntity<?> confirmSuccessOrder(@RequestBody Map<String, Integer> request) {
+        Integer idOrder = request.get("idOrder");
+
+        Order order = orderService.findOrderByOrderID(idOrder);
+        if (order == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Đơn hàng không tồn tại");
+        }
+
+        order.setConfirm(IsPaid.Yes);
+        orderRepository.save(order);
+
+        return ResponseEntity.ok("Xác nhận đơn hàng thành công");
     }
 
 }

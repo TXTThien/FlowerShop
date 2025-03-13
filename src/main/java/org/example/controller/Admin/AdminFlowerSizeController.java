@@ -1,6 +1,7 @@
 package org.example.controller.Admin;
 
 import lombok.RequiredArgsConstructor;
+import org.example.controller.NotificationController;
 import org.example.entity.Flower;
 import org.example.entity.FlowerImages;
 import org.example.entity.FlowerSize;
@@ -24,6 +25,7 @@ public class AdminFlowerSizeController {
     private final FlowerSizeRepository flowerSizeRepository;
     private final FlowerRepository flowerRepository;
     private final IFlowerSizeService flowerSizeService;
+    private final NotificationController notificationController;
     @GetMapping
     public ResponseEntity<?> getAllCategories() {
         List<FlowerSize> flowerSizes = flowerSizeRepository.findAll();
@@ -67,6 +69,7 @@ public class AdminFlowerSizeController {
         commentType.setPrice(categoryDetails.getPrice());
         commentType.setPreorderable(categoryDetails.getPreorderable());
         FlowerSize updatedCategory = flowerSizeRepository.save(commentType);
+        notificationController.flowerRestockNotification(commentType.getFlower().getFlowerID());
         return ResponseEntity.ok(updatedCategory);
     }
 
@@ -95,6 +98,8 @@ public class AdminFlowerSizeController {
             for (FlowerSize flowerSize : flowerSizes) {
                 flowerSize.setPreorderable(Preorderable.YES);
                 flowerSizeRepository.save(flowerSize);
+                notificationController.flowerPreorderNotification(flowerSize.getFlower().getFlowerID());
+
             }
         }
         else
@@ -102,6 +107,8 @@ public class AdminFlowerSizeController {
             for (FlowerSize flowerSize : flowerSizes) {
                 flowerSize.setPreorderable(Preorderable.NO);
                 flowerSizeRepository.save(flowerSize);
+                notificationController.flowerPreorderNotification(flowerSize.getFlower().getFlowerID());
+
             }
         }
     }
@@ -114,5 +121,7 @@ public class AdminFlowerSizeController {
         else
             flowerSize.setPreorderable(Preorderable.NO);
         flowerSizeRepository.save(flowerSize);
+        notificationController.flowerPreorderNotification(flowerSize.getFlower().getFlowerID());
+
     }
 }

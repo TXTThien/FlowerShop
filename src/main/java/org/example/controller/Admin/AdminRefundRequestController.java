@@ -1,6 +1,7 @@
 package org.example.controller.Admin;
 
 import lombok.RequiredArgsConstructor;
+import org.example.controller.NotificationController;
 import org.example.dto.AdminStaffRefund;
 import org.example.entity.*;
 import org.example.entity.enums.Condition;
@@ -33,6 +34,7 @@ public class AdminRefundRequestController {
     private final ITypeService typeService;
     private final IAccountService accountService;
     private final IRefundService refundService;
+    private final NotificationController notificationController;
     @GetMapping("")
     public ResponseEntity<?> getRefund() {
         List<Refund> refunds = refundResponsitory.findAll();
@@ -108,6 +110,8 @@ public class AdminRefundRequestController {
 
             orderRepository.save(order);
             accountService.save(account);
+            notificationController.orderConditionNotification(order.getOrderID());
+
         } else {
             Preorder preorder = refund.getPreorderID();
 

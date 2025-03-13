@@ -16,4 +16,6 @@ public interface IBlogInteractService {
     BlogInteract findBlogInteractByAccountIDAndBlogpinID(int accountId, Integer blogid);
 
     List<BlogInteract> findBlogPin(int common);
+
+    int countPinBlog(int blogid);
 }

@@ -21,6 +21,8 @@ public interface BlogInteractRepository extends JpaRepository<BlogInteract, Inte
 
     List<BlogInteract> findByAccount_AccountIDAndBlogpinIsNotNull(int accountid);
 
+    @Query("SELECT COUNT(b) FROM BlogInteract b WHERE b.blogpin.blogid = :blogId")
+    int countPinnedBlogsByBlogId(@Param("blogId") int blogId);
 
 
 }

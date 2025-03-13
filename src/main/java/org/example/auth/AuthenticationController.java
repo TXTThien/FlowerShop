@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.example.controller.User.UserPrebuyController;
 import org.example.entity.Account;
 import org.example.entity.Type;
 import org.example.entity.enums.Role;
@@ -52,6 +53,7 @@ public class AuthenticationController {
     private final TokenRepository tokenRepository;
     private final JwtService jwtService;
     private final AuthenticationService authenticationService;
+    private final UserPrebuyController userPrebuyController;
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody @Valid RegisterRequest request, BindingResult result) {
         Map<String, Object> log = new HashMap<>();
@@ -112,6 +114,7 @@ public class AuthenticationController {
     @GetMapping("/logout")
     public ResponseEntity<String> logout(HttpSession session) {
         session.invalidate();
+        userPrebuyController.notifyCartUpdate(-1,userPrebuyController.cartCount(-1));
         return ResponseEntity.ok("Đã đăng xuất thành công");
     }
     @PostMapping("/forgot-password")

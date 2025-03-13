@@ -10,4 +10,6 @@ public interface IWishlistService {
     Wishlist findByFlowerIDAndAccountID(int flowerid, int accountid);
 
     void harddeleteAccount(Integer id);
+
+    List<Wishlist> findWishlistsByFlowerID(int flowerid);
 }

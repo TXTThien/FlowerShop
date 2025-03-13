@@ -36,4 +36,5 @@ public class OrderHistory {
     private String shipperEmail;
     private String shipperPhone;
     private String shipperNote;
+    private IsPaid confirm;
 }

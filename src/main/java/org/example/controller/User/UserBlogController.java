@@ -1,6 +1,7 @@
 package org.example.controller.User;
 
 import lombok.RequiredArgsConstructor;
+import org.example.controller.NotificationController;
 import org.example.dto.BlogCommentDTO;
 import org.example.dto.BlogInfoDTO;
 import org.example.dto.ProductDTO;
@@ -37,7 +38,7 @@ public class UserBlogController {
     private final BlogInteractRepository blogInteractRepository;
     private final BlogCommentRepository blogCommentRepository;
     private final BlogImageRepository blogImageRepository;
-
+    private final NotificationController notificationController;
 
 
     @RequestMapping("/like")
@@ -67,7 +68,7 @@ public class UserBlogController {
 
             blogRepository.save(blog); // Lưu blog với số like tăng
             blogInteractRepository.save(blogInteract); // Lưu thông tin tương tác
-
+            notificationController.blogLikeForStaffNotification(blog.getBlogid());
             return ResponseEntity.ok("Blog liked successfully");
         }
         else if (requestBodyBlog.getBlogid() == null && requestBodyBlog.getCommentid() != null) {
@@ -91,7 +92,7 @@ public class UserBlogController {
 
             blogCommentRepository.save(blogComment); // Lưu comment với số like tăng
             blogInteractRepository.save(blogInteract); // Lưu thông tin tương tác
-
+            notificationController.blogCommentLikeNotification(blogComment.getBlogcommentid());
             return ResponseEntity.ok("Comment liked successfully");
         }
         // Xử lý trường hợp không hợp lệ
@@ -129,7 +130,7 @@ public class UserBlogController {
         blogComment.setDate(LocalDateTime.now());
         blogComment.setLike(BigInteger.ZERO);
         blogCommentRepository.save(blogComment);
-
+        notificationController.blogCommentForStaffNotification(blogComment.getBlogcommentid());
         saveBlogImages(requestBodyBlog.getImageurl(), blogComment);
 
         return ResponseEntity.ok("Comment added successfully");
@@ -151,7 +152,7 @@ public class UserBlogController {
         blogComment.setDate(LocalDateTime.now());
         blogComment.setLike(BigInteger.ZERO);
         blogCommentRepository.save(blogComment);
-
+        notificationController.blogCommentRepNotification(requestBodyBlog.getCommentid(),account);
         saveBlogImages(requestBodyBlog.getImageurl(), blogComment);
 
         return ResponseEntity.ok("Response comment added successfully");
@@ -186,6 +187,7 @@ public class UserBlogController {
             blogInteract.setBlogpin(blog);
 
             blogInteractRepository.save(blogInteract);
+            notificationController.blogPinForStaffNotification(blog.getBlogid());
             return ResponseEntity.ok("Pin Blog  successfully");
         }
         else {

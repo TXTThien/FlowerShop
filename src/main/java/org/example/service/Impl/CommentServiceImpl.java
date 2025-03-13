@@ -31,6 +31,7 @@ public class CommentServiceImpl implements ICommentService {
     @Override
     public Comment updateComment(Integer id, Comment comment) {
         Comment existComment = commentRepository.findById(id).orElse(null);
+        assert existComment != null;
         existComment.setCommentType(comment.getCommentType());
         existComment.setImage(comment.getImage());
         existComment.setStatus(comment.getStatus());

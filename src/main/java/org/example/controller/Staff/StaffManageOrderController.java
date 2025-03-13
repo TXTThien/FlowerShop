@@ -2,6 +2,7 @@ package org.example.controller.Staff;
 
 import lombok.RequiredArgsConstructor;
 import org.aspectj.weaver.ast.Or;
+import org.example.controller.NotificationController;
 import org.example.dto.ShipToOrderDTO;
 import org.example.entity.*;
 import org.example.entity.enums.Condition;
@@ -34,7 +35,7 @@ public class StaffManageOrderController {
     private final IOrderDetailService orderDetailService;
     private final IFlowerSizeService flowerSizeService;
     private final FlowerSizeRepository flowerSizeRepository;
-
+    private final NotificationController notificationController;
     @GetMapping("/ordernoship")
     public ResponseEntity<?> getOrderWaiting() {
         List<Order> orders = orderService.findOrderNoShipping();
@@ -93,8 +94,8 @@ public class StaffManageOrderController {
                 flowerSizeRepository.save(flowerSize);
             }
         }
-
         orderService.update(order);
+        notificationController.orderConditionNotification(order.getOrderID());
         return ResponseEntity.ok("Order canceled successfully");
     }
 
@@ -103,6 +104,7 @@ public class StaffManageOrderController {
         Order order = orderService.findOrderByOrderID(orderid.getOrderID());
         order.setCondition(Condition.In_Transit);
         orderService.update(order);
+        notificationController.orderCancelFailNotification(order.getOrderID());
         return ResponseEntity.ok("Order not cancel");
     }
 }

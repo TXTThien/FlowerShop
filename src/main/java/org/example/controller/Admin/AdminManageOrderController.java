@@ -1,6 +1,7 @@
 package org.example.controller.Admin;
 
 import lombok.RequiredArgsConstructor;
+import org.example.controller.NotificationController;
 import org.example.dto.ShipToOrderDTO;
 import org.example.entity.*;
 import org.example.entity.enums.Condition;
@@ -31,6 +32,7 @@ public class AdminManageOrderController {
     private final IOrderDetailService orderDetailService;
     private final IFlowerSizeService flowerSizeService;
     private final FlowerSizeRepository flowerSizeRepository;
+    private final NotificationController notificationController;
     @GetMapping("/ordernoship")
     public ResponseEntity<?> getOrderWaiting() {
         List<Order> orders = orderService.findOrderNoShipping();
@@ -88,6 +90,7 @@ public class AdminManageOrderController {
         }
 
         orderService.update(order);
+        notificationController.orderConditionNotification(order.getOrderID());
         return ResponseEntity.ok("Order canceled successfully");
     }
     @PostMapping("/cancelprocessing/no")
@@ -95,6 +98,7 @@ public class AdminManageOrderController {
         Order order = orderService.findOrderByOrderID(orderid.getOrderID());
         order.setCondition(Condition.In_Transit);
         orderService.update(order);
+        notificationController.orderCancelFailNotification(order.getOrderID());
         return ResponseEntity.ok("Order not cancel");
     }
 }

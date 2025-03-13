@@ -1,6 +1,7 @@
 package org.example.controller.User;
 
 import lombok.RequiredArgsConstructor;
+import org.example.controller.NotificationController;
 import org.example.dto.CommentDTO;
 import org.example.dto.CommentRepCommentDTO;
 import org.example.dto.ListCommentDTO;
@@ -40,6 +41,7 @@ public class CommentController {
     private final ICommentTypeService commentTypeService;
     private final GetIDAccountFromAuthService getIDAccountService;
     private final AccountRepository accountRepository;
+    private final NotificationController notificationController;
 
     @GetMapping("")
     public ResponseEntity<?> getCommentInfo() {
@@ -113,6 +115,7 @@ public class CommentController {
         comment.setStatus(Status.ENABLE);
         comment.setAccountID(account);
         commentRepository.save(comment);
+        notificationController.commentCreateForStaffNotification(comment.getCommentID());
         return ResponseEntity.ok(comment);
     }
     @PostMapping("/{id}")
@@ -129,6 +132,10 @@ public class CommentController {
             repComment.setImage(repCommentDTO.getImage());
             repComment.setRepcommenttext(repCommentDTO.getRepcommenttext());
             repCommentRepository.save(repComment);
+            if (comment.getStative() == Stative.Processing)
+            {
+                notificationController.commentRepForStaffNotification(comment.getCommentID());
+            }
             return ResponseEntity.ok(repComment);
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Comment đang chờ xử lý.");
@@ -139,6 +146,7 @@ public class CommentController {
 
         comment.setStative(Stative.Complete);
         commentRepository.save(comment);
+        notificationController.commentCompleteForStaffNotification(comment.getCommentID());
         return ResponseEntity.ok("Complete ok");
 
     }

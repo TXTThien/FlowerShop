@@ -63,6 +63,6 @@ public interface FlowerRepository extends JpaRepository<Flower, Integer>{
             "GROUP BY f.flowerID, f.image, f.name")
     List<ProductDTO> findProductDTOs(@Param("ids") List<Integer> ids);
 
-
+    Flower findFlowerByFlowerIDAndStatus(int id, Status status);
 
 }

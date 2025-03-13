@@ -1,5 +1,6 @@
 package org.example.repository;
 
+import org.example.entity.Account;
 import org.example.entity.Cart;
 import org.example.entity.Comment;
 import org.example.entity.enums.Stative;
@@ -27,4 +28,6 @@ public interface CommentRepository extends JpaRepository<Comment, Integer> {
             "WHERE c.stative = 'Processing' " +
             "AND r.account.accountID = :id")
     List<Comment> findCommentsProcessingWithRepCommentByAccountId(@Param("id") Integer id);
+
+
 }

@@ -1,6 +1,7 @@
 package org.example.controller.Staff;
 
 import lombok.RequiredArgsConstructor;
+import org.example.controller.NotificationController;
 import org.example.entity.Category;
 import org.example.entity.Flower;
 import org.example.entity.Purpose;
@@ -22,7 +23,7 @@ public class StaffFlowerController {
     private final FlowerRepository flowerRepository;
     private final CategoryRepository categoryRepository;
     private final PurposeRepository purposeRepository;
-
+    private final NotificationController notificationController;
     @GetMapping
     public ResponseEntity<?> getAllCategories() {
         List<Flower> categories = flowerRepository.findAll();
@@ -64,6 +65,7 @@ public class StaffFlowerController {
         commentType.setStatus(categoryDetails.getStatus());
 
         Flower updatedCategory = flowerRepository.save(commentType);
+        notificationController.flowerRestockNotification(id);
         return ResponseEntity.ok(updatedCategory);
     }
 

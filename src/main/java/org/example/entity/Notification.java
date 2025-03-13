@@ -7,6 +7,8 @@ import lombok.*;
 import org.example.entity.enums.Notifi;
 import org.example.entity.enums.Status;
 
+import java.time.LocalDateTime;
+
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -24,32 +26,30 @@ public class Notification {
     @Column(name = "notice_text",length = 1000, nullable = false)
     private String text;
 
-    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "accountid")
     private Account account;
 
-    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "flowerid")
     private Flower flower;
 
-    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "orderid")
     private Order order;
 
-    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "preorderid")
     private Preorder preorder;
 
-    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "commentid")
     private Comment comment;
 
-    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "blogcommentid")
+    private BlogComment blogComment;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "blogid")
     private Blog blog;
@@ -65,4 +65,8 @@ public class Notification {
     @Enumerated(EnumType.STRING)
     @Column(name = "Status", nullable = false)
     protected Status status;
+
+    @Column(name ="time", nullable = false)
+    private LocalDateTime time;
+
 }

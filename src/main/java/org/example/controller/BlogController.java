@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.lang.reflect.Array;
 import java.util.*;
+import java.util.concurrent.Flow;
 import java.util.stream.Collectors;
 
 @RestController
@@ -115,6 +116,7 @@ public class BlogController {
         int accountid = getIDAccountFromAuthService.common();
         List<BlogInfoDTO> blogInfoDTOList = new ArrayList<>();
         BlogInfoDTO blogInfoDTO = new BlogInfoDTO();
+        List<Flower> flowers = flowerService.findAll();
 
         // Tìm blog theo ID
         Blog blog = iBlogService.findBlogByBlogID(id);
@@ -187,6 +189,40 @@ public class BlogController {
         blogInfoDTOList.add(blogInfoDTO);
         Map<String, Object> response = new HashMap<>();
         response.put("BlogInfo", blogInfoDTOList);
+        response.put("flowers", flowers);
+        return ResponseEntity.ok(response);
+    }
+    @GetMapping("/comment/{id}")
+    public ResponseEntity<?> getComment(@PathVariable int id)
+    {
+        int accountid = getIDAccountFromAuthService.common();
+        BlogComment blogComment = iBlogCommentService.findBlogCommentByBlogCommentID(id);
+        List<BlogCommentDTO> blogCommentDTOList = new ArrayList<>();
+        BlogCommentDTO blogCommentDTO = new BlogCommentDTO();
+        List<BlogImage> blogImages = iBlogImageService.findBlogImagesByCommentID(blogComment.getBlogcommentid());
+        List<BlogComment> commentChildren = iBlogCommentService.findCommentChild(blogComment.getBlogcommentid());
+        List<BlogCommentDTO> childCommentsDTO = new ArrayList<>();
+        List<BlogInteract> commentInteracts = iBlogInteractService.findLikeCommentYet(blogComment.getBlogcommentid(), accountid);
+        // Xử lý comment child
+        for (BlogComment child : commentChildren) {
+            BlogCommentDTO childCommentDTO = new BlogCommentDTO();
+            List<BlogInteract> childCommentInteracts = iBlogInteractService.findLikeCommentYet(child.getBlogcommentid(), accountid);
+            List<BlogImage> imageChildComment = iBlogImageService.findBlogImagesByCommentID(child.getBlogcommentid());
+
+            childCommentDTO.setBlogComment(child);
+            childCommentDTO.setBlogImages(imageChildComment);
+            childCommentDTO.setLikeComment(childCommentInteracts != null && !childCommentInteracts.isEmpty());
+            childCommentsDTO.add(childCommentDTO);
+        }
+
+        blogCommentDTO.setBlogComment(blogComment);
+        blogCommentDTO.setBlogImages(blogImages);
+        blogCommentDTO.setNumberCommentChild(commentChildren.size()); // Gán số lượng comment con
+        blogCommentDTO.setChildComment(childCommentsDTO);
+        blogCommentDTO.setLikeComment(commentInteracts != null && !commentInteracts.isEmpty());
+        blogCommentDTOList.add(blogCommentDTO);
+        Map<String, Object> response = new HashMap<>();
+        response.put("blogCommentDTO", blogCommentDTOList);
         return ResponseEntity.ok(response);
     }
 }

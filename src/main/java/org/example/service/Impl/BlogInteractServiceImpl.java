@@ -42,4 +42,9 @@ public class BlogInteractServiceImpl implements IBlogInteractService {
     public List<BlogInteract> findBlogPin(int common) {
         return blogInteractRepository.findByAccount_AccountIDAndBlogpinIsNotNull(common);
     }
+
+    @Override
+    public int countPinBlog(int blogid) {
+        return blogInteractRepository.countPinnedBlogsByBlogId(blogid);
+    }
 }

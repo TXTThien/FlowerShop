@@ -1,6 +1,7 @@
 package org.example.service.Impl;
 
 import lombok.RequiredArgsConstructor;
+import org.example.entity.Account;
 import org.example.entity.RepComment;
 import org.example.entity.enums.Status;
 import org.example.repository.RepCommentRepository;
@@ -16,5 +17,15 @@ public class RepCommentServiceImpl implements IRepCommentService {
     @Override
     public List<RepComment> findRepCommentByCommentID(int id) {
         return repCommentRepository.findRepCommentByComment_CommentIDAndStatus(id, Status.ENABLE);
+    }
+
+    @Override
+    public RepComment findRepCommentByRepCommentID(int id) {
+        return repCommentRepository.findRepCommentByRepcommentIDAndStatus(id, Status.ENABLE);
+    }
+
+    @Override
+    public Account findStaffRepAccount(int commentid) {
+        return repCommentRepository.findReplyAccountExcludingCommentOwner(commentid);
     }
 }

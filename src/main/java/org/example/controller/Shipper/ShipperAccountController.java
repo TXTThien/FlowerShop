@@ -3,6 +3,7 @@ package org.example.controller.Shipper;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.weaver.ast.Or;
 import org.example.auth.ChangePassword;
+import org.example.controller.NotificationController;
 import org.example.dto.OrderShippingDTO;
 import org.example.dto.ShipperNoteImage;
 import org.example.entity.*;
@@ -40,6 +41,7 @@ public class ShipperAccountController {
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
     private final ITypeService typeService;
+    private final NotificationController notificationController;
     @GetMapping("")
     public ResponseEntity<Account> getAccountInfo() {
         int idAccount = getIDAccountFromAuthService.common();
@@ -203,6 +205,7 @@ public class ShipperAccountController {
             }
             shippingRepository.save(shipping);
             orderService.update(order);
+            notificationController.orderConditionNotification(orderid);
             return ResponseEntity.ok("Bắt đầu giao!");
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Đơn hàng không trong trạng thái vận chuyển.");
@@ -222,12 +225,12 @@ public class ShipperAccountController {
             {
                 order.setText(shipperNoteImage.getText());
             }
-            else if (shipperNoteImage.getText() == null)
-            {
+            else {
                 order.setText("Giao thất bại lần 1");
             }
             shippingRepository.save(shipping);
             orderService.update(order);
+            notificationController.orderConditionNotification(orderid);
             return ResponseEntity.ok("Thất bại lần 1!");
         }
         else if (order.getCondition() == Condition.First_Attempt_Failed)
@@ -241,12 +244,12 @@ public class ShipperAccountController {
             {
                 order.setText(shipperNoteImage.getText());
             }
-            else if (shipperNoteImage.getText() == null)
-            {
+            else {
                 order.setText("Giao thất bại lần 2");
             }
             shippingRepository.save(shipping);
             orderService.update(order);
+            notificationController.orderConditionNotification(orderid);
             return ResponseEntity.ok("Thất bại lần 2!");
         }
         else if (order.getCondition() == Condition.Second_Attempt_Failed)
@@ -260,12 +263,12 @@ public class ShipperAccountController {
             {
                 order.setText(shipperNoteImage.getText());
             }
-            else if (shipperNoteImage.getText() == null)
-            {
+            else {
                 order.setText("Giao thất bại lần 3");
             }
             shippingRepository.save(shipping);
             orderService.update(order);
+            notificationController.orderConditionNotification(orderid);
             return ResponseEntity.ok("Thất bại lần 3!");
         }
         else if (order.getCondition() == Condition.Third_Attempt_Failed)
@@ -279,13 +282,13 @@ public class ShipperAccountController {
             {
                 order.setText(shipperNoteImage.getText());
             }
-            else if (shipperNoteImage.getText() == null)
-            {
+            else {
                 order.setText("Đơn hàng giao thất bại");
             }
             shipping.setCompleteDate(LocalDateTime.now());
             shippingRepository.save(shipping);
             orderService.update(order);
+            notificationController.orderConditionNotification(orderid);
             return ResponseEntity.ok("Trả về shop!");
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Đơn hàng không trong trạng thái vận chuyển.");
@@ -403,13 +406,15 @@ public class ShipperAccountController {
             {
                 order.setText(shipperNoteImage.getText());
             }
-            else if (shipperNoteImage.getText() == null)
-            {
+            else {
                 order.setText(success);
             }
+            order.setConfirm(IsPaid.No);
+            order.setTime(LocalDateTime.now());
             accountService.save(account);
             shippingRepository.save(shipping);
             orderService.update(order);
+            notificationController.orderConditionNotification(orderid);
             return ResponseEntity.ok("Giao thành công!");
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Đơn hàng không trong trạng thái vận chuyển.");

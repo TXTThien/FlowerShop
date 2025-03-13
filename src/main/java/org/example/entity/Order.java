@@ -30,7 +30,6 @@ public class Order {
     @Column(name = "OrderID", nullable = false)
     private Integer orderID;
 
-    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "AccountID")
     private Account accountID;
@@ -83,4 +82,11 @@ public class Order {
 
     @Column(name = "text")
     private String text;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "confirm")
+    protected IsPaid confirm;
+
+    @Column(name = "time")
+    private LocalDateTime time;
 }

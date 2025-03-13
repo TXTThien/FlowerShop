@@ -2,6 +2,7 @@ package org.example.controller.Staff;
 
 import lombok.RequiredArgsConstructor;
 import org.example.auth.ChangePassword;
+import org.example.controller.NotificationController;
 import org.example.dto.CommentRepCommentDTO;
 import org.example.dto.ListCommentDTO;
 import org.example.dto.RepCommentDTO;
@@ -40,6 +41,7 @@ public class StaffAccountController {
     private final CommentRepository commentRepository;
     private final PasswordEncoder passwordEncoder;
     private final ICommentService commentService;
+    private final NotificationController notificationController;
     @GetMapping("")
     public ResponseEntity<Account> getAccountInfo() {
 
@@ -192,6 +194,7 @@ public class StaffAccountController {
             repCommentRepository.save(repComment);
             Map<String, Object> response = new HashMap<>();
             response.put("repComment", repComment);
+            notificationController.commentRepNotification(repComment.getRepcommentID());
             return ResponseEntity.ok(response);
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Comment hien tai khong the tra loi");
@@ -204,6 +207,8 @@ public class StaffAccountController {
         commentRepository.save(comment);
         Map<String, Object> response = new HashMap<>();
         response.put("repComment", comment);
+        notificationController.commentCompleteNotification(comment.getCommentID());
+
         return ResponseEntity.ok(response);
     }
 }

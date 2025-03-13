@@ -1,6 +1,7 @@
 package org.example.controller.Admin;
 
 import lombok.RequiredArgsConstructor;
+import org.example.controller.NotificationController;
 import org.example.entity.News;
 import org.example.entity.Order;
 import org.example.entity.enums.Status;
@@ -10,12 +11,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/v1/admin/order")
 @RequiredArgsConstructor
 public class AdminOrderController {
     private final OrderRepository orderRepository;
+    private final NotificationController notificationController;
+
     @GetMapping
     public ResponseEntity<List<Order>> getAllCategories() {
         List<Order> categories = orderRepository.findAll();
@@ -46,13 +50,21 @@ public class AdminOrderController {
         commentType.setDate(categoryDetails.getDate());
         commentType.setPaid(categoryDetails.getPaid());
         commentType.setTotalAmount(categoryDetails.getTotalAmount());
-        commentType.setDeliveryAddress(categoryDetails.getDeliveryAddress());
-        commentType.setPhoneNumber(categoryDetails.getPhoneNumber());
-        commentType.setName(categoryDetails.getName());
-        commentType.setShipping(categoryDetails.getShipping());
-        commentType.setNote(categoryDetails.getNote());
-        commentType.setCondition(categoryDetails.getCondition());
-        Order updatedCategory = orderRepository.save(commentType);
+        if (!Objects.equals(commentType.getPhoneNumber(), categoryDetails.getPhoneNumber()) || !Objects.equals(commentType.getDeliveryAddress(), categoryDetails.getDeliveryAddress()) || !Objects.equals(commentType.getName(), categoryDetails.getName()))
+        {
+            commentType.setDeliveryAddress(categoryDetails.getDeliveryAddress());
+            commentType.setPhoneNumber(categoryDetails.getPhoneNumber());
+            commentType.setName(categoryDetails.getName());
+            notificationController.orderInfomationNotification(commentType.getOrderID());
+        }
+        if (categoryDetails.getShipping() !=null){
+            commentType.setShipping(categoryDetails.getShipping());
+        }        commentType.setNote(categoryDetails.getNote());
+        if (commentType.getCondition() != categoryDetails.getCondition())
+        {
+            commentType.setCondition(categoryDetails.getCondition());
+            notificationController.orderConditionNotification(commentType.getOrderID());
+        }        Order updatedCategory = orderRepository.save(commentType);
         return ResponseEntity.ok(updatedCategory);
     }
 

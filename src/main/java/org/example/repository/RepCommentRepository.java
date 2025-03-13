@@ -1,5 +1,6 @@
 package org.example.repository;
 
+import org.example.entity.Account;
 import org.example.entity.Purpose;
 import org.example.entity.RepComment;
 import org.example.entity.enums.Status;
@@ -13,4 +14,10 @@ import java.util.List;
 public interface RepCommentRepository extends JpaRepository<RepComment, Integer> {
     List<RepComment> findRepCommentByComment_CommentIDAndStatus(int id, Status status);
 
+    RepComment findRepCommentByRepcommentIDAndStatus(int id, Status status);
+
+    @Query("SELECT DISTINCT rc.account FROM RepComment rc " +
+            "WHERE rc.comment.commentID = :commentId " +
+            "AND rc.account.accountID <> (SELECT c.accountID.accountID FROM Comment c WHERE c.commentID = :commentId)")
+    Account findReplyAccountExcludingCommentOwner(int commentId);
 }

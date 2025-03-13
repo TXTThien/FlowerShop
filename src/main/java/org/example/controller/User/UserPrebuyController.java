@@ -3,6 +3,7 @@ package org.example.controller.User;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.example.controller.EmailController;
+import org.example.controller.NotificationController;
 import org.example.dto.BuyInfo;
 import org.example.dto.CartDTO;
 import org.example.dto.CartUpdateRequest;
@@ -44,8 +45,13 @@ public class UserPrebuyController {
     private final EmailController emailController;
     private final GetIDAccountFromAuthService getIDAccountFromAuthService;
     private final SimpMessagingTemplate messagingTemplate;
+    private final NotificationController notificationController;
     public void notifyCartUpdate(int accountId, int newCartCount) {
         Map<String, Object> message = new HashMap<>();
+        if (accountId == -1)
+        {
+            newCartCount = 0;
+        }
         message.put("accountId", accountId);
         message.put("cartCount", newCartCount);
         messagingTemplate.convertAndSend("/topic/cart-update", message);
@@ -226,6 +232,7 @@ public class UserPrebuyController {
                 }
                 newBill.setTotalAmount(totalAmount);
                 orderRepository.save(newBill);
+                notificationController.orderConditionNotification(newBill.getOrderID());
                 emailController.BuySuccess(newBill,id);
             }
             else {
@@ -268,6 +275,7 @@ public class UserPrebuyController {
                 newPreorder.setTotalAmount(totalAmount);
                 preOrderRepository.save(newPreorder);
                 emailController.PreorderSuccess(newPreorder,id);
+                notificationController.preOrderCreateNotification(newPreorder.getId());
 
             }
 
@@ -353,6 +361,7 @@ public class UserPrebuyController {
 
                 accountService.save(account);
                 emailController.BuySuccess(newBill,accountId);
+                notificationController.orderConditionNotification(newBill.getOrderID());
             }
             else {
                 Preorder newPreorder = new Preorder();
@@ -413,6 +422,8 @@ public class UserPrebuyController {
                 newPreorder.setTotalAmount(totalAmount);
                 preOrderRepository.save(newPreorder);
                 emailController.PreorderSuccess(newPreorder,accountId);
+                notificationController.preOrderCreateNotification(newPreorder.getId());
+
             }
 
             return ResponseEntity.status(HttpStatus.CREATED)

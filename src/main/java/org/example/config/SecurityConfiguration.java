@@ -94,6 +94,7 @@ public class SecurityConfiguration {
                             .requestMatchers("/api/v1/staff/**").hasAuthority(staff.name())
                             .requestMatchers("/wishlist/**").hasAuthority(user.name())
                             .requestMatchers("/blog/**").hasAnyAuthority(user.name(), admin.name(),staff.name(), shipper.name())
+                            .requestMatchers("/notification/**").hasAnyAuthority(user.name(), admin.name(),staff.name(),shipper.name())
 
 
                             .requestMatchers("/api/v1/upload/**").permitAll()

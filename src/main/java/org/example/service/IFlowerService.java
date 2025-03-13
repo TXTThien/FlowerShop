@@ -6,6 +6,8 @@ import org.example.entity.*;
 import org.example.entity.enums.Status;
 
 import java.util.List;
+import java.util.concurrent.Flow;
+
 public interface IFlowerService {
     List<Flower> findAll();
     List<Flower> findAllEnable();
@@ -13,6 +15,7 @@ public interface IFlowerService {
     Flower updateProduct (Integer id, Flower newFlower);
     void deleteProduct (Integer id);
     Flower getProductById(Integer id);
+    Flower findFlowerByIdEnable (Integer id);
     List<Flower> findFlowersWithPurpose(Integer purposeid);
     List<Flower>findFlowersSimilar(Integer categoryid);
 

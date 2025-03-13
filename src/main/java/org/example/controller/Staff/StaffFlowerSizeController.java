@@ -1,6 +1,7 @@
 package org.example.controller.Staff;
 
 import lombok.RequiredArgsConstructor;
+import org.example.controller.NotificationController;
 import org.example.entity.Flower;
 import org.example.entity.FlowerSize;
 import org.example.entity.enums.Preorderable;
@@ -22,6 +23,7 @@ public class StaffFlowerSizeController {
     private final FlowerSizeRepository flowerSizeRepository;
     private final FlowerRepository flowerRepository;
     private final IFlowerSizeService flowerSizeService;
+    private final NotificationController notificationController;
 
     @GetMapping
     public ResponseEntity<?> getAllCategories() {
@@ -66,6 +68,7 @@ public class StaffFlowerSizeController {
         commentType.setPrice(categoryDetails.getPrice());
         commentType.setPreorderable(categoryDetails.getPreorderable());
         FlowerSize updatedCategory = flowerSizeRepository.save(commentType);
+        notificationController.flowerRestockNotification(commentType.getFlower().getFlowerID());
         return ResponseEntity.ok(updatedCategory);
     }
 
@@ -94,6 +97,7 @@ public class StaffFlowerSizeController {
             for (FlowerSize flowerSize : flowerSizes) {
                 flowerSize.setPreorderable(Preorderable.YES);
                 flowerSizeRepository.save(flowerSize);
+                notificationController.flowerPreorderNotification(flowerSize.getFlower().getFlowerID());
             }
         }
         else
@@ -101,8 +105,10 @@ public class StaffFlowerSizeController {
             for (FlowerSize flowerSize : flowerSizes) {
                 flowerSize.setPreorderable(Preorderable.NO);
                 flowerSizeRepository.save(flowerSize);
+                notificationController.flowerPreorderNotification(flowerSize.getFlower().getFlowerID());
             }
         }
+
     }
 
     @RequestMapping("/preorderable/{id}")
@@ -113,5 +119,7 @@ public class StaffFlowerSizeController {
         else
             flowerSize.setPreorderable(Preorderable.NO);
         flowerSizeRepository.save(flowerSize);
+        notificationController.flowerPreorderNotification(flowerSize.getFlower().getFlowerID());
+
     }
 }

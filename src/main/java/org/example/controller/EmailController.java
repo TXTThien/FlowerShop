@@ -81,5 +81,36 @@ public class EmailController {
         emailService.sendSimpleMessage(email, subject, text);
     }
 
+    public void OrderCondition(Order order, String text) {
+        Account account = order.getAccountID();
+        String email = account.getEmail();
+        String subject = "Thông báo trạng thái đơn hàng";
+        emailService.sendSimpleMessage(email, subject, text);
+    }
+
+    public void PreOrderCondition(Preorder preorder, String text) {
+        Account account = preorder.getAccount();
+        String email = account.getEmail();
+        String subject = "Thông báo trạng thái đơn đặt trước";
+        emailService.sendSimpleMessage(email, subject, text);
+    }
+
+    public void OrderCancelFail(Order order, String text) {
+        Account account = order.getAccountID();
+        String email = account.getEmail();
+        String subject = "Thông báo yêu cầu hủy thất bại";
+        emailService.sendSimpleMessage(email, subject, text);
+    }
+
+    public void PreorderToOrder(Preorder preorder, Order order) {
+        Account account = preorder.getAccount();
+        String email = account.getEmail();
+        String subject = "Thông báo đơn đặt trước đã sẵn sàng";
+        String text = "Đơn đặt trước "+preorder.getId()+" của bạn đã sẵn sàng"+ "\n" +
+                "Mã thanh toán: "+preorder.getVnp_TransactionNo() +"\n"+
+                "Mã đơn hàng: " + order.getOrderID() +"\n"+
+                "Hãy kiểm tra lại thông tin, nếu có sai sót hãy liên hệ vơới chúng tôi sớm nhất: http://localhost:8000/account/history/" + order.getOrderID();
+        emailService.sendSimpleMessage(email, subject, text);
+    }
 }
 

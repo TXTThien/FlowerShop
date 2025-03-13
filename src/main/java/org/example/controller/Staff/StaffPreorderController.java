@@ -2,6 +2,8 @@ package org.example.controller.Staff;
 
 import lombok.RequiredArgsConstructor;
 import org.aspectj.weaver.ast.Or;
+import org.example.controller.EmailController;
+import org.example.controller.NotificationController;
 import org.example.dto.PreorderList;
 import org.example.entity.*;
 import org.example.entity.enums.*;
@@ -18,10 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/v1/staff/preorder")
@@ -35,7 +34,8 @@ public class StaffPreorderController {
     private final OrderRepository orderRepository;
     private final IAccountService accountService;
     private final ITypeService typeService;
-
+    private final NotificationController notificationController;
+    private final EmailController emailController;
     @GetMapping
     public ResponseEntity<List<Preorder>> getAllCategories() {
         List<Preorder> categories = preOrderRepository.findAll();
@@ -75,15 +75,22 @@ public class StaffPreorderController {
         if (existingPreorder == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Đơn đặt trước không tồn tại.");
         }
-
-        existingPreorder.setPrecondition(preorder.getPrecondition());
-        existingPreorder.setName(preorder.getName());
+        if (!Objects.equals(existingPreorder.getName(), preorder.getName()) || !Objects.equals(existingPreorder.getDeliveryAddress(), preorder.getDeliveryAddress()) || !Objects.equals(existingPreorder.getPhoneNumber(), preorder.getPhoneNumber()) || !Objects.equals(existingPreorder.getNote(), preorder.getNote()))
+        {
+            existingPreorder.setName(preorder.getName());
+            existingPreorder.setNote(preorder.getNote());
+            existingPreorder.setPhoneNumber(preorder.getPhoneNumber());
+            existingPreorder.setDeliveryAddress(preorder.getDeliveryAddress());
+            notificationController.preOrderInfomationNotification(existingPreorder.getId());
+        }
         existingPreorder.setStatus(preorder.getStatus());
-        existingPreorder.setNote(preorder.getNote());
-        existingPreorder.setPhoneNumber(preorder.getPhoneNumber());
-        existingPreorder.setDeliveryAddress(preorder.getDeliveryAddress());
-        preOrderRepository.save(existingPreorder);
 
+        if(existingPreorder.getPrecondition() != preorder.getPrecondition())
+        {
+            notificationController.preOrderConditionNotification(existingPreorder.getId());
+            existingPreorder.setPrecondition(preorder.getPrecondition());
+        }
+        preOrderRepository.save(existingPreorder);
         return ResponseEntity.ok(existingPreorder);
     }
 
@@ -100,6 +107,7 @@ public class StaffPreorderController {
             for (Preorder preorder : preorders) {
                 preorder.setPrecondition(Precondition.Waiting);
                 preOrderRepository.save(preorder);
+                notificationController.preOrderConditionNotification(preorder.getId());
             }
         }
         else
@@ -107,6 +115,8 @@ public class StaffPreorderController {
             for (Preorder preorder : preorders) {
                 preorder.setPrecondition(Precondition.Ordering);
                 preOrderRepository.save(preorder);
+                notificationController.preOrderConditionNotification(preorder.getId());
+
             }
         }
     }
@@ -117,6 +127,8 @@ public class StaffPreorderController {
             preorder.setPrecondition(Precondition.Ordering);
         else preorder.setPrecondition(Precondition.Waiting);
         preOrderRepository.save(preorder);
+        notificationController.preOrderConditionNotification(preorder.getId());
+
     }
     @RequestMapping("/complete")
     public void completePre(){
@@ -170,6 +182,8 @@ public class StaffPreorderController {
         }
         preorder.setPrecondition(Precondition.Success);
         preOrderRepository.save(preorder);
+        notificationController.preOrderSuccessNotification(preorder.getId(),newOrder.getOrderID());
+        emailController.PreorderToOrder(preorder,newOrder);
     }
 
 }

@@ -36,4 +36,9 @@ public class WishlistServiceImpl implements IWishlistService {
     public void harddeleteAccount(Integer id) {
         wishlistRepository.deleteById(id);
     }
+
+    @Override
+    public List<Wishlist> findWishlistsByFlowerID(int flowerid) {
+        return wishlistRepository.findWishlistByFlowerFlowerIDAndStatus(flowerid,Status.ENABLE);
+    }
 }

@@ -1,6 +1,7 @@
 package org.example.controller.Staff;
 
 import lombok.RequiredArgsConstructor;
+import org.example.controller.NotificationController;
 import org.example.dto.RepCommentDTO;
 import org.example.entity.Account;
 import org.example.entity.Comment;
@@ -29,7 +30,7 @@ public class StaffReceiveController {
     private final ICommentService commentService;
     private final CommentRepository commentRepository;
     private final RepCommentRepository repCommentRepository;
-
+    private final NotificationController notificationController;
     private final GetIDAccountFromAuthService getIDAccountFromAuthService;
     private final IAccountService accountService;
     @GetMapping
@@ -62,6 +63,7 @@ public class StaffReceiveController {
             repComment.setImage(repCommentDTO.getImage());
             repComment.setRepcommenttext(repCommentDTO.getRepcommenttext());
             repCommentRepository.save(repComment);
+            notificationController.commentRepNotification(repComment.getRepcommentID());
             return ResponseEntity.ok(categories);
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Comment hien tai khong the tra loi");

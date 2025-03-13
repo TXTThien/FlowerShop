@@ -7,6 +7,7 @@ import org.example.entity.enums.Status;
 import org.example.repository.BlogFlowerRepository;
 import org.example.repository.BlogImageRepository;
 import org.example.repository.BlogRepository;
+import org.example.repository.FlowerRepository;
 import org.example.service.*;
 import org.example.service.securityService.GetIDAccountFromAuthService;
 import org.springframework.http.HttpStatus;
@@ -15,10 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigInteger;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -35,8 +33,8 @@ public class StaffBlogController {
     private final BlogImageRepository blogImageRepository;
     private final BlogFlowerRepository blogFlowerRepository;
     private final IFlowerService flowerService;
+    private final FlowerRepository flowerRepository;
     private final IAccountService accountService;
-
     @GetMapping("")
     public ResponseEntity<?> getBlog() {
         List<Blog> blogs = iBlogService.findStaffBlog(getIDAccountFromAuthService.common());
@@ -51,7 +49,7 @@ public class StaffBlogController {
         BlogInfoDTO blogInfoDTO = new BlogInfoDTO();
 
         // Tìm blog theo ID
-        Blog blog = iBlogService.findBlogByBlogID(id);
+        Blog blog = iBlogService.findBlogByBlogIDForStaff(id);
         if (blog == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Blog not found");
         }
@@ -138,12 +136,12 @@ public class StaffBlogController {
                 blogImageRepository.save(blogImage);
             }
 
-            for (int i = 0 ; i<newblog.getBlogFlowers().size();i++)
+            for (int i = 0 ; i<newblog.getFlowerid().size();i++)
             {
                 BlogFlower blogFlower = new BlogFlower();
 
                 blogFlower.setBlog(blog);
-                blogFlower.setFlower(flowerService.getProductById(newblog.getBlogFlowers().get(i).getFlower().getFlowerID()));
+                blogFlower.setFlower(flowerService.getProductById(newblog.getFlowerid().get(i)));
 
                 blogFlowerRepository.save(blogFlower);
 
@@ -159,7 +157,7 @@ public class StaffBlogController {
     @PutMapping("/{id}")
     public ResponseEntity<?> putBlogID(@RequestBody CreateBlogDTO newblog, @PathVariable int id) {
         try {
-            Blog existingBlog = iBlogService.findBlogByBlogID(id);
+            Blog existingBlog = iBlogService.findBlogByBlogIDForStaff(id);
             int accountid = getIDAccountFromAuthService.common();
             if (existingBlog == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Blog not found");
@@ -171,54 +169,43 @@ public class StaffBlogController {
             existingBlog.setContent(newblog.getContent());
             existingBlog.setStatus(newblog.getStatus());
             blogRepository.save(existingBlog);
-            if (!newblog.getImageurl().isEmpty())
-            {
-                for (int i = 0 ; i< newblog.getImageurl().size(); i++)
-                {
-                    BlogImage blogImage = new BlogImage();
-
-                    blogImage.setImage(newblog.getImageurl().get(i));
-                    blogImage.setBlog(existingBlog);
-
-                    blogImageRepository.save(blogImage);
+            List<BlogImage> existImage = iBlogImageService.findBlogImagesByBlogID(existingBlog.getBlogid());
+            Set<String> existingUrls = existImage.stream().map(BlogImage::getImage).collect(Collectors.toSet());
+            Set<String> newUrls = new HashSet<>(newblog.getImageurl());
+            List<BlogFlower>existFlower = iBlogFlowerService.findBlogFlowerByBlogID(existingBlog.getBlogid());
+            Set<Integer> existingFlower = existFlower.stream()
+                    .map(blogFlower -> blogFlower.getFlower().getFlowerID())
+                    .collect(Collectors.toSet());
+            Set<Integer> newFlower = new HashSet<>(newblog.getFlowerid());
+            for (BlogImage image : new ArrayList<>(existImage)) {
+                if (!newUrls.contains(image.getImage())) {
+                    blogImageRepository.delete(image);
                 }
             }
-            if (!newblog.getImageIDDelete().isEmpty())
-            {
-                for (int i = 0 ; i< newblog.getImageIDDelete().size(); i++)
-                {
-                    blogImageRepository.delete(iBlogImageService.findBlogImageByBlogImageID(newblog.getImageIDDelete().get(i)));
+
+            for (String imageUrl : newUrls) {
+                if (!existingUrls.contains(imageUrl)) {
+                    BlogImage newImage = new BlogImage();
+                    newImage.setBlog(existingBlog);
+                    newImage.setImage(imageUrl);
+                    blogImageRepository.save(newImage);
                 }
             }
-            if (!newblog.getBlogFlowers().isEmpty())
-            {
-                List<BlogFlower> blogFlowerList = iBlogFlowerService.findBlogFlowerByBlogID(id);
-                List<BlogFlower> haveBlogFlower = new ArrayList<>();
-                for (int i = 0 ; i< newblog.getBlogFlowers().size(); i++)
-                {
-                    BlogFlower blogFlower = iBlogFlowerService.findBlogFlowerByBlogFlowerID(newblog.getBlogFlowers().get(i).getFlowerblogid());
-                    if (blogFlower!= null)
-                    {
-                        blogFlower.setFlower(newblog.getBlogFlowers().get(i).getFlower());
-                        haveBlogFlower.add(blogFlower);
-                    }
-                    else
-                    {
-                        BlogFlower newBlogFlower = new BlogFlower();
-                        newBlogFlower.setFlower(newblog.getBlogFlowers().get(i).getFlower());
-                        newBlogFlower.setBlog(existingBlog);
-                        haveBlogFlower.add(newBlogFlower);
-                    }
+            for (BlogFlower flower : new ArrayList<>(existFlower)) {
+                if (!newFlower.contains(flower.getFlower().getFlowerID())) {
+                    blogFlowerRepository.delete(flower);
                 }
-                List<BlogFlower> toDelete = blogFlowerList.stream()
-                        .filter(blogFlower -> haveBlogFlower.stream()
-                                .noneMatch(have -> have.getFlowerblogid().equals(blogFlower.getFlowerblogid())))
-                        .toList();
-
-                blogFlowerRepository.deleteAll(toDelete);
-                blogFlowerRepository.saveAll(haveBlogFlower);
-
             }
+
+            for (Integer flowerID : newFlower) {
+                if (!existingFlower.contains(flowerID)) {
+                    BlogFlower newBlogFlower = new BlogFlower();
+                    newBlogFlower.setBlog(existingBlog);
+                    newBlogFlower.setFlower(flowerService.findFlowerByIdEnable(flowerID));
+                    blogFlowerRepository.save(newBlogFlower);
+                }
+            }
+
             return ResponseEntity.ok("Blog updated successfully");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error updating blog: " + e.getMessage());

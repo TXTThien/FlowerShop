@@ -72,6 +72,11 @@ public class FlowerServiceImpl implements IFlowerService {
         return flowerRepository.findById(id).orElse(null);
     }
 
+    @Override
+    public Flower findFlowerByIdEnable(Integer id) {
+        return flowerRepository.findFlowerByFlowerIDAndStatus(id,Status.ENABLE);
+    }
+
 
     @Override
     public List<Flower> findByCategory(String category, Status status) {

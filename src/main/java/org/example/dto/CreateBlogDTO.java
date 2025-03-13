@@ -19,6 +19,6 @@ public class CreateBlogDTO {
     private String title;
     private Status status;
     private List<String> imageurl;
-    private List<BlogFlower> blogFlowers;
-    private List<Integer> imageIDDelete;
+    private List<Integer> flowerid;
+
 }

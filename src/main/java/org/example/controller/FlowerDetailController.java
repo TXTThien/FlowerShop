@@ -43,7 +43,7 @@ public class FlowerDetailController {
 
     @GetMapping("/detail/{id}")
     public ResponseEntity<?> ProductDetail(@PathVariable("id") int id){
-        Flower product = flowerService.getProductById(id);
+        Flower product = flowerService.findFlowerByIdEnable(id);
         FlowerDTO flowerDTO = new FlowerDTO();
         flowerDTO.setFlowerID(product.getFlowerID());
         flowerDTO.setName(product.getName());
