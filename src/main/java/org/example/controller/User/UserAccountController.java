@@ -46,6 +46,7 @@ public class UserAccountController {
     private final IBlogService iBlogService;
     private final IBlogInteractService iBlogInteractService;
     private final IBlogCommentService iBlogCommentService;
+    private final NotificationController notificationController;
     @GetMapping("")
     public ResponseEntity<Account> getAccountInfo() {
         int idAccount = getIDAccountService.common();
@@ -240,6 +241,7 @@ public class UserAccountController {
         if (order.getCondition() == Condition.Prepare || order.getCondition() == Condition.Processing) {
             order.setCondition(Condition.Cancel_is_Processing);
             orderService.update(order);
+            notificationController.cancelOrderRequestForStaffNotification(orderID);
             return ResponseEntity.noContent().build();
         } else if (order.getCondition() == Condition.Pending) {
             List<OrderDetail> orderDetails = orderDetailService.findOrderDetailByOrderID(orderID);
@@ -295,7 +297,6 @@ public class UserAccountController {
         if (preorder.getPrecondition() == Precondition.Waiting) {
             preorder.setPrecondition(Precondition.Refund);
             preOrderRepository.save(preorder);
-
             return ResponseEntity.noContent().build(); // Trả về 204
         }
 
@@ -334,7 +335,7 @@ public class UserAccountController {
             refund.setStatus(Status.ENABLE);
             refund.setDate(LocalDateTime.now());
             refundResponsitory.save(refund);
-
+            notificationController.refundOrderRequestForStaffNotification(id);
             order.setCondition(Condition.Refund_is_Processing);
             orderRepository.save(order);
 
@@ -374,6 +375,7 @@ public class UserAccountController {
             refund.setDate(LocalDateTime.now());
 
             refundResponsitory.save(refund);
+            notificationController.refundPreOrderRequestForStaffNotification(id);
 
             preorder.setPrecondition(Precondition.Refunding);
             preOrderRepository.save(preorder);

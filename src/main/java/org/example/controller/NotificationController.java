@@ -478,5 +478,107 @@ public class NotificationController {
         notificationRepository.save(notification);
         notifyNotificationUpdate(blog.getAccount().getAccountID());
     }
+    public void cancelOrderRequestForStaffNotification(int orderid) {
+        Order order = orderService.findOrderByOrderID(orderid);
 
+        List<Notification> notificationList = new ArrayList<>();
+        List<Account> staffAccountList = accountService.getAccountByRole(Role.staff);
+        List<Account> adminAccountList = accountService.getAccountByRole(Role.admin);
+
+        for (Account account : staffAccountList)
+        {
+            Notification notification = new Notification();
+            notification.setTime(LocalDateTime.now());
+            notification.setOrder(order);
+            notification.setAccount(account);
+            notification.setStatus(Status.ENABLE);
+            notification.setSeen(Notifi.NO);
+            notification.setNotice(Notifi.NO);
+            notification.setText("Khách hàng vừa gửi yêu cầu hủy đơn hàng cho đơn "+orderid);
+            notificationRepository.save(notification);
+            notifyNotificationUpdate(account.getAccountID());
+        }
+        for (Account account : adminAccountList)
+        {
+            Notification notification = new Notification();
+            notification.setTime(LocalDateTime.now());
+            notification.setOrder(order);
+            notification.setAccount(account);
+            notification.setStatus(Status.ENABLE);
+            notification.setSeen(Notifi.NO);
+            notification.setNotice(Notifi.NO);
+            notification.setText("Khách hàng vừa gửi yêu cầu hủy đơn hàng cho đơn "+orderid);
+            notificationRepository.save(notification);
+            notifyNotificationUpdate(account.getAccountID());
+        }
+    }
+    public void refundOrderRequestForStaffNotification(int orderid) {
+        Order order = orderService.findOrderByOrderID(orderid);
+
+        List<Notification> notificationList = new ArrayList<>();
+        List<Account> staffAccountList = accountService.getAccountByRole(Role.staff);
+        List<Account> adminAccountList = accountService.getAccountByRole(Role.admin);
+
+        for (Account account : staffAccountList)
+        {
+            Notification notification = new Notification();
+            notification.setTime(LocalDateTime.now());
+            notification.setOrder(order);
+            notification.setAccount(account);
+            notification.setStatus(Status.ENABLE);
+            notification.setSeen(Notifi.NO);
+            notification.setNotice(Notifi.NO);
+            notification.setText("Khách hàng vừa gửi yêu cầu hoàn tiền đơn hàng "+orderid);
+            notificationRepository.save(notification);
+            notifyNotificationUpdate(account.getAccountID());
+        }
+        for (Account account : adminAccountList)
+        {
+            Notification notification = new Notification();
+            notification.setTime(LocalDateTime.now());
+            notification.setOrder(order);
+            notification.setAccount(account);
+            notification.setStatus(Status.ENABLE);
+            notification.setSeen(Notifi.NO);
+            notification.setNotice(Notifi.NO);
+            notification.setText("Khách hàng vừa gửi yêu cầu hoàn tiền đơn hàng "+orderid);
+            notificationRepository.save(notification);
+            notifyNotificationUpdate(account.getAccountID());
+        }
+    }
+
+    public void refundPreOrderRequestForStaffNotification(int orderid) {
+        Order order = orderService.findOrderByOrderID(orderid);
+
+        List<Notification> notificationList = new ArrayList<>();
+        List<Account> staffAccountList = accountService.getAccountByRole(Role.staff);
+        List<Account> adminAccountList = accountService.getAccountByRole(Role.admin);
+
+        for (Account account : staffAccountList)
+        {
+            Notification notification = new Notification();
+            notification.setTime(LocalDateTime.now());
+            notification.setOrder(order);
+            notification.setAccount(account);
+            notification.setStatus(Status.ENABLE);
+            notification.setSeen(Notifi.NO);
+            notification.setNotice(Notifi.NO);
+            notification.setText("Khách hàng vừa gửi yêu cầu hoàn tiền đơn đặt trước "+orderid);
+            notificationRepository.save(notification);
+            notifyNotificationUpdate(account.getAccountID());
+        }
+        for (Account account : adminAccountList)
+        {
+            Notification notification = new Notification();
+            notification.setTime(LocalDateTime.now());
+            notification.setOrder(order);
+            notification.setAccount(account);
+            notification.setStatus(Status.ENABLE);
+            notification.setSeen(Notifi.NO);
+            notification.setNotice(Notifi.NO);
+            notification.setText("Khách hàng vừa gửi yêu cầu hoàn tiền đơn đặt trước "+orderid);
+            notificationRepository.save(notification);
+            notifyNotificationUpdate(account.getAccountID());
+        }
+    }
 }

@@ -54,8 +54,16 @@ public class GetNotificationController {
         Map<String, String> response = new HashMap<>();
         if (notification.getFlower() != null) {
             response.put("redirectUrl", "http://localhost:8000/detail/"+notification.getFlower().getFlowerID());
-        } else if (notification.getOrder() != null) {
+        } else if (notification.getOrder() != null && notification.getAccount().getRole()== Role.user) {
             response.put("redirectUrl", "http://localhost:8000/account/history/"+notification.getOrder().getOrderID());
+        } else if (notification.getOrder() != null && notification.getAccount().getRole() == Role.staff && notification.getText().contains("Khách hàng vừa gửi yêu cầu hủy đơn hàng cho đơn ")) {
+            response.put("redirectUrl", "http://localhost:8000/StaffCanceldelivery");
+        } else if (notification.getOrder() != null && notification.getAccount().getRole() == Role.staff && (notification.getText().contains("Khách hàng vừa gửi yêu cầu hoàn tiền đơn hàng ") || notification.getText().contains("Khách hàng vừa gửi yêu cầu hoàn tiền đơn đặt trước "))) {
+            response.put("redirectUrl", "http://localhost:8000/StaffRefund");
+        } else if (notification.getOrder() != null && notification.getAccount().getRole() == Role.admin && notification.getText().contains("Khách hàng vừa gửi yêu cầu hủy đơn hàng cho đơn ")) {
+            response.put("redirectUrl", "http://localhost:8000/AdminCanceldelivery");
+        } else if (notification.getOrder() != null && notification.getAccount().getRole() == Role.admin && (notification.getText().contains("Khách hàng vừa gửi yêu cầu hoàn tiền đơn hàng ") || notification.getText().contains("Khách hàng vừa gửi yêu cầu hoàn tiền đơn đặt trước "))) {
+            response.put("redirectUrl", "http://localhost:8000/AdminRefund");
         } else if (notification.getPreorder() != null) {
             response.put("redirectUrl", "http://localhost:8000/account/preorder/"+notification.getPreorder().getId());
         } else if (notification.getComment() != null && notification.getAccount().getRole() == Role.user) {
