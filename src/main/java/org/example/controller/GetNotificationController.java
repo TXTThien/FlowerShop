@@ -58,8 +58,15 @@ public class GetNotificationController {
             response.put("redirectUrl", "http://localhost:8000/account/history/"+notification.getOrder().getOrderID());
         } else if (notification.getPreorder() != null) {
             response.put("redirectUrl", "http://localhost:8000/account/preorder/"+notification.getPreorder().getId());
-        } else if (notification.getComment() != null) {
+        } else if (notification.getComment() != null && notification.getAccount().getRole() == Role.user) {
             response.put("redirectUrl", "http://localhost:8000/account/sendcomment/"+notification.getComment().getCommentID());
+        } else if (notification.getComment() != null && notification.getText().contains("vừa trả lời phản hồi của bạn")) {
+            response.put("redirectUrl", "http://localhost:8000/staffaccount/processingcomment/"+notification.getComment().getCommentID());
+        } else if (notification.getComment() != null && notification.getText().contains("đã xác nhận hoàn tất góp ý của họ")) {
+            response.put("redirectUrl", "http://localhost:8000/staffaccount/completecomment/"+notification.getComment().getCommentID());
+        } else if (notification.getComment() != null && notification.getText().contains("Một góp ý vừa được tạo bởi khách hàng ")) {
+            response.put("redirectUrl", "http://localhost:8000/staffaccount/comment/"+notification.getComment().getCommentID());
+
         } else if (notification.getBlog() != null) {
             response.put("redirectUrl", "http://localhost:8000/blog/"+notification.getBlog().getBlogid());
         } else if (notification.getBlogComment() != null) {
