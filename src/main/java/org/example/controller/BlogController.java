@@ -3,7 +3,6 @@ package org.example.controller;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.BlogCommentDTO;
 import org.example.dto.BlogInfoDTO;
-import org.example.dto.FlowerDTO;
 import org.example.dto.ProductDTO;
 import org.example.entity.*;
 import org.example.repository.BlogRepository;
@@ -17,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.lang.reflect.Array;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.Flow;
 import java.util.stream.Collectors;
@@ -32,7 +32,7 @@ public class BlogController {
     private final GetIDAccountFromAuthService getIDAccountFromAuthService;
     private final IBlogFlowerService iBlogFlowerService;
     private final IFlowerService flowerService;
-
+    private final IEventFlowerService eventFlowerService;
     @GetMapping("")
     public ResponseEntity<?> getBlog() {
         int accountid = getIDAccountFromAuthService.common();
@@ -79,7 +79,14 @@ public class BlogController {
                     .collect(Collectors.toList());
 
             List<ProductDTO> flowerDTOList = flowerService.getFlowerDTOsByFlowerIds(flowerIds);
-
+            for (ProductDTO productDTO : flowerDTOList) {
+                EventFlower eventFlower = eventFlowerService.findEventFlowerByFlowerSizeID(productDTO.getFlowerSizeID());
+                if (eventFlower != null && eventFlower.getSaleoff() != null) {
+                    BigDecimal discountAmount = productDTO.getPrice().multiply(eventFlower.getSaleoff().divide(BigDecimal.valueOf(100)));
+                    productDTO.setPriceEvent(productDTO.getPrice().subtract(discountAmount));
+                    productDTO.setSaleOff(eventFlower.getSaleoff());
+                }
+            }
             List<BlogInteract> blogInteracts = iBlogInteractService.findLikeBlogYet(blog.getBlogid(), accountid);
             BlogInteract pinBlog = iBlogInteractService.findBlogInteractByAccountIDAndBlogpinID(accountid,blog.getBlogid());
             blogInfoDTO.setBlog(blog);
@@ -164,6 +171,14 @@ public class BlogController {
                 .collect(Collectors.toList());
 
         List<ProductDTO> flowerDTOList = flowerService.getFlowerDTOsByFlowerIds(flowerIds);
+        for (ProductDTO productDTO : flowerDTOList) {
+            EventFlower eventFlower = eventFlowerService.findEventFlowerByFlowerSizeID(productDTO.getFlowerSizeID());
+            if (eventFlower != null && eventFlower.getSaleoff() != null) {
+                BigDecimal discountAmount = productDTO.getPrice().multiply(eventFlower.getSaleoff().divide(BigDecimal.valueOf(100)));
+                productDTO.setPriceEvent(productDTO.getPrice().subtract(discountAmount));
+                productDTO.setSaleOff(eventFlower.getSaleoff());
+            }
+        }
         BlogInteract pinBlog = iBlogInteractService.findBlogInteractByAccountIDAndBlogpinID(accountid,blog.getBlogid());
         if (pinBlog != null)
         {

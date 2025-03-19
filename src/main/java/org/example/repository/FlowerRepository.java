@@ -37,12 +37,12 @@ public interface FlowerRepository extends JpaRepository<Flower, Integer>{
                              @Param("purposeid") Integer purposeid);
 
 
-    @Query("SELECT new org.example.dto.ProductDTO(f.flowerID, f.image, f.name, CAST(COALESCE(SUM(bi.quantity), 0) AS int), MIN(fs.price)) " +
+    @Query("SELECT new org.example.dto.ProductDTO(f.flowerID, f.image, f.name, CAST(COALESCE(SUM(bi.quantity), 0) AS int), MIN(fs.price),fs.flowerSizeID) " +
             "FROM Flower f " +
             "JOIN FlowerSize fs ON fs.flower = f " +
             "JOIN OrderDetail bi ON bi.flowerSize.flowerSizeID = fs.flowerSizeID " +
             "WHERE bi.status = 'ENABLE' " +
-            "GROUP BY f.flowerID " +
+            "GROUP BY f.flowerID, fs.flowerSizeID " +
             "ORDER BY SUM(bi.quantity) DESC")
     List<ProductDTO> findTop10BestSellingProducts(Pageable pageable);
 
@@ -55,13 +55,13 @@ public interface FlowerRepository extends JpaRepository<Flower, Integer>{
     int HowManyBought(@Param("id") int id);
 
     @Query("SELECT new org.example.dto.ProductDTO(f.flowerID, f.image, f.name, " +
-            "CAST(COALESCE(SUM(bi.quantity), 0) AS int), MIN(fs.price)) " +
+            "CAST(COALESCE(SUM(bi.quantity), 0) AS int), MIN(fs.price),fs.flowerSizeID) " +
             "FROM Flower f " +
             "JOIN FlowerSize fs ON fs.flower = f " +
             "LEFT JOIN OrderDetail bi ON bi.flowerSize.flowerSizeID = fs.flowerSizeID AND bi.status = 'ENABLE' " +
             "WHERE f.flowerID IN :ids " +
-            "GROUP BY f.flowerID, f.image, f.name")
-    List<ProductDTO> findProductDTOs(@Param("ids") List<Integer> ids);
+            "GROUP BY f.flowerID, f.image, f.name, fs.flowerSizeID")
+    List<ProductDTO>    findProductDTOs(@Param("ids") List<Integer> ids);
 
     Flower findFlowerByFlowerIDAndStatus(int id, Status status);
 

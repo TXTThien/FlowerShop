@@ -23,5 +23,7 @@ public class FlowerDTO {
     private Category category;
     private Purpose purpose;
     private BigDecimal price;
+    private BigDecimal priceEvent;
+    private BigDecimal saleOff;
     private Preorderable preorderable;
 }

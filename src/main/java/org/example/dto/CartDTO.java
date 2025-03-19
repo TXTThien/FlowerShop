@@ -22,6 +22,8 @@ public class CartDTO {
     private String avatar;
     private String sizeChoose;
     private BigDecimal productPrice;
+    private BigDecimal productPriceEvent;
+    private BigDecimal saleOff;
     private List<String> sizes;
     private List<Integer> stock;
     private Integer purposeID;

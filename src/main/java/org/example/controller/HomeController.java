@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,7 @@ public class HomeController {
     private final GetIDAccountFromAuthService getIDAccountService;
     private final IAccountService accountService;
     private final CategoryRepository categoryRepository;
+    private final IEventFlowerService eventFlowerService;
     @RequestMapping("/info")
     public ResponseEntity<?> info(@RequestHeader(value = "Account-ID",required = false) Integer  accountId) {
         if (accountId == null) {
@@ -98,6 +100,16 @@ public class HomeController {
         List<Banner> bannerList = bannerService.find4BannerEnable();
         List<News> newsList = newsService.find4NewsEnable();
         List<ProductDTO> productList = flowerService.find10HotestProductEnable();
+        for (int i = 0 ; i<productList.size();i++)
+        {
+            EventFlower  eventFlower = eventFlowerService.findEventFlowerByFlowerSizeID(productList.get(i).getFlowerSizeID());
+            if (eventFlower != null && eventFlower.getSaleoff() != null)
+            {
+                BigDecimal discountAmount = productList.get(i).getPrice().multiply(eventFlower.getSaleoff().divide(BigDecimal.valueOf(100)));
+                productList.get(i).setPriceEvent(productList.get(i).getPrice().subtract(discountAmount));
+                productList.get(i).setSaleOff(eventFlower.getSaleoff());
+            }
+        }
         List<Category> categories = categoryRepository.findAllByStatus(Status.ENABLE);
         if (bannerList != null) {
             response.put("bannerList", bannerList);
@@ -135,8 +147,15 @@ public class HomeController {
             dto.setLanguageOfFlowers(brand.getLanguageOfFlowers());
             dto.setCategory(brand.getCategory());
             dto.setPurpose(brand.getPurpose());
-            FlowerSize size = flowerSizeService.findCheapestPriceByFlowerID(brand.getFlowerID());
-            dto.setPrice(size.getPrice());
+            FlowerSize minFlowerSize = flowerSizeService.findCheapestPriceByFlowerID(brand.getFlowerID());
+            EventFlower eventFlower = eventFlowerService.findEventFlowerByFlowerSizeID(minFlowerSize.getFlowerSizeID());
+            if (eventFlower != null && eventFlower.getSaleoff()!=null)
+            {
+                BigDecimal discountAmount = minFlowerSize.getPrice().multiply(eventFlower.getSaleoff().divide(BigDecimal.valueOf(100)));
+                dto.setPriceEvent(minFlowerSize.getPrice().subtract(discountAmount));
+                dto.setSaleOff(eventFlower.getSaleoff());
+            }
+            dto.setPrice(minFlowerSize.getPrice());
             return dto;
         }).toList();
         if (searchProduct.isEmpty()) {

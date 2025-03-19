@@ -1,7 +1,6 @@
 package org.example.service.Impl;
 
 import lombok.RequiredArgsConstructor;
-import org.example.dto.FlowerDTO;
 import org.example.repository.CategoryRepository;
 import org.example.repository.PurposeRepository;
 import org.example.service.IFlowerService;

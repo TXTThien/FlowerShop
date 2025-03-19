@@ -2,14 +2,8 @@ package org.example.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.dto.FlowerDTO;
-import org.example.entity.Category;
-import org.example.entity.Flower;
-import org.example.entity.FlowerSize;
-import org.example.entity.Purpose;
-import org.example.service.ICategoryService;
-import org.example.service.IFlowerService;
-import org.example.service.IFlowerSizeService;
-import org.example.service.IPurposeService;
+import org.example.entity.*;
+import org.example.service.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,7 +25,7 @@ public class FlowerController {
     private final ICategoryService categoryService;
     private final IPurposeService purposeService;
     private final IFlowerSizeService flowerSizeService;
-
+    private final IEventFlowerService eventFlowerService;
     @GetMapping("")
     public ResponseEntity<?> getListProduct(
             @RequestParam(value = "category", required = false) Integer category,
@@ -53,6 +48,13 @@ public class FlowerController {
                     flowerDTO.setCategory(flower.getCategory());
                     flowerDTO.setPurpose(flower.getPurpose());
                     FlowerSize minFlowerSize = flowerSizeService.findCheapestPriceByFlowerID(flower.getFlowerID());
+                    EventFlower eventFlower = eventFlowerService.findEventFlowerByFlowerSizeID(minFlowerSize.getFlowerSizeID());
+                    if (eventFlower != null && eventFlower.getSaleoff()!=null)
+                    {
+                        BigDecimal discountAmount = minFlowerSize.getPrice().multiply(eventFlower.getSaleoff().divide(BigDecimal.valueOf(100)));
+                        flowerDTO.setPriceEvent(minFlowerSize.getPrice().subtract(discountAmount));
+                        flowerDTO.setSaleOff(eventFlower.getSaleoff());
+                    }
                     flowerDTO.setPrice(minFlowerSize.getPrice());
 
                     flowerDTOList.add(flowerDTO);
@@ -79,6 +81,13 @@ public class FlowerController {
                 flowerDTO.setCategory(flower.getCategory());
                 flowerDTO.setPurpose(flower.getPurpose());
                 FlowerSize minFlowerSize = flowerSizeService.findCheapestPriceByFlowerID(flower.getFlowerID());
+                EventFlower eventFlower = eventFlowerService.findEventFlowerByFlowerSizeID(minFlowerSize.getFlowerSizeID());
+                if (eventFlower != null && eventFlower.getSaleoff()!=null)
+                {
+                    BigDecimal discountAmount = minFlowerSize.getPrice().multiply(eventFlower.getSaleoff().divide(BigDecimal.valueOf(100)));
+                    flowerDTO.setPriceEvent(minFlowerSize.getPrice().subtract(discountAmount));
+                    flowerDTO.setSaleOff(eventFlower.getSaleoff());
+                }
                 flowerDTO.setPrice(minFlowerSize.getPrice());
 
                 flowerDTOList.add(flowerDTO);

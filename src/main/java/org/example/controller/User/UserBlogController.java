@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.example.controller.NotificationController;
 import org.example.dto.BlogCommentDTO;
 import org.example.dto.BlogInfoDTO;
-import org.example.dto.ProductDTO;
 import org.example.dto.RequestBodyBlog;
 import org.example.entity.*;
 import org.example.repository.BlogCommentRepository;

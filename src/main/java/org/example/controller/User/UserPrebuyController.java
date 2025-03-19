@@ -45,6 +45,7 @@ public class UserPrebuyController {
     private final EmailController emailController;
     private final GetIDAccountFromAuthService getIDAccountFromAuthService;
     private final SimpMessagingTemplate messagingTemplate;
+    private final IEventFlowerService eventFlowerService;
     private final NotificationController notificationController;
     public void notifyCartUpdate(int accountId, int newCartCount) {
         Map<String, Object> message = new HashMap<>();
@@ -88,6 +89,13 @@ public class UserPrebuyController {
             CartDTO cartDTO = new CartDTO();
             cartDTO.setCartID(cart.getCartID());
             cartDTO.setSizeChoose(cart.getFlowerSize().getSizeName());
+            EventFlower eventFlower = eventFlowerService.findEventFlowerByFlowerSizeID(cart.getFlowerSize().getFlowerSizeID());
+            if (eventFlower !=null && eventFlower.getSaleoff() != null)
+            {
+                BigDecimal discountAmount = cart.getFlowerSize().getPrice().multiply(eventFlower.getSaleoff().divide(BigDecimal.valueOf(100)));
+                cartDTO.setProductPriceEvent(cart.getFlowerSize().getPrice().subtract(discountAmount));
+                cartDTO.setSaleOff(eventFlower.getSaleoff());
+            }
             cartDTO.setNumber(cart.getQuantity());
             cartDTO.setStatus(cart.getStatus());
             cartDTO.setProductID(cart.getFlowerSize().getFlower().getFlowerID());

@@ -3,6 +3,7 @@ package org.example.controller;
 import lombok.RequiredArgsConstructor;
 import org.example.controller.User.UserPrebuyController;
 import org.example.dto.FlowerDTO;
+import org.example.dto.FlowerSizeEvent;
 import org.example.dto.PrebuyDTO;
 import org.example.entity.*;
 import org.example.entity.enums.Status;
@@ -19,10 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.swing.text.html.Option;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -40,7 +38,7 @@ public class FlowerDetailController {
     private final IAccountService accountService;
 
     private final GetIDAccountFromAuthService getIDAccountService;
-
+    private final IEventFlowerService eventFlowerService;
     @GetMapping("/detail/{id}")
     public ResponseEntity<?> ProductDetail(@PathVariable("id") int id){
         Flower product = flowerService.findFlowerByIdEnable(id);
@@ -53,12 +51,44 @@ public class FlowerDetailController {
         flowerDTO.setCategory(product.getCategory());
         flowerDTO.setPurpose(product.getPurpose());
         FlowerSize minFlowerSize = flowerSizeService.findCheapestPriceByFlowerID(product.getFlowerID());
+        EventFlower eventFlower = eventFlowerService.findEventFlowerByFlowerSizeID(minFlowerSize.getFlowerSizeID());
+        if (eventFlower != null && eventFlower.getSaleoff()!=null)
+        {
+            BigDecimal discountAmount = minFlowerSize.getPrice().multiply(eventFlower.getSaleoff().divide(BigDecimal.valueOf(100)));
+            flowerDTO.setPriceEvent(minFlowerSize.getPrice().subtract(discountAmount));
+            flowerDTO.setSaleOff(eventFlower.getSaleoff());
+        }
         flowerDTO.setPrice(minFlowerSize.getPrice());
 
         int idAccount = getIDAccountService.common();
         List<Review> reviewList = reviewService.findReviewByProductID (id);
         List<FlowerImages> imageList = flowerImageService.findImagesByProductID(id);
-        List<FlowerSize> FlowerSizesList = flowerSizeService.findFlowerSizeByProductID(id);
+        List<FlowerSize> flowerSizesList = flowerSizeService.findFlowerSizeByProductID(id);
+        List<FlowerSizeEvent> flowerSizeEvents = new ArrayList<>();
+
+        for (int i = 0; i < flowerSizesList.size(); i++) {
+            FlowerSizeEvent flowerSizeEvent = new FlowerSizeEvent();
+            flowerSizeEvent.setFlower(flowerSizesList.get(i).getFlower());
+            flowerSizeEvent.setFlowerSizeID(flowerSizesList.get(i).getFlowerSizeID());
+            flowerSizeEvent.setSizeName(flowerSizesList.get(i).getSizeName());
+            flowerSizeEvent.setHigh(flowerSizesList.get(i).getHigh());
+            flowerSizeEvent.setLength(flowerSizesList.get(i).getLength());
+            flowerSizeEvent.setWeight(flowerSizesList.get(i).getWeight());
+            flowerSizeEvent.setWidth(flowerSizesList.get(i).getWidth());
+            flowerSizeEvent.setStock(flowerSizesList.get(i).getStock());
+            flowerSizeEvent.setPreorderable(flowerSizesList.get(i).getPreorderable());
+            flowerSizeEvent.setStatus(flowerSizesList.get(i).getStatus());
+            flowerSizeEvent.setPrice(flowerSizesList.get(i).getPrice());
+            EventFlower flowerSizeEventPrice = eventFlowerService.findEventFlowerByFlowerSizeID(flowerSizesList.get(i).getFlowerSizeID());
+            if (flowerSizeEventPrice != null && flowerSizeEventPrice.getSaleoff()!=null)
+            {
+                BigDecimal discountAmount = flowerSizesList.get(i).getPrice().multiply(flowerSizeEventPrice.getSaleoff().divide(BigDecimal.valueOf(100)));
+                flowerSizeEvent.setPriceEvent(flowerSizesList.get(i).getPrice().subtract(discountAmount));
+                flowerSizeEvent.setSaleOff(flowerSizeEventPrice.getSaleoff());
+            }
+            flowerSizeEvents.add(flowerSizeEvent);
+        }
+
         List<Flower> productBrand = flowerService.findFlowersWithPurpose(product.getPurpose().getPurposeID());
         List<FlowerDTO> productBrandDTOs = productBrand.stream().map(brand -> {
             FlowerDTO dto = new FlowerDTO();
@@ -70,6 +100,13 @@ public class FlowerDetailController {
             dto.setCategory(brand.getCategory());
             dto.setPurpose(brand.getPurpose());
             FlowerSize size = flowerSizeService.findCheapestPriceByFlowerID(brand.getFlowerID());
+            EventFlower productBrandDTOsEventFlower = eventFlowerService.findEventFlowerByFlowerSizeID(size.getFlowerSizeID());
+            if (productBrandDTOsEventFlower != null && productBrandDTOsEventFlower.getSaleoff()!=null)
+            {
+                BigDecimal discountAmount = size.getPrice().multiply(productBrandDTOsEventFlower.getSaleoff().divide(BigDecimal.valueOf(100)));
+                dto.setPriceEvent(size.getPrice().subtract(discountAmount));
+                dto.setSaleOff(productBrandDTOsEventFlower.getSaleoff());
+            }
             dto.setPrice(size.getPrice());
             return dto;
         }).toList();
@@ -85,6 +122,13 @@ public class FlowerDetailController {
             dto.setCategory(similar.getCategory());
             dto.setPurpose(similar.getPurpose());
             FlowerSize size = flowerSizeService.findCheapestPriceByFlowerID(similar.getFlowerID());
+            EventFlower productBrandDTOsEventFlower = eventFlowerService.findEventFlowerByFlowerSizeID(size.getFlowerSizeID());
+            if (productBrandDTOsEventFlower != null && productBrandDTOsEventFlower.getSaleoff()!=null)
+            {
+                BigDecimal discountAmount = size.getPrice().multiply(productBrandDTOsEventFlower.getSaleoff().divide(BigDecimal.valueOf(100)));
+                dto.setPriceEvent(size.getPrice().subtract(discountAmount));
+                dto.setSaleOff(productBrandDTOsEventFlower.getSaleoff());
+            }
             dto.setPrice(size.getPrice());
             return dto;
         }).toList();
@@ -101,7 +145,7 @@ public class FlowerDetailController {
         if (product.getStatus() == Status.ENABLE) {
             response.put("product", flowerDTO);
             response.put("reviews", reviewList);
-            response.put("productSizes", FlowerSizesList);
+            response.put("productSizes", flowerSizeEvents);
             response.put("imageList", imageList);
             response.put("productBrand", productBrandDTOs);
             response.put("productSimilar", productSimilarDTOs);
