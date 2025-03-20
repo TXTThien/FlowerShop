@@ -112,7 +112,6 @@ public class FlowerServiceImpl implements IFlowerService {
 
     @Override
     public Integer HowManyBought(int id) {
-        System.out.println("HowManyBoughtBug");
         return flowerRepository.HowManyBought(id);
     }
 

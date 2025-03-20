@@ -55,14 +55,18 @@ public interface FlowerRepository extends JpaRepository<Flower, Integer>{
     int HowManyBought(@Param("id") int id);
 
     @Query("SELECT new org.example.dto.ProductDTO(f.flowerID, f.image, f.name, " +
-            "CAST(COALESCE(SUM(bi.quantity), 0) AS int), MIN(fs.price),fs.flowerSizeID) " +
+            "CAST(COALESCE(SUM(bi.quantity), 0) AS int), MIN(fs.price), " +
+            "MIN(fs.flowerSizeID)) " +  // Lấy flowerSizeID có giá thấp nhất
             "FROM Flower f " +
             "JOIN FlowerSize fs ON fs.flower = f " +
             "LEFT JOIN OrderDetail bi ON bi.flowerSize.flowerSizeID = fs.flowerSizeID AND bi.status = 'ENABLE' " +
             "WHERE f.flowerID IN :ids " +
-            "GROUP BY f.flowerID, f.image, f.name, fs.flowerSizeID")
-    List<ProductDTO>    findProductDTOs(@Param("ids") List<Integer> ids);
+            "GROUP BY f.flowerID, f.image, f.name")
+    List<ProductDTO> findProductDTOs(@Param("ids") List<Integer> ids);
+
 
     Flower findFlowerByFlowerIDAndStatus(int id, Status status);
+
+
 
 }

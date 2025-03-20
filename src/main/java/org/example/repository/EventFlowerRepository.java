@@ -6,7 +6,10 @@ import org.example.entity.enums.Status;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface EventFlowerRepository extends JpaRepository<EventFlower, Integer> {
     EventFlower findEventFlowerByFlowerSize_FlowerSizeIDAndStatus(int id, Status status);
+    List<EventFlower> findEventFlowerByEvent_IdAndStatus(int id, Status status);
 }

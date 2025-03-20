@@ -1,6 +1,7 @@
 package org.example.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.example.dto.EventDTO;
 import org.example.dto.FlowerDTO;
 import org.example.dto.ProductDTO;
 import org.example.entity.*;
@@ -15,9 +16,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,6 +30,7 @@ public class HomeController {
     private final IAccountService accountService;
     private final CategoryRepository categoryRepository;
     private final IEventFlowerService eventFlowerService;
+    private final IEventService eventService;
     @RequestMapping("/info")
     public ResponseEntity<?> info(@RequestHeader(value = "Account-ID",required = false) Integer  accountId) {
         if (accountId == null) {
@@ -100,6 +100,67 @@ public class HomeController {
         List<Banner> bannerList = bannerService.find4BannerEnable();
         List<News> newsList = newsService.find4NewsEnable();
         List<ProductDTO> productList = flowerService.find10HotestProductEnable();
+        List<EventDTO> eventDTOS = new ArrayList<>();
+        List<Event> events = eventService.findEventEnable();
+
+        for (Event event : events) {
+            EventDTO eventDTO = new EventDTO();
+            eventDTO.setEvent(event);
+            List<ProductDTO> productDTOS = new ArrayList<>();
+            List<EventFlower> eventFlowers = eventFlowerService.findEventFlowerByEventID(event.getId());
+
+            Map<Integer, List<EventFlower>> flowerMap = new HashMap<>();
+
+            // Nhóm EventFlower theo FlowerID
+            for (EventFlower eventFlower : eventFlowers) {
+                FlowerSize flowerSize = eventFlower.getFlowerSize();
+                if (flowerSize == null || flowerSize.getFlower() == null) continue;
+
+                Integer flowerId = flowerSize.getFlower().getFlowerID();
+                flowerMap.computeIfAbsent(flowerId, k -> new ArrayList<>()).add(eventFlower);
+            }
+
+            // Xử lý từng nhóm FlowerID
+            for (Map.Entry<Integer, List<EventFlower>> entry : flowerMap.entrySet()) {
+                List<EventFlower> flowerEvents = entry.getValue();
+                if (flowerEvents.isEmpty()) continue;
+
+                // Chọn EventFlower có FlowerSize có giá thấp nhất
+                EventFlower selectedEventFlower = flowerEvents.stream()
+                        .min(Comparator.comparing(ef -> ef.getFlowerSize().getPrice()))
+                        .orElse(null);
+
+                FlowerSize selectedFlowerSize = selectedEventFlower.getFlowerSize();
+                BigDecimal saleOff = selectedEventFlower.getSaleoff() != null ? selectedEventFlower.getSaleoff() : BigDecimal.ZERO;
+                BigDecimal price = selectedFlowerSize.getPrice() != null ? selectedFlowerSize.getPrice() : BigDecimal.ZERO;
+
+                // Tính giá sau khi giảm giá
+                BigDecimal priceEvent = price;
+                if (saleOff.compareTo(BigDecimal.ZERO) > 0) {
+                    priceEvent = price.subtract(price.multiply(saleOff.divide(BigDecimal.valueOf(100))));
+                }
+
+                // Lấy số lượng đã bán (chỉ gọi một lần)
+                Integer sold = flowerService.HowManyBought(selectedFlowerSize.getFlower().getFlowerID());
+
+                // Tạo ProductDTO
+                ProductDTO productDTO = new ProductDTO();
+                productDTO.setProductID(selectedFlowerSize.getFlower().getFlowerID());
+                productDTO.setFlowerSizeID(selectedFlowerSize.getFlowerSizeID());
+                productDTO.setAvatar(selectedFlowerSize.getFlower().getImage());
+                productDTO.setTitle(selectedFlowerSize.getFlower().getName());
+                productDTO.setSold(sold != null ? sold : 0);
+                productDTO.setPrice(price);
+                productDTO.setPriceEvent(priceEvent);
+                productDTO.setSaleOff(saleOff);
+
+                productDTOS.add(productDTO);
+            }
+
+            eventDTO.setFlower(productDTOS);
+            eventDTOS.add(eventDTO);
+        }
+
         for (int i = 0 ; i<productList.size();i++)
         {
             EventFlower  eventFlower = eventFlowerService.findEventFlowerByFlowerSizeID(productList.get(i).getFlowerSizeID());
@@ -117,9 +178,9 @@ public class HomeController {
         if (newsList != null) {
             response.put("newsList", newsList);
         }
-        if (productList != null) {
-            response.put("productList", productList);
-        }
+        response.put("productList", productList);
+        response.put("eventFlower", eventDTOS);
+
         if (categories != null) {
             response.put("categories", categories);
         }

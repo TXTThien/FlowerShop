@@ -25,6 +25,9 @@ public class Event {
     @Column(name = "description", length = 500)
     private String description;
 
+    @Column(name = "color")
+    private String color;
+
     @Column(name = "start", nullable = false)
     private LocalDateTime start;
 
