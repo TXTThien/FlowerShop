@@ -86,6 +86,11 @@ public class BlogController {
                     productDTO.setPriceEvent(productDTO.getPrice().subtract(discountAmount));
                     productDTO.setSaleOff(eventFlower.getSaleoff());
                 }
+                else
+                {
+                    productDTO.setPriceEvent(null);
+                    productDTO.setSaleOff(null);
+                }
             }
             List<BlogInteract> blogInteracts = iBlogInteractService.findLikeBlogYet(blog.getBlogid(), accountid);
             BlogInteract pinBlog = iBlogInteractService.findBlogInteractByAccountIDAndBlogpinID(accountid,blog.getBlogid());
