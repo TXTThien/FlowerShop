@@ -37,4 +37,7 @@ public class Event {
     @Enumerated(EnumType.STRING)
     @Column(name = "Status")
     protected Status status;
+
+    @Column(name = "is_manual", nullable = false)
+    private boolean is_manual;
 }

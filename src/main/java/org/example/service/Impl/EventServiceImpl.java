@@ -17,4 +17,9 @@ public class EventServiceImpl implements IEventService {
     public List<Event> findEventEnable() {
         return eventRepository.findEventsByStatus(Status.ENABLE);
     }
+
+    @Override
+    public Event findEventByID(int id) {
+        return eventRepository.findEventById(id);
+    }
 }

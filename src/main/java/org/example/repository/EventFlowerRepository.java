@@ -12,4 +12,6 @@ import java.util.List;
 public interface EventFlowerRepository extends JpaRepository<EventFlower, Integer> {
     EventFlower findEventFlowerByFlowerSize_FlowerSizeIDAndStatus(int id, Status status);
     List<EventFlower> findEventFlowerByEvent_IdAndStatus(int id, Status status);
+
+    EventFlower findEventFlowerById(int id);
 }

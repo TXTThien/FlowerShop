@@ -9,4 +9,6 @@ public interface IEventFlowerService {
     EventFlower findEventFlowerByFlowerSizeID(Integer flowerSizeID);
 
     List<EventFlower> findEventFlowerByEventID(Integer id);
+
+    EventFlower findEventFlowerByEventFlowerID(Integer idEventFlower);
 }

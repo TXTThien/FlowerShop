@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface IEventService {
     List<Event> findEventEnable();
+
+    Event findEventByID(int id);
 }
