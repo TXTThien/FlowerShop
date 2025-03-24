@@ -12,6 +12,7 @@ import org.example.entity.FlowerSize;
 import org.example.entity.enums.Status;
 import org.example.repository.EventFlowerRepository;
 import org.example.repository.EventRepository;
+import org.example.repository.FlowerSizeRepository;
 import org.example.service.IEventFlowerService;
 import org.example.service.IEventService;
 import org.example.service.IFlowerService;
@@ -34,6 +35,7 @@ public class StaffEventController {
     private final EventRepository eventRepository;
     private final EventFlowerRepository eventFlowerRepository;
     private final IFlowerSizeService flowerSizeService;
+    private final FlowerSizeRepository flowerSizeRepository;
     private final IFlowerService flowerService;
 
     @GetMapping("")
@@ -60,7 +62,7 @@ public class StaffEventController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Event not found");
         }
 
-        List<EventFlowerDTO> eventFlowerDTOS = eventFlowerService.findEventFlowerByEventID(id)
+        List<EventFlowerDTO> eventFlowerDTOS = eventFlowerService.findEventFlowerByEventIDForStaff(id)
                 .stream()
                 .map(this::convertToEventFlowerDTO)
                 .collect(Collectors.toList());
@@ -75,10 +77,12 @@ public class StaffEventController {
 
     private EventFlowerDTO convertToEventFlowerDTO(EventFlower eventFlower) {
         EventFlowerDTO eventFlowerDTO = new EventFlowerDTO();
+        eventFlowerDTO.setFlowerID(eventFlower.getFlowerSize().getFlower().getFlowerID());
         eventFlowerDTO.setIdEventFlower(eventFlower.getId());
         eventFlowerDTO.setFlowerName(eventFlower.getFlowerSize().getFlower().getName());
         eventFlowerDTO.setSizeChoose(eventFlower.getFlowerSize().getSizeName());
-
+        eventFlowerDTO.setSaleOff(eventFlower.getSaleoff());
+        eventFlowerDTO.setImageurl(eventFlower.getFlowerSize().getFlower().getImage());
         List<FlowerSizeDTO> sizeList = convertToFlowerSizeDTOList(
                 flowerSizeService.findFlowerSizeByProductID(eventFlower.getFlowerSize().getFlower().getFlowerID())
         );
@@ -122,8 +126,8 @@ public class StaffEventController {
         event.setStart(createEventDTO.getStart());
         event.set_manual(false);
         event.setEnd(createEventDTO.getEnd());
-        if (createEventDTO.getStart().isBefore(LocalDateTime.now())
-                && LocalDateTime.now().isBefore(createEventDTO.getEnd())) {
+
+        if (createEventDTO.getStart().isBefore(LocalDateTime.now()) && LocalDateTime.now().isBefore(createEventDTO.getEnd())) {
             event.setStatus(Status.ENABLE);
         } else {
             event.setStatus(Status.DISABLE);
@@ -133,21 +137,35 @@ public class StaffEventController {
 
         List<EventFlowerDTO> eventFlowers = createEventDTO.getEventFlowerDTOS();
         if (eventFlowers != null && !eventFlowers.isEmpty()) {
-            List<EventFlower> eventFlowerList = eventFlowers.stream()
-                    .map(eventFlowerDTO -> {
-                        EventFlower eventFlower = new EventFlower();
-                        eventFlower.setEvent(event);
+            List<EventFlower> eventFlowerList = new ArrayList<>();
 
-                        FlowerSize flowerSize = flowerSizeService.findFlowerSizeByID(eventFlowerDTO.getSizeIDChoose());
-                        if (flowerSize == null) {
-                            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "FlowerSize không tồn tại");
-                        }
-                        eventFlower.setFlowerSize(flowerSize);
-                        eventFlower.setSaleoff(eventFlowerDTO.getSaleOff());
-                        eventFlower.setStatus(event.getStatus());
-                        return eventFlower;
-                    })
-                    .collect(Collectors.toList());
+            for (EventFlowerDTO eventFlowerDTO : eventFlowers) {
+                List<FlowerSize> flowerSizes = new ArrayList<>();
+
+                // Nếu SizeID được chọn là -1, lấy tất cả các FlowerSize phù hợp
+                if (eventFlowerDTO.getSizeIDChoose() == -1) {
+                    if (eventFlowerDTO.getFlowerID() != -1) {
+                        flowerSizes = flowerSizeService.findFlowerSizeByProductID(eventFlowerDTO.getFlowerID());
+                    } else {
+                        flowerSizes = flowerSizeRepository.findAll();
+                    }
+                } else {
+                    FlowerSize flowerSize = flowerSizeService.findFlowerSizeByID(eventFlowerDTO.getSizeIDChoose());
+                    if (flowerSize == null) {
+                        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "FlowerSize không tồn tại");
+                    }
+                    flowerSizes.add(flowerSize);
+                }
+
+                for (FlowerSize flowerSize : flowerSizes) {
+                    EventFlower eventFlower = new EventFlower();
+                    eventFlower.setEvent(event);
+                    eventFlower.setFlowerSize(flowerSize);
+                    eventFlower.setSaleoff(eventFlowerDTO.getSaleOff());
+                    eventFlower.setStatus(event.getStatus());
+                    eventFlowerList.add(eventFlower);
+                }
+            }
 
             // Lưu tất cả vào DB
             eventFlowerRepository.saveAll(eventFlowerList);
@@ -157,6 +175,7 @@ public class StaffEventController {
         return ResponseEntity.ok("Sự kiện được tạo thành công");
     }
 
+
     @PutMapping("/{id}")
     public ResponseEntity<?> updateEvent(@RequestBody CreateEventDTO createEventDTO, @PathVariable int id) {
         Event event = eventService.findEventByID(id);
@@ -164,12 +183,14 @@ public class StaffEventController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Không tìm thấy sự kiện");
         }
 
+        // Cập nhật thông tin sự kiện
         event.setName(createEventDTO.getEventName());
         event.setColor(createEventDTO.getColor());
         event.setDescription(createEventDTO.getDescription());
         event.setStart(createEventDTO.getStart());
         event.setEnd(createEventDTO.getEnd());
         event.set_manual(false);
+
         if (createEventDTO.getStart().isBefore(LocalDateTime.now()) && LocalDateTime.now().isBefore(createEventDTO.getEnd())) {
             event.setStatus(Status.ENABLE);
         } else {
@@ -178,39 +199,54 @@ public class StaffEventController {
 
         eventRepository.save(event);
 
+        // Xử lý danh sách EventFlower
         List<EventFlowerDTO> eventFlowerDTOS = createEventDTO.getEventFlowerDTOS();
         if (eventFlowerDTOS != null && !eventFlowerDTOS.isEmpty()) {
-            List<EventFlower> eventFlowersToSave = eventFlowerDTOS.stream()
-                    .map(eventFlowerDTO -> {
-                        EventFlower eventFlower;
-                        if (eventFlowerDTO.getIdEventFlower() != null) {
-                            eventFlower = eventFlowerService.findEventFlowerByEventFlowerID(eventFlowerDTO.getIdEventFlower());
-                            if (eventFlower == null) {
-                                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy EventFlower với ID: " + eventFlowerDTO.getIdEventFlower());
-                            }
-                        } else {
-                            eventFlower = new EventFlower();
-                            eventFlower.setEvent(event);
+            List<EventFlower> eventFlowerList = new ArrayList<>();
+
+            for (EventFlowerDTO eventFlowerDTO : eventFlowerDTOS) {
+                List<FlowerSize> flowerSizes = new ArrayList<>();
+
+                if (eventFlowerDTO.getSizeIDChoose() == -1) {
+                    if (eventFlowerDTO.getFlowerID() != -1) {
+                        flowerSizes = flowerSizeService.findFlowerSizeByProductID(eventFlowerDTO.getFlowerID());
+                    } else {
+                        flowerSizes = flowerSizeRepository.findAll();
+                    }
+                } else {
+                    FlowerSize flowerSize = flowerSizeService.findFlowerSizeByID(eventFlowerDTO.getSizeIDChoose());
+                    if (flowerSize == null) {
+                        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy FlowerSize với ID: " + eventFlowerDTO.getSizeIDChoose());
+                    }
+                    flowerSizes.add(flowerSize);
+                }
+
+                for (FlowerSize flowerSize : flowerSizes) {
+                    EventFlower eventFlower;
+
+                    if (eventFlowerDTO.getIdEventFlower() != null) {
+                        eventFlower = eventFlowerService.findEventFlowerByEventFlowerID(eventFlowerDTO.getIdEventFlower());
+                        if (eventFlower == null) {
+                            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy EventFlower với ID: " + eventFlowerDTO.getIdEventFlower());
                         }
+                    } else {
+                        eventFlower = new EventFlower();
+                        eventFlower.setEvent(event);
+                    }
 
-                        eventFlower.setSaleoff(eventFlowerDTO.getSaleOff());
-                        eventFlower.setStatus(event.getStatus());
+                    eventFlower.setFlowerSize(flowerSize);
+                    eventFlower.setSaleoff(eventFlowerDTO.getSaleOff());
+                    eventFlower.setStatus(event.getStatus());
+                    eventFlowerList.add(eventFlower);
+                }
+            }
 
-                        FlowerSize flowerSize = flowerSizeService.findFlowerSizeByID(eventFlowerDTO.getSizeIDChoose());
-                        if (flowerSize == null) {
-                            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy FlowerSize với ID: " + eventFlowerDTO.getSizeIDChoose());
-                        }
-                        eventFlower.setFlowerSize(flowerSize);
-
-                        return eventFlower;
-                    })
-                    .collect(Collectors.toList());
-
-            eventFlowerRepository.saveAll(eventFlowersToSave);
+            eventFlowerRepository.saveAll(eventFlowerList);
         }
 
         return ResponseEntity.ok("Sự kiện cập nhật thành công");
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteEvent(@PathVariable int id) {
@@ -219,6 +255,12 @@ public class StaffEventController {
             event.setStatus(Status.DISABLE);
             event.set_manual(true);
         } else {
+            if (event.getStart().isBefore(LocalDateTime.now())
+                    && LocalDateTime.now().isBefore(event.getEnd())) {
+                event.setStatus(Status.ENABLE);
+            } else {
+                event.setStatus(Status.DISABLE);
+            }
             event.set_manual(false);
         }
         eventRepository.save(event);

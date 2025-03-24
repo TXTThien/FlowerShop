@@ -25,6 +25,11 @@ public class EventFlowerServiceImpl implements IEventFlowerService {
     }
 
     @Override
+    public List<EventFlower> findEventFlowerByEventIDForStaff(Integer id) {
+        return eventFlowerRepository.findEventFlowerByEvent_Id(id);
+    }
+
+    @Override
     public EventFlower findEventFlowerByEventFlowerID(Integer idEventFlower) {
         return eventFlowerRepository.findEventFlowerById(idEventFlower);
     }

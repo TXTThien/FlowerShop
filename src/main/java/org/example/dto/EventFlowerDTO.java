@@ -22,8 +22,10 @@ public class EventFlowerDTO {
 
     private Integer  idEventFlower;
     private String flowerName;
+    private String imageurl;
     private List<FlowerSizeDTO> size;
     private String sizeChoose;
-    private Integer  sizeIDChoose;
+    private Integer flowerID;
+    private Integer sizeIDChoose;
     private BigDecimal saleOff;
 }
