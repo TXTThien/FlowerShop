@@ -94,6 +94,8 @@ public class StaffEventController {
     private EventFlowerDTO convertToEventFlowerDTO(Flower flower) {
         EventFlowerDTO eventFlowerDTO = new EventFlowerDTO();
         eventFlowerDTO.setFlowerName(flower.getName());
+        eventFlowerDTO.setImageurl(flower.getImage());
+        eventFlowerDTO.setFlowerID(flower.getFlowerID());
 
         List<FlowerSizeDTO> sizeList = convertToFlowerSizeDTOList(
                 flowerSizeService.findFlowerSizeByProductID(flower.getFlowerID())
