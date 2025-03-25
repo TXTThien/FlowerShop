@@ -1,4 +1,4 @@
-package org.example.controller.Staff;
+package org.example.controller.Admin;
 
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
@@ -25,9 +25,9 @@ import java.util.concurrent.Flow;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/v1/staff/event")
+@RequestMapping("/api/v1/admin/event")
 @RequiredArgsConstructor
-public class StaffEventController {
+public class AdminEventController {
     private final IEventFlowerService eventFlowerService;
     private final IEventService eventService;
     private final EventRepository eventRepository;

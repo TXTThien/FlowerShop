@@ -34,5 +34,15 @@ public class EventFlowerServiceImpl implements IEventFlowerService {
         return eventFlowerRepository.findEventFlowerById(idEventFlower);
     }
 
+    @Override
+    public List<EventFlower> findEnable() {
+        return eventFlowerRepository.findEventFlowerByStatus(Status.ENABLE);
+    }
+
+    @Override
+    public List<EventFlower> findEnableExcept(int id) {
+        return eventFlowerRepository.findEnableExcludingEvent(id);
+    }
+
 
 }

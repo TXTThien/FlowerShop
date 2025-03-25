@@ -13,4 +13,8 @@ public interface IEventFlowerService {
 
 
     EventFlower findEventFlowerByEventFlowerID(Integer idEventFlower);
+
+    List<EventFlower> findEnable();
+
+    List<EventFlower>findEnableExcept(int id);
 }
