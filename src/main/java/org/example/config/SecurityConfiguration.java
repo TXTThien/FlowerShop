@@ -55,7 +55,8 @@ public class SecurityConfiguration {
             "/info",
             "/cart",
             "/blog",
-            "/testapp/hello"
+            "/testapp/hello",
+            "/detect/**"
     };
 
     private final JwtAuthenticationFilter jwtAuthFilter;
@@ -95,7 +96,6 @@ public class SecurityConfiguration {
                             .requestMatchers("/wishlist/**").hasAuthority(user.name())
                             .requestMatchers("/blog/**").hasAnyAuthority(user.name(), admin.name(),staff.name(), shipper.name())
                             .requestMatchers("/notification/**").hasAnyAuthority(user.name(), admin.name(),staff.name(),shipper.name())
-
 
                             .requestMatchers("/api/v1/upload/**").permitAll()
                             .requestMatchers("/account/**").hasAuthority(user.name())

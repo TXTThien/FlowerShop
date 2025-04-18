@@ -11,7 +11,7 @@ public interface IEventFlowerService {
     List<EventFlower> findEventFlowerByEventID(Integer id);
     List<EventFlower> findEventFlowerByEventIDForStaff(Integer id);
 
-
+    List<EventFlower> findEventFlowersByFlowerID(Integer id);
     EventFlower findEventFlowerByEventFlowerID(Integer idEventFlower);
 
     List<EventFlower> findEnable();

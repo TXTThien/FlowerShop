@@ -15,7 +15,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -92,11 +96,21 @@ public class FlowerServiceImpl implements IFlowerService {
 
     @Override
     public List<ProductDTO> find10HotestProductEnable() {
-        Pageable topTen = PageRequest.of(0, 10);
-        System.out.println("Top10Bug");
-        List<ProductDTO> top10BestSellingProducts = flowerRepository.findTop10BestSellingProducts(topTen);
-        return top10BestSellingProducts;
+        List<ProductDTO> all = flowerRepository.findAllProductSales();
+
+        Map<Integer, ProductDTO> bestPerFlower = all.stream()
+                .collect(Collectors.toMap(
+                        ProductDTO::getProductID,
+                        Function.identity(),
+                        (existing, replacement) -> existing.getSold() >= replacement.getSold() ? existing : replacement
+                ));
+
+        return bestPerFlower.values().stream()
+                .sorted(Comparator.comparingInt(ProductDTO::getSold).reversed())
+                .limit(10)
+                .collect(Collectors.toList());
     }
+
 
     @Override
     public List<Flower> findFlowersWithPurpose(Integer purposeid) {

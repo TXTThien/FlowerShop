@@ -102,6 +102,35 @@ public class HomeController {
         List<ProductDTO> productList = flowerService.find10HotestProductEnable();
         List<EventDTO> eventDTOS = new ArrayList<>();
         List<Event> events = eventService.findEventEnable();
+        for (ProductDTO productDTO:productList)
+        {
+            FlowerSize minFlowerSize = flowerSizeService.findCheapestPriceByFlowerID(productDTO.getProductID());
+            List<EventFlower> eventFlower = eventFlowerService.findEventFlowersByFlowerID(minFlowerSize.getFlower().getFlowerID());
+            BigDecimal minPrice = BigDecimal.ZERO;
+            BigDecimal saleOff = BigDecimal.ZERO;
+            BigDecimal price = BigDecimal.ZERO;
+            if (!eventFlower.isEmpty())
+            {
+                for (EventFlower eventFlower1 : eventFlower)
+                {
+                    BigDecimal eventPrice = eventFlower1.getFlowerSize().getPrice().subtract(eventFlower1.getFlowerSize().getPrice().multiply(eventFlower1.getSaleoff().divide(BigDecimal.valueOf(100))));
+                    if (minPrice.equals(BigDecimal.ZERO) || minPrice.compareTo(eventPrice) > 0)
+                    {
+                        minPrice = eventPrice;
+                        saleOff = eventFlower1.getSaleoff();
+                        price = eventFlower1.getFlowerSize().getPrice();
+                    }
+                }
+            }
+            if (!minPrice.equals(BigDecimal.ZERO))
+            {
+                productDTO.setPriceEvent(minPrice);
+                productDTO.setSaleOff(saleOff);
+                productDTO.setPrice(price);
+            }
+
+        }
+
 
         for (Event event : events) {
             EventDTO eventDTO = new EventDTO();
@@ -200,24 +229,46 @@ public class HomeController {
             }
         }
         List<FlowerDTO> productBrandDTOs = searchProduct.stream().map(brand -> {
-            FlowerDTO dto = new FlowerDTO();
-            dto.setFlowerID(brand.getFlowerID());
-            dto.setName(brand.getName());
-            dto.setDescription(brand.getDescription());
-            dto.setImage(brand.getImage());
-            dto.setLanguageOfFlowers(brand.getLanguageOfFlowers());
-            dto.setCategory(brand.getCategory());
-            dto.setPurpose(brand.getPurpose());
+            FlowerDTO flowerDTO = new FlowerDTO();
+            flowerDTO.setFlowerID(brand.getFlowerID());
+            flowerDTO.setName(brand.getName());
+            flowerDTO.setDescription(brand.getDescription());
+            flowerDTO.setImage(brand.getImage());
+            flowerDTO.setLanguageOfFlowers(brand.getLanguageOfFlowers());
+            flowerDTO.setCategory(brand.getCategory());
+            flowerDTO.setPurpose(brand.getPurpose());
             FlowerSize minFlowerSize = flowerSizeService.findCheapestPriceByFlowerID(brand.getFlowerID());
-            EventFlower eventFlower = eventFlowerService.findEventFlowerByFlowerSizeID(minFlowerSize.getFlowerSizeID());
-            if (eventFlower != null && eventFlower.getSaleoff()!=null)
+            List<EventFlower> eventFlower = eventFlowerService.findEventFlowersByFlowerID(minFlowerSize.getFlower().getFlowerID());
+            BigDecimal minPrice = BigDecimal.ZERO;
+            BigDecimal saleOff = BigDecimal.ZERO;
+            BigDecimal price = BigDecimal.ZERO;
+            if (!eventFlower.isEmpty())
             {
-                BigDecimal discountAmount = minFlowerSize.getPrice().multiply(eventFlower.getSaleoff().divide(BigDecimal.valueOf(100)));
-                dto.setPriceEvent(minFlowerSize.getPrice().subtract(discountAmount));
-                dto.setSaleOff(eventFlower.getSaleoff());
+                for (EventFlower eventFlower1 : eventFlower)
+                {
+                    BigDecimal eventPrice = eventFlower1.getFlowerSize().getPrice().subtract(eventFlower1.getFlowerSize().getPrice().multiply(eventFlower1.getSaleoff().divide(BigDecimal.valueOf(100))));
+                    if (minPrice.equals(BigDecimal.ZERO) || minPrice.compareTo(eventPrice) > 0)
+                    {
+                        minPrice = eventPrice;
+                        saleOff = eventFlower1.getSaleoff();
+                        price = eventFlower1.getFlowerSize().getPrice();
+                    }
+                }
             }
-            dto.setPrice(minFlowerSize.getPrice());
-            return dto;
+
+
+            if (!minPrice.equals(BigDecimal.ZERO))
+            {
+                flowerDTO.setPriceEvent(minPrice);
+                flowerDTO.setSaleOff(saleOff);
+                flowerDTO.setPrice(price);
+            }
+            else
+            {
+                flowerDTO.setPrice(minFlowerSize.getPrice());
+            }
+
+            return flowerDTO;
         }).toList();
         if (searchProduct.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
