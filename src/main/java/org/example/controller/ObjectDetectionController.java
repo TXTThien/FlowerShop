@@ -66,8 +66,9 @@ public class ObjectDetectionController {
 
             for (Map.Entry<String, Integer> entry : resultMap.entrySet()) {
                 DetectDTO detectDTO = getInfoDetect(entry.getKey(), entry.getValue());
+                if(detectDTO == null)
+                    continue;
                 detectDTOS.add(detectDTO);
-                System.out.println("Đối tượng: " + entry.getKey() + ", số lượng: " + entry.getValue());
             }
         }
 
@@ -83,6 +84,9 @@ public class ObjectDetectionController {
     {
         DetectDTO detectDTO = new DetectDTO();
         Detect detect = detectService.findDetectInfo(name);
+        if (detect == null)
+            return null;
+
         detectDTO.setDetect(detect);
 
         List<DetectFlower> detectFlowers= detectFlowerService.findDetectFlowerByDetect(detect);

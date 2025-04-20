@@ -17,4 +17,9 @@ public class DetectServiceImpl implements IDetectService {
     public Detect findDetectInfo(String resultFromPython) {
         return detectRepository.findDetectByFlowerdetectAndStatus(resultFromPython, Status.ENABLE);
     }
+
+    @Override
+    public Detect findDetectByDetectID(int id) {
+        return detectRepository.findDetectById(id);
+    }
 }

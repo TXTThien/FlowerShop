@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface DetectRepository extends JpaRepository<Detect, Integer> {
     Detect findDetectByFlowerdetectAndStatus(String name , Status status);
+    Detect findDetectById(int id);
 }
