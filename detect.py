@@ -58,3 +58,5 @@ print("IMAGE_PATH:" + output_path)
 print("Kết quả nhận diện:")
 for obj, count in counts.items():
     print(f"{obj}")
+
+
