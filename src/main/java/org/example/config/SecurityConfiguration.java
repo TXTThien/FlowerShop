@@ -97,7 +97,7 @@ public class SecurityConfiguration {
                             .requestMatchers("/wishlist/**").hasAuthority(user.name())
                             .requestMatchers("/blog/**").hasAnyAuthority(user.name(), admin.name(),staff.name(), shipper.name())
                             .requestMatchers("/notification/**").hasAnyAuthority(user.name(), admin.name(),staff.name(),shipper.name())
-
+                            .requestMatchers("/orderdelivery/**").hasAnyAuthority(user.name(),staff.name(),shipper.name())
                             .requestMatchers("/api/v1/upload/**").permitAll()
                             .requestMatchers("/account/**").hasAuthority(user.name())
                             .requestMatchers("/shipper/**").hasAuthority(shipper.name())
