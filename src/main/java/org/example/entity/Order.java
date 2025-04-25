@@ -89,4 +89,8 @@ public class Order {
 
     @Column(name = "time")
     private LocalDateTime time;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "orderdeliveryid")
+    private OrderDelivery orderDelivery;
 }

@@ -62,13 +62,11 @@ public class FlowerServiceImpl implements IFlowerService {
     }
 
     @Override
-    public void deleteProduct(Integer id) {
-        Flower product = flowerRepository.findById(id).orElse(null);
-        if (product != null) {
-            product.setStatus(Status.DISABLE);
-            flowerRepository.save(product);
-        }
+    public Flower findFlowerByName(String name) {
+        return flowerRepository.findFlowerByNameAndStatus(name,Status.ENABLE);
     }
+
+
 
     @Override
     public Flower getProductById(Integer id) {

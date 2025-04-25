@@ -2,10 +2,7 @@ package org.example.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.auth.ForgotPasswordRequest;
-import org.example.entity.Account;
-import org.example.entity.Order;
-import org.example.entity.Preorder;
-import org.example.entity.Preorderdetail;
+import org.example.entity.*;
 import org.example.entity.enums.IsPaid;
 import org.example.service.IAccountService;
 import org.example.service.IPreOrderService;
@@ -110,6 +107,19 @@ public class EmailController {
                 "Mã thanh toán: "+preorder.getVnp_TransactionNo() +"\n"+
                 "Mã đơn hàng: " + order.getOrderID() +"\n"+
                 "Hãy kiểm tra lại thông tin, nếu có sai sót hãy liên hệ vơới chúng tôi sớm nhất: http://localhost:8000/account/history/" + order.getOrderID();
+        emailService.sendSimpleMessage(email, subject, text);
+    }
+
+    public void OrDeSuccess(OrderDelivery orderDelivery, int idAccount) {
+        Account account = accountService.getAccountById(idAccount);
+        String email = account.getEmail();
+        String subject = "Thông báo đặt hẹn giao hàng thành công";
+        String text;
+        text = "Bạn đã thanh toán thành công, mã số đơn hẹn giao hàng: " + orderDelivery.getId() + "\n" +
+                    "Mã thanh toán: " + orderDelivery.getVnp_TransactionNo() + "\n" +
+                    "Số tiền đã thanh toán: " + orderDelivery.getTotal() + "\n" +
+                    "Hãy lưu giữ lại mã thanh toán và mã số đơn hẹn nếu có khiếu nại hoặc hủy đơn.";
+
         emailService.sendSimpleMessage(email, subject, text);
     }
 }

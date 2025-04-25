@@ -56,7 +56,8 @@ public class SecurityConfiguration {
             "/cart",
             "/blog",
             "/testapp/hello",
-            "/detect/**"
+            "/detect/**",
+            "/api/chat/**"
     };
 
     private final JwtAuthenticationFilter jwtAuthFilter;

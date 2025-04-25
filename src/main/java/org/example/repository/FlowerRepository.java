@@ -68,6 +68,7 @@ public interface FlowerRepository extends JpaRepository<Flower, Integer>{
 
     Flower findFlowerByFlowerIDAndStatus(int id, Status status);
 
+    Flower findFlowerByNameAndStatus(String name, Status status);
 
 
 }

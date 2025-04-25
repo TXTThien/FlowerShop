@@ -60,6 +60,35 @@ public class HomeController {
 
         return ResponseEntity.ok(response);
     }
+    @RequestMapping("/order")
+    public ResponseEntity<?> orderdelivery(@RequestHeader(value = "Account-ID",required = false) Integer  accountId) {
+        if (accountId == null) {
+            accountId = -1;
+        }
+        Account account = accountService.getAccountById(accountId);
+        System.out.println("idAccount:" + accountId);
+        Map<String, String> response = new HashMap<>();
+        if (accountId != -1 && account != null){
+            if (account.getRole() == Role.user){
+                response.put("redirectUrl", "http://localhost:8000/orderdelivery");
+            }
+            else if (account.getRole() == Role.admin){
+                response.put("redirectUrl", "http://localhost:8000/dashboard");
+            }
+            else if (account.getRole() == Role.shipper){
+                response.put("redirectUrl", "http://localhost:8000/orderdelivery");
+            }
+            else if (account.getRole() == Role.staff){
+                response.put("redirectUrl", "http://localhost:8000/orderdelivery");
+            }
+        }
+        else {
+            response.put("redirectUrl", "http://localhost:8000/login");
+        }
+
+
+        return ResponseEntity.ok(response);
+    }
     @RequestMapping("/cart")
     public ResponseEntity<?> cart(@RequestHeader(value = "Account-ID",required = false) Integer  accountId) {
         if (accountId == null) {

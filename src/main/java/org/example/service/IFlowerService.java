@@ -12,7 +12,7 @@ public interface IFlowerService {
     List<Flower> findAllEnable();
 
     Flower updateProduct (Integer id, Flower newFlower);
-    void deleteProduct (Integer id);
+    Flower findFlowerByName (String name);
     Flower getProductById(Integer id);
     Flower findFlowerByIdEnable (Integer id);
     List<Flower> findFlowersWithPurpose(Integer purposeid);

@@ -10,6 +10,7 @@ import org.example.service.IDetectFlowerService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -19,5 +20,11 @@ public class DetectFlowerServiceImpl implements IDetectFlowerService {
     @Override
     public List<DetectFlower> findDetectFlowerByDetect(Detect detect) {
         return detectFlowerRepository.findDetectFlowersByDetect(detect);
+    }
+
+    @Override
+    public List<DetectFlower> findDetectFlowerByDetectAndNumber(Detect detect, int n) {
+        List<DetectFlower> all = detectFlowerRepository.findDetectFlowersByDetect(detect);
+        return all.stream().limit(n).collect(Collectors.toList());
     }
 }

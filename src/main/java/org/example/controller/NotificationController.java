@@ -30,6 +30,7 @@ public class NotificationController {
     private final IBlogService blogService;
     private final IBlogInteractService blogInteractService;
     private final EmailController emailController;
+    private final IOrderDelivery orderDelivery;
     public void notifyNotificationUpdate(int accountId) {
         Map<String, Object> message = new HashMap<>();
         message.put("accountId", accountId);
@@ -580,5 +581,17 @@ public class NotificationController {
             notificationRepository.save(notification);
             notifyNotificationUpdate(account.getAccountID());
         }
+    }
+
+    public void OrDeNotificationCreate(int orderdelivery) {
+        Notification notification = new Notification();
+        OrderDelivery orderDelivery1 = orderDelivery.findOrderDelivery(orderdelivery);
+        notification.setOrderDelivery(orderDelivery1);
+        notification.setAccount(orderDelivery1.getAccountID());
+        notification.setStatus(Status.ENABLE);
+        notification.setSeen(Notifi.NO);
+        notification.setNotice(Notifi.NO);
+        notification.setTime(LocalDateTime.now());
+        notification.setText("Đơn hẹn giao hàng " + orderdelivery + " đã đặt thành công.");
     }
 }

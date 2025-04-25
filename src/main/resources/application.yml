@@ -43,3 +43,6 @@ server:
   servlet:
     session:
       persistent: false
+openrouter:
+  api:
+    key: AIzaSyDo_xbFN35-BQP3BX1KGjgEyL8ACr20Z2o

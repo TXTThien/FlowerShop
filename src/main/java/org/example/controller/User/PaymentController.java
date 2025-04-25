@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.example.config.ConfigVnpay;
 import org.example.dto.BuyInfo;
+import org.example.dto.OrderDeliveryDTO;
 import org.example.service.ICartService;
 import org.example.service.securityService.AuthService;
 import org.example.service.securityService.GetIDAccountFromAuthService;
@@ -33,11 +34,13 @@ public class PaymentController {
     private final ICartService cartService;
     private final GetIDAccountFromAuthService getIDAccountService;
     private final UserPrebuyController prebuyController;
+    private final OrderDeliveryController orderDeliveryController;
     int [] cartID;
     int [] quantity;
     BigDecimal[] price;
     BigDecimal[] paid;
     BuyInfo buyInfo;
+    OrderDeliveryDTO orderDeliveryDTO;
     @PostMapping ("/setCart")
     public ResponseEntity<String> setCart(@RequestParam("cartID") int[] cartIDs, @RequestParam("quantities") int [] quantities , @RequestParam("price") BigDecimal[] prices,@RequestParam(value= "paid", required = false) BigDecimal[] paids, @RequestBody BuyInfo buyInfos){
         cartID = cartIDs;
@@ -45,9 +48,14 @@ public class PaymentController {
         price = prices;
         buyInfo = buyInfos;
         paid = paids;
-        System.out.println(buyInfo);
-        System.out.println("Price: "+ Arrays.toString(prices));
         return ResponseEntity.ok("Cart updated successfully.");
+    }
+    @PostMapping ("/setOrderDelivery")
+    public ResponseEntity<String> setCart(@RequestParam("price") BigDecimal[] prices, @RequestBody OrderDeliveryDTO dto){
+
+        price = prices;
+        orderDeliveryDTO = dto;
+        return ResponseEntity.ok("OrderDelivery updated successfully.");
     }
     @GetMapping("/pay")
     public ResponseEntity<String>  getPay(@RequestParam("totalPayment") String totalPayment) throws UnsupportedEncodingException {
@@ -123,6 +131,21 @@ public class PaymentController {
         int accountId = (int) request.getSession().getAttribute("accountID");
         if ("00".equals(responseCode)) {
             prebuyController.buyVNPay(cartID, accountId,price,paid,buyInfo,transactionId);
+            response.sendRedirect("http://localhost:8000/PaymentSuccess");
+
+        } else {
+            response.sendRedirect("http://localhost:8000/PaymentFailure");
+        }
+    }
+
+    @GetMapping("/payment_orderdeli")
+    public void OrderDelivery(@RequestParam Map<String, String> params, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String transactionId = params.get("vnp_TransactionNo");
+        String responseCode = params.get("vnp_ResponseCode");
+        int accountId = (int) request.getSession().getAttribute("accountID");
+        if ("00".equals(responseCode)) {
+            orderDeliveryController.createOrderDelivery(price,orderDeliveryDTO,accountId,transactionId);
+
             response.sendRedirect("http://localhost:8000/PaymentSuccess");
 
         } else {

@@ -69,4 +69,7 @@ public class Notification {
     @Column(name ="time", nullable = false)
     private LocalDateTime time;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "orderdeliveryid", nullable = false)
+    private OrderDelivery orderDelivery;
 }
