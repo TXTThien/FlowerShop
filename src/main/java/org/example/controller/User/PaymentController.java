@@ -131,9 +131,15 @@ public class PaymentController {
         int accountId = (int) request.getSession().getAttribute("accountID");
         if ("00".equals(responseCode)) {
             if(buyInfo!= null)
+            {
+                System.out.println("1");
                 prebuyController.buyVNPay(cartID, accountId,price,paid,buyInfo,transactionId);
+            }
             else
+            {
+                System.out.println("2");
                 orderDeliveryController.createOrderDelivery(price,orderDeliveryDTO,accountId,transactionId);
+            }
             response.sendRedirect("http://localhost:8000/PaymentSuccess");
 
         } else {
