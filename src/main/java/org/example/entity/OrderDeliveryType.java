@@ -29,7 +29,7 @@ public class OrderDeliveryType {
     private BigDecimal cost;
 
     @Column(name = "days", nullable = false)
-    private String days;
+    private Integer days;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.entity.enums.Deliverper;
-import org.example.entity.enums.IsPaid;
 import org.example.entity.enums.OrDeCondition;
 import org.example.entity.enums.Status;
 
@@ -67,5 +66,8 @@ public class OrderDelivery {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "condition")
-    protected OrDeCondition orDeCondition;
+    protected OrDeCondition condition;
+
+    @Column(name = "refund", precision = 50, scale = 2)
+    private BigDecimal refund;
 }

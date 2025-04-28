@@ -51,11 +51,11 @@ public class PaymentController {
         return ResponseEntity.ok("Cart updated successfully.");
     }
     @PostMapping ("/setOrderDelivery")
-    public ResponseEntity<String> setCart(@RequestParam("price") BigDecimal[] prices, @RequestBody OrderDeliveryDTO dto){
+    public ResponseEntity<?> setCart(@RequestParam("price") BigDecimal[] prices, @RequestBody OrderDeliveryDTO dto ){
 
         price = prices;
         orderDeliveryDTO = dto;
-        return ResponseEntity.ok("OrderDelivery updated successfully.");
+        return ResponseEntity.ok(dto);
     }
     @GetMapping("/pay")
     public ResponseEntity<String>  getPay(@RequestParam("totalPayment") String totalPayment) throws UnsupportedEncodingException {
@@ -130,7 +130,10 @@ public class PaymentController {
         String responseCode = params.get("vnp_ResponseCode");
         int accountId = (int) request.getSession().getAttribute("accountID");
         if ("00".equals(responseCode)) {
-            prebuyController.buyVNPay(cartID, accountId,price,paid,buyInfo,transactionId);
+            if(buyInfo!= null)
+                prebuyController.buyVNPay(cartID, accountId,price,paid,buyInfo,transactionId);
+            else
+                orderDeliveryController.createOrderDelivery(price,orderDeliveryDTO,accountId,transactionId);
             response.sendRedirect("http://localhost:8000/PaymentSuccess");
 
         } else {
@@ -138,18 +141,4 @@ public class PaymentController {
         }
     }
 
-    @GetMapping("/payment_orderdeli")
-    public void OrderDelivery(@RequestParam Map<String, String> params, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String transactionId = params.get("vnp_TransactionNo");
-        String responseCode = params.get("vnp_ResponseCode");
-        int accountId = (int) request.getSession().getAttribute("accountID");
-        if ("00".equals(responseCode)) {
-            orderDeliveryController.createOrderDelivery(price,orderDeliveryDTO,accountId,transactionId);
-
-            response.sendRedirect("http://localhost:8000/PaymentSuccess");
-
-        } else {
-            response.sendRedirect("http://localhost:8000/PaymentFailure");
-        }
-    }
 }

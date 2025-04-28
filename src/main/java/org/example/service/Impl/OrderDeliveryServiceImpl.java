@@ -2,6 +2,7 @@ package org.example.service.Impl;
 
 import lombok.RequiredArgsConstructor;
 import org.example.entity.OrderDelivery;
+import org.example.entity.enums.OrDeCondition;
 import org.example.entity.enums.Status;
 import org.example.repository.OrderDeliveryRepository;
 import org.example.service.INotificationService;
@@ -20,7 +21,22 @@ public class OrderDeliveryServiceImpl implements IOrderDelivery {
     }
 
     @Override
+    public List<OrderDelivery> findAllOrDeStaffAdmin() {
+        return orderDeliveryRepository.findAll();
+    }
+
+    @Override
     public List<OrderDelivery> findOrderDeliveryByAccountID(int id) {
         return orderDeliveryRepository.findOrderDeliveriesByAccountID_AccountIDAndStatus(id, Status.ENABLE);
+    }
+
+    @Override
+    public List<OrderDelivery> findOrDeByCondition(OrDeCondition orDeCondition) {
+        return orderDeliveryRepository.findOrderDeliveriesByCondition(orDeCondition);
+    }
+
+    @Override
+    public OrderDelivery findOrderDeliveryByAdmin(int id) {
+        return orderDeliveryRepository.findOrderDeliveryById(id);
     }
 }

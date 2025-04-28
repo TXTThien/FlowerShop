@@ -90,7 +90,12 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     @Override
-    public List<Order> findOrdersByOrDeIDAndCondition(int orderDelivery1) {
+    public List<Order> findOrdersByOrDeID(int orderDelivery1) {
         return orderRepository.findOrdersByOrderDelivery_IdAndConfirmAndStatus(orderDelivery1, IsPaid.Yes, Status.ENABLE);
+    }
+
+    @Override
+    public List<Order> findOrdersByOrDeIDAndCondition(int id, Condition condition) {
+        return orderRepository.findOrdersByOrderDelivery_IdAndCondition(id,condition);
     }
 }

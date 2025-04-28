@@ -25,4 +25,5 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     BigDecimal calculateGet(@Param("isPaid") IsPaid isPaid);
 
     List<Order> findOrdersByOrderDelivery_IdAndConfirmAndStatus(int id,  IsPaid confirm, Status status);
+    List<Order> findOrdersByOrderDelivery_IdAndCondition(int id, Condition condition);
 }

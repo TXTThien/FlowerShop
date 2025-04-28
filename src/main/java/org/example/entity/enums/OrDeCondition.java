@@ -5,5 +5,6 @@ public enum OrDeCondition {
     CANCEL,
     ONGOING,
     REFUND,
-    REFUND_IS_WAITING
+    REFUND_IS_WAITING,
+    CANCEL_REQUEST_IS_WAITING
 }

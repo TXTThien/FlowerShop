@@ -551,7 +551,6 @@ public class NotificationController {
     public void refundPreOrderRequestForStaffNotification(int orderid) {
         Order order = orderService.findOrderByOrderID(orderid);
 
-        List<Notification> notificationList = new ArrayList<>();
         List<Account> staffAccountList = accountService.getAccountByRole(Role.staff);
         List<Account> adminAccountList = accountService.getAccountByRole(Role.admin);
 
@@ -593,5 +592,39 @@ public class NotificationController {
         notification.setNotice(Notifi.NO);
         notification.setTime(LocalDateTime.now());
         notification.setText("Đơn hẹn giao hàng " + orderdelivery + " đã đặt thành công.");
+    }
+
+    public void refundOrDeRequestForStaffNotification(int orderid) {
+        OrderDelivery orderDelivery1 = orderDelivery.findOrderDelivery(orderid);
+
+        List<Account> staffAccountList = accountService.getAccountByRole(Role.staff);
+        List<Account> adminAccountList = accountService.getAccountByRole(Role.admin);
+
+        for (Account account : staffAccountList)
+        {
+            Notification notification = new Notification();
+            notification.setTime(LocalDateTime.now());
+            notification.setOrderDelivery(orderDelivery1);
+            notification.setAccount(account);
+            notification.setStatus(Status.ENABLE);
+            notification.setSeen(Notifi.NO);
+            notification.setNotice(Notifi.NO);
+            notification.setText("Khách hàng vừa gửi yêu cầu hoàn tiền đơn đặt hàng "+orderid);
+            notificationRepository.save(notification);
+            notifyNotificationUpdate(account.getAccountID());
+        }
+        for (Account account : adminAccountList)
+        {
+            Notification notification = new Notification();
+            notification.setTime(LocalDateTime.now());
+            notification.setOrderDelivery(orderDelivery1);
+            notification.setAccount(account);
+            notification.setStatus(Status.ENABLE);
+            notification.setSeen(Notifi.NO);
+            notification.setNotice(Notifi.NO);
+            notification.setText("Khách hàng vừa gửi yêu cầu hoàn tiền đơn đặt trước "+orderid);
+            notificationRepository.save(notification);
+            notifyNotificationUpdate(account.getAccountID());
+        }
     }
 }

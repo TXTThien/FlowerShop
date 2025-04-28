@@ -1,6 +1,7 @@
 package org.example.controller.User;
 
 import lombok.RequiredArgsConstructor;
+import org.example.controller.NotificationController;
 import org.example.dto.InfoOrderDelivery;
 import org.example.dto.OrDeDetailDTO;
 import org.example.dto.OrderDeliveryDTO;
@@ -32,6 +33,7 @@ public class UserOrDeController {
     private final IAccountService accountService;
     private final RefundResponsitory refundResponsitory;
     private final OrderDeliveryRepository orderDeliveryRepository;
+    private final NotificationController notificationController;
     @GetMapping("")
     public ResponseEntity<?> getOrDe()
     {
@@ -43,7 +45,7 @@ public class UserOrDeController {
             OrderDeliveryDTO orderDeliveryDTO = new OrderDeliveryDTO();
             orderDeliveryDTO.setDateStart(orderDelivery1.getStart());
             orderDeliveryDTO.setDateEnd(orderDelivery1.getEnd());
-            orderDeliveryDTO.setOrDeCondition(orderDelivery1.getOrDeCondition());
+            orderDeliveryDTO.setOrDeCondition(orderDelivery1.getCondition());
             orderDeliveryDTO.setOrderDeliveryID(orderDelivery1.getId());
             orderDeliveryDTO.setTotal(orderDelivery1.getTotal());
             orderDeliveryDTOS.add(orderDeliveryDTO);
@@ -63,17 +65,17 @@ public class UserOrDeController {
         orderDeliveryDTO.setNote(orderDelivery1.getNote());
         orderDeliveryDTO.setName(orderDelivery1.getName());
         orderDeliveryDTO.setPhoneNumber(orderDelivery1.getPhoneNumber());
-        orderDeliveryDTO.setOrDeCondition(orderDelivery1.getOrDeCondition());
+        orderDeliveryDTO.setOrDeCondition(orderDelivery1.getCondition());
         orderDeliveryDTO.setId(orderDelivery1.getId());
         orderDeliveryDTO.setOrDeType(orderDelivery1.getOrderDeliveryType().getType());
-        orderDeliveryDTO.setDays(orderDelivery1.getOrderDeliveryType().getDays());
+        orderDeliveryDTO.setDays(String.valueOf(orderDelivery1.getOrderDeliveryType().getDays()));
         orderDeliveryDTO.setCostperday(orderDelivery1.getOrderDeliveryType().getCost());
         orderDeliveryDTO.setStart(orderDelivery1.getStart());
         if (orderDelivery1.getEnd() != null)
             orderDeliveryDTO.setEnd(orderDelivery1.getEnd());
         orderDeliveryDTO.setTotal(orderDelivery1.getTotal());
         orderDeliveryDTO.setDeliverper(orderDelivery1.getDeliverper());
-        List<Order> orders = orderService.findOrdersByOrDeIDAndCondition(id);
+        List<Order> orders = orderService.findOrdersByOrDeID(id);
         orderDeliveryDTO.setNumberDelivered(orders.size());
 
         List<OrderDeliveryDetail> orderDeliveryDetailList = orderDeliveryDetail.findOrDeDetailByOrDeID(id);
@@ -108,7 +110,7 @@ public class UserOrDeController {
 
         if (account == orderDelivery1.getAccountID())
         {
-            if (orderDelivery1.getOrDeCondition() == OrDeCondition.REFUND || orderDelivery1.getOrDeCondition() == null){
+            if (orderDelivery1.getCondition() == OrDeCondition.REFUND ){
                 if (Objects.equals(orderDelivery1.getVnp_TransactionNo(), refundRequest.getVnp_TransactionNo()))
                 {
                     Refund refund = new Refund();
@@ -119,8 +121,9 @@ public class UserOrDeController {
                     refund.setNumber(refundRequest.getNumber());
                     refundResponsitory.save(refund);
 
-                    orderDelivery1.setOrDeCondition(OrDeCondition.REFUND_IS_WAITING);
+                    orderDelivery1.setCondition(OrDeCondition.REFUND_IS_WAITING);
                     orderDeliveryRepository.save(orderDelivery1);
+                    notificationController.refundOrDeRequestForStaffNotification(id);
 
                     return ResponseEntity.ok("Gửi yêu cầu hoàn tiền thành công");
                 }
@@ -131,5 +134,23 @@ public class UserOrDeController {
         else return ResponseEntity.badRequest().body("Không thể tiến hành thao tác trên đơn này");
     }
 
+    @RequestMapping("/{id}/cancel")
+    public ResponseEntity<?> cancelOrDe (@PathVariable int id, @RequestBody RefundRequest refundRequest)
+    {
+        Account account = accountService.getAccountById(getIDAccountFromAuthService.common());
+        OrderDelivery orderDelivery1 = orderDelivery.findOrderDelivery(id);
 
+        if (account == orderDelivery1.getAccountID())
+        {
+            if (orderDelivery1.getCondition() == OrDeCondition.ONGOING || orderDelivery1.getCondition() == null){
+                    orderDelivery1.setCondition(OrDeCondition.CANCEL_REQUEST_IS_WAITING);
+                    orderDeliveryRepository.save(orderDelivery1);
+                    notificationController.refundOrDeRequestForStaffNotification(id);
+
+                    return ResponseEntity.ok("Gửi yêu cầu hủy thành công");
+            }
+            else return ResponseEntity.badRequest().body("Điều kiện không phù hợp");
+        }
+        else return ResponseEntity.badRequest().body("Không thể tiến hành thao tác trên đơn này");
+    }
 }
