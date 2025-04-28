@@ -40,4 +40,8 @@ public class Refund {
 
     @Column(name = "date", nullable = false)
     private LocalDateTime date;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "orderdeliveryid", nullable = false)
+    private OrderDelivery orderdeliveryid;
 }

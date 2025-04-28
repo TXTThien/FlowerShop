@@ -110,6 +110,7 @@ public class SecurityConfiguration {
                             .requestMatchers("/addToWishlist/**").hasAuthority(user.name())
                             .requestMatchers("/prebuy/**").hasAuthority(user.name())
                             .requestMatchers("/payment_info").permitAll()
+                            .requestMatchers("/payment_orderdeli").hasAnyAuthority(user.name(),staff.name(),shipper.name())
 
                             .anyRequest().authenticated();
                 })

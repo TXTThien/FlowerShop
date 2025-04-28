@@ -2,7 +2,10 @@ package org.example.service.Impl;
 
 import lombok.RequiredArgsConstructor;
 import org.example.entity.Order;
+import org.example.entity.OrderDelivery;
 import org.example.entity.enums.Condition;
+import org.example.entity.enums.IsPaid;
+import org.example.entity.enums.OrDeCondition;
 import org.example.entity.enums.Status;
 import org.example.repository.OrderRepository;
 import org.example.service.IOrderService;
@@ -84,5 +87,10 @@ public class OrderServiceImpl implements IOrderService {
     @Override
     public List<Order> findOrderByCondition(Condition condition) {
         return orderRepository.findOrdersByConditionAndStatus(condition, Status.ENABLE);
+    }
+
+    @Override
+    public List<Order> findOrdersByOrDeIDAndCondition(int orderDelivery1) {
+        return orderRepository.findOrdersByOrderDelivery_IdAndConfirmAndStatus(orderDelivery1, IsPaid.Yes, Status.ENABLE);
     }
 }
