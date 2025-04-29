@@ -5,16 +5,11 @@ import org.example.controller.NotificationController;
 import org.example.dto.AdminStaffRefund;
 import org.example.entity.*;
 import org.example.entity.enums.Condition;
+import org.example.entity.enums.OrDeCondition;
 import org.example.entity.enums.Precondition;
 import org.example.entity.enums.Status;
-import org.example.repository.OrderRepository;
-import org.example.repository.PreOrderRepository;
-import org.example.repository.PreorderdetailRepository;
-import org.example.repository.RefundResponsitory;
-import org.example.service.IAccountService;
-import org.example.service.IPreorderdetailService;
-import org.example.service.IRefundService;
-import org.example.service.ITypeService;
+import org.example.repository.*;
+import org.example.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -35,6 +30,7 @@ public class StaffRefundRequestController {
     private final IAccountService accountService;
     private final IRefundService refundService;
     private final NotificationController notificationController;
+    private final OrderDeliveryRepository orderDeliveryRepository;
     @GetMapping("")
     public ResponseEntity<?> getRefund() {
         List<Refund> refunds = refundResponsitory.findAll();
@@ -74,7 +70,7 @@ public class StaffRefundRequestController {
         refund.setStatus(Status.DISABLE);
         refundResponsitory.save(refund);
 
-        if (refund.getPreorderID() == null) {
+        if (refund.getOrderID() != null) {
             Order order = refund.getOrderID();
 
             order.setCondition(Condition.Cancelled);
@@ -99,7 +95,7 @@ public class StaffRefundRequestController {
             orderRepository.save(order);
             accountService.save(account);
             notificationController.orderConditionNotification(order.getOrderID());
-        } else {
+        } else  if (refund.getPreorderID() != null){
             Preorder preorder = refund.getPreorderID();
 
 
@@ -130,6 +126,32 @@ public class StaffRefundRequestController {
 
             preOrderRepository.save(preorder);
             accountService.save(account);
+            notificationController.refundPreorder(preorder.getId());
+        }
+        else  {
+            OrderDelivery orderDelivery1 = refund.getOrderdeliveryid();
+
+
+            orderDelivery1.setCondition(OrDeCondition.CANCEL);
+            Account account = orderDelivery1.getAccountID();
+
+            account.setConsume(account.getConsume().subtract(orderDelivery1.getRefund()));
+            List<Type> types = typeService.findAllOrderByMinConsumeAsc();
+            Type appropriateType = null;
+            for (Type type : types) {
+                if (account.getConsume().compareTo(type.getMinConsume()) >= 0) {
+                    appropriateType = type;
+                } else {
+                    break;
+                }
+            }
+            if (appropriateType != null) {
+                account.setType(appropriateType);
+            }
+
+            orderDeliveryRepository.save(orderDelivery1);
+            accountService.save(account);
+            notificationController.refundOrDe(orderDelivery1.getId());
         }
     }
 

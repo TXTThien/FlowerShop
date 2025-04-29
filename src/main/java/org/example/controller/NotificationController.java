@@ -703,4 +703,34 @@ public class NotificationController {
         notificationRepository.save(notification);
         notifyNotificationUpdate(order.getAccountID().getAccountID());
     }
+
+    public void refundPreorder(int id)
+    {
+        Notification notification = new Notification();
+        Preorder order = preOrderService.findPreorderByPreorderID(id);
+        notification.setPreorder(order);
+        notification.setAccount(order.getAccount());
+        notification.setStatus(Status.ENABLE);
+        notification.setSeen(Notifi.NO);
+        notification.setNotice(Notifi.NO);
+        notification.setTime(LocalDateTime.now());
+        notification.setText("Đơn đặt trước " + order.getId() + " đã được hoàn tiền thành công");
+        notificationRepository.save(notification);
+        notifyNotificationUpdate(order.getAccount().getAccountID());
+    }
+
+    public void refundOrDe(int id)
+    {
+        Notification notification = new Notification();
+        OrderDelivery order = orderDelivery.findOrderDelivery(id);
+        notification.setOrderDelivery(order);
+        notification.setAccount(order.getAccountID());
+        notification.setStatus(Status.ENABLE);
+        notification.setSeen(Notifi.NO);
+        notification.setNotice(Notifi.NO);
+        notification.setTime(LocalDateTime.now());
+        notification.setText("Đơn đặt giao hàng " + order.getId() + " đã được hoàn tiền thành công");
+        notificationRepository.save(notification);
+        notifyNotificationUpdate(order.getAccountID().getAccountID());
+    }
 }
