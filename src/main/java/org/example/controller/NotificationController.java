@@ -675,4 +675,32 @@ public class NotificationController {
         notificationRepository.save(notification);
         notifyNotificationUpdate(order.getAccountID().getAccountID());
     }
+
+    public void NewOrDeAcceptNotification(int ordeid) {
+        Notification notification = new Notification();
+        OrderDelivery order = orderDelivery.findOrderDelivery(ordeid);
+        notification.setOrderDelivery(order);
+        notification.setAccount(order.getAccountID());
+        notification.setStatus(Status.ENABLE);
+        notification.setSeen(Notifi.NO);
+        notification.setNotice(Notifi.NO);
+        notification.setTime(LocalDateTime.now());
+        notification.setText("Đơn đặt giao hàng của bạn đã được chấp nhận: " + order.getId());
+        notificationRepository.save(notification);
+        notifyNotificationUpdate(order.getAccountID().getAccountID());
+    }
+
+    public void NewOrDeDeclineNotification(int ordeid) {
+        Notification notification = new Notification();
+        OrderDelivery order = orderDelivery.findOrderDelivery(ordeid);
+        notification.setOrderDelivery(order);
+        notification.setAccount(order.getAccountID());
+        notification.setStatus(Status.ENABLE);
+        notification.setSeen(Notifi.NO);
+        notification.setNotice(Notifi.NO);
+        notification.setTime(LocalDateTime.now());
+        notification.setText("Đơn đặt giao hàng của bạn đã bị từ chối: " + order.getId() + "Hãy điền form yêu cầu hoàn tiền.");
+        notificationRepository.save(notification);
+        notifyNotificationUpdate(order.getAccountID().getAccountID());
+    }
 }

@@ -41,6 +41,8 @@ public class StaffOrDeController {
         List<OrderDelivery> orderDeliveryList = orderDeliveryService.findAllOrDeStaffAdmin();
         List<OrderDelivery> orderDeliveryCancel = orderDeliveryService.findOrDeByCondition(OrDeCondition.REFUND);
         List<OrderDelivery> orderDeliveryOnGoing = orderDeliveryService.findOrDeByCondition(OrDeCondition.ONGOING);
+        List<OrderDelivery> newOrDelivery = orderDeliveryService.findOrDeByCondition(null);
+
         List<OrderDelivery> haveDeli = new ArrayList<>();
 
         for (OrderDelivery orderDelivery1 : orderDeliveryOnGoing) {
@@ -62,12 +64,32 @@ public class StaffOrDeController {
         }
 
         Map<String, Object> response = new HashMap<>();
+        response.put("NewOrDe", newOrDelivery);
         response.put("AllOrDe", orderDeliveryList);
         response.put("HaveDeli", haveDeli);
         response.put("CancelReq", orderDeliveryCancel);
         return ResponseEntity.ok(response);
     }
-
+    @RequestMapping("/{id}/acceptNew")
+    public void acceptNewOrDe (@PathVariable int id)
+    {
+        OrderDelivery orderDelivery1 = orderDeliveryService.findOrderDeliveryByAdmin(id);
+        if (orderDelivery1.getCondition() == null)
+        {
+            orderDelivery1.setCondition(OrDeCondition.ONGOING);
+            notificationController.NewOrDeAcceptNotification(id);
+        }
+    }
+    @RequestMapping("/{id}/declineNew")
+    public void declineNewOrDe (@PathVariable int id)
+    {
+        OrderDelivery orderDelivery1 = orderDeliveryService.findOrderDeliveryByAdmin(id);
+        if (orderDelivery1.getCondition() == null)
+        {
+            orderDelivery1.setCondition(OrDeCondition.REFUND);
+            notificationController.NewOrDeAcceptNotification(id);
+        }
+    }
     @RequestMapping("/{id}/deli")
     public ResponseEntity<?> deliNow (@PathVariable int id){
 
@@ -114,7 +136,7 @@ public class StaffOrDeController {
             return ResponseEntity.badRequest().body("Order  created fail");
     }
 
-    @RequestMapping("/{id}/accept")
+    @RequestMapping("/{id}/acceptCancelRequest")
     public ResponseEntity<?> acceptRequest (@PathVariable int id){
         OrderDelivery orderDelivery1 = orderDeliveryService.findOrderDeliveryByAdmin(id);
         if (orderDelivery1.getCondition() == OrDeCondition.CANCEL_REQUEST_IS_WAITING)
@@ -137,7 +159,7 @@ public class StaffOrDeController {
         return ResponseEntity.badRequest().body("Cannot Accept");
     }
 
-    @RequestMapping("/{id}/decline")
+    @RequestMapping("/{id}/declineCancelRequest")
     public ResponseEntity<?> declineRequest (@PathVariable int id){
         OrderDelivery orderDelivery1 = orderDeliveryService.findOrderDeliveryByAdmin(id);
         if (orderDelivery1.getCondition() == OrDeCondition.CANCEL_REQUEST_IS_WAITING)

@@ -53,9 +53,12 @@ public class StaffRefundRequestController {
                     total = total.add(detail.getPaid());
                 }
                 staffRefund.setRefundMoney(total);
-            } else {
-                staffRefund.setRefundMoney(BigDecimal.ZERO);
+            } else if (refunds.get(i).getOrderdeliveryid() != null){
+                staffRefund.setRefundMoney(refunds.get(i).getOrderdeliveryid().getRefund());
             }
+            else
+                staffRefund.setRefundMoney(BigDecimal.ZERO);
+
 
             adminStaffRefund.add(staffRefund); // Thêm vào danh sách
         }
