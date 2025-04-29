@@ -31,7 +31,7 @@ public class OrderDelivery {
     @Column(name = "address", nullable = false)
     private String address;
 
-    @Column(name = "phoneNumber",length = 10, nullable = false)
+    @Column(name = "phone",length = 10, nullable = false)
     private String phoneNumber;
 
     @Column(name = "name", nullable = false)
@@ -65,7 +65,7 @@ public class OrderDelivery {
     private String vnp_TransactionNo;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "condition")
+    @Column(name = "`condition`")
     protected OrDeCondition condition;
 
     @Column(name = "refund", precision = 50, scale = 2)

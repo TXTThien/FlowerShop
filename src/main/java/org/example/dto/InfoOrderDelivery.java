@@ -35,5 +35,5 @@ public class InfoOrderDelivery {
     protected OrDeCondition orDeCondition;
     private int numberDelivered;
     List<OrDeDetailDTO> orDeDetailDTOS;
-
+    private boolean deliver;
 }

@@ -592,6 +592,12 @@ public class NotificationController {
         notification.setNotice(Notifi.NO);
         notification.setTime(LocalDateTime.now());
         notification.setText("Đơn hẹn giao hàng " + orderdelivery + " đã đặt thành công.");
+        List<Account> staffAccountList = accountService.getAccountByRole(Role.staff);
+        List<Account> adminAccountList = accountService.getAccountByRole(Role.admin);
+        for (Account account : staffAccountList)
+            notifyNotificationUpdate(account.getAccountID());
+        for (Account account : adminAccountList)
+            notifyNotificationUpdate(account.getAccountID());
     }
 
     public void refundOrDeRequestForStaffNotification(int orderid) {
@@ -626,5 +632,47 @@ public class NotificationController {
             notificationRepository.save(notification);
             notifyNotificationUpdate(account.getAccountID());
         }
+    }
+
+    public void OrDeSuccessNotification(int ordeid, Order order) {
+        Notification notification = new Notification();
+        notification.setOrder(order);
+        notification.setAccount(order.getAccountID());
+        notification.setStatus(Status.ENABLE);
+        notification.setSeen(Notifi.NO);
+        notification.setTime(LocalDateTime.now());
+        notification.setNotice(Notifi.NO);
+        notification.setText("Đơn đặt giao hàng " + ordeid + " đã chuẩn bị xong, shop đã tạo đơn hàng gửi đến bạn, hãy kiểm tra lại thông tin");
+        notificationRepository.save(notification);
+
+        notifyNotificationUpdate(order.getAccountID().getAccountID());
+    }
+
+    public void OrDeCancelFailNotification(int ordeid) {
+        Notification notification = new Notification();
+        OrderDelivery order = orderDelivery.findOrderDelivery(ordeid);
+        notification.setOrderDelivery(order);
+        notification.setAccount(order.getAccountID());
+        notification.setStatus(Status.ENABLE);
+        notification.setSeen(Notifi.NO);
+        notification.setNotice(Notifi.NO);
+        notification.setTime(LocalDateTime.now());
+        notification.setText("Yêu cầu hủy đơn đặt giao hàng: " + order.getId() + " không được chấp nhận vì vi phạm quy định");
+        notificationRepository.save(notification);
+        notifyNotificationUpdate(order.getAccountID().getAccountID());
+    }
+
+    public void OrDeCancelSuccessNotification(int ordeid) {
+        Notification notification = new Notification();
+        OrderDelivery order = orderDelivery.findOrderDelivery(ordeid);
+        notification.setOrderDelivery(order);
+        notification.setAccount(order.getAccountID());
+        notification.setStatus(Status.ENABLE);
+        notification.setSeen(Notifi.NO);
+        notification.setNotice(Notifi.NO);
+        notification.setTime(LocalDateTime.now());
+        notification.setText("Yêu cầu hủy đơn đặt giao hàng: " + order.getId() + " đã được chấp nhận, bạn có thể gửi yêu cầu hoàn tiền để nhận lại số tiền được thông báo");
+        notificationRepository.save(notification);
+        notifyNotificationUpdate(order.getAccountID().getAccountID());
     }
 }
