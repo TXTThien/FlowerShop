@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -39,7 +40,7 @@ public class StaffOrDeController {
     public ResponseEntity<?> getOrDeInfo ()
     {
         List<OrderDelivery> orderDeliveryList = orderDeliveryService.findAllOrDeStaffAdmin();
-        List<OrderDelivery> orderDeliveryCancel = orderDeliveryService.findOrDeByCondition(OrDeCondition.REFUND);
+        List<OrderDelivery> orderDeliveryCancel = orderDeliveryService.findOrDeByCondition(OrDeCondition.CANCEL_REQUEST_IS_WAITING);
         List<OrderDelivery> orderDeliveryOnGoing = orderDeliveryService.findOrDeByCondition(OrDeCondition.ONGOING);
         List<OrderDelivery> newOrDelivery = orderDeliveryService.findOrDeByCondition(null);
 
@@ -57,8 +58,8 @@ public class StaffOrDeController {
                 case three_day -> devper = 3;
                 default -> devper = 1; // fallback an toàn
             }
-
-            if (days % devper == 0 && orderDelivery1.getCondition() == OrDeCondition.ONGOING) {
+            List<Order> order = orderService.findOrderByOrDeIDAndTime(orderDelivery1.getId());
+            if (days % devper == 0 && orderDelivery1.getCondition() == OrDeCondition.ONGOING && order.isEmpty()) {
                 haveDeli.add(orderDelivery1);
             }
         }
@@ -106,6 +107,7 @@ public class StaffOrDeController {
                     orderDelivery1.getTotal()
                             .divide(BigDecimal.valueOf(orderDelivery1.getOrderDeliveryType().getDays()), RoundingMode.HALF_UP)
             );
+            order.setDate(LocalDateTime.now());
             order.setHadpaid(order.getTotalAmount());
             order.setDeliveryAddress(orderDelivery1.getAddress());
             order.setName(orderDelivery1.getName());

@@ -4,6 +4,7 @@ import org.example.entity.Order;
 import org.example.entity.enums.Condition;
 import org.example.entity.enums.Status;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface IOrderService {
@@ -21,4 +22,6 @@ public interface IOrderService {
     List<Order> findOrdersByOrDeID(int orderDelivery1);
 
     List<Order> findOrdersByOrDeIDAndCondition(int id, Condition condition);
+
+    List<Order> findOrderByOrDeIDAndTime(Integer id);
 }

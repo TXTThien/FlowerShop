@@ -12,6 +12,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -26,4 +28,12 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 
     List<Order> findOrdersByOrderDelivery_IdAndConfirmAndStatus(int id,  IsPaid confirm, Status status);
     List<Order> findOrdersByOrderDelivery_IdAndCondition(int id, Condition condition);
+
+    @Query("SELECT o FROM Order o WHERE o.orderDelivery.id = :id AND o.date BETWEEN :startOfDay AND :endOfDay AND o.status =:status")
+    List<Order> findOrderByOrderDelivery_IdAndDate(
+            @Param("id") int id,
+            @Param("startOfDay") LocalDateTime startOfDay,
+            @Param("endOfDay") LocalDateTime endOfDay,
+            @Param("status") Status status
+    );
 }

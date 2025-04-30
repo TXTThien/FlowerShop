@@ -11,6 +11,9 @@ import org.example.repository.OrderRepository;
 import org.example.service.IOrderService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -97,5 +100,13 @@ public class OrderServiceImpl implements IOrderService {
     @Override
     public List<Order> findOrdersByOrDeIDAndCondition(int id, Condition condition) {
         return orderRepository.findOrdersByOrderDelivery_IdAndCondition(id,condition);
+    }
+
+    @Override
+    public List<Order> findOrderByOrDeIDAndTime(Integer id) {
+        LocalDate localDate = LocalDate.now();
+        LocalDateTime startOfDay = localDate.atStartOfDay(); // 00:00:00
+        LocalDateTime endOfDay = localDate.atTime(LocalTime.MAX);
+        return orderRepository.findOrderByOrderDelivery_IdAndDate(id,startOfDay,endOfDay, Status.ENABLE);
     }
 }
