@@ -41,13 +41,15 @@ public class PaymentController {
     BigDecimal[] paid;
     BuyInfo buyInfo;
     OrderDeliveryDTO orderDeliveryDTO;
+    int discount;
     @PostMapping ("/setCart")
-    public ResponseEntity<String> setCart(@RequestParam("cartID") int[] cartIDs, @RequestParam("quantities") int [] quantities , @RequestParam("price") BigDecimal[] prices,@RequestParam(value= "paid", required = false) BigDecimal[] paids, @RequestBody BuyInfo buyInfos){
+    public ResponseEntity<String> setCart(@RequestParam("cartID") int[] cartIDs, @RequestParam("quantities") int [] quantities , @RequestParam("price") BigDecimal[] prices,@RequestParam(value= "paid", required = false) BigDecimal[] paids, @RequestParam(value = "discount") int discountid,@RequestBody BuyInfo buyInfos){
         cartID = cartIDs;
         quantity = quantities;
         price = prices;
         buyInfo = buyInfos;
         paid = paids;
+        discount = discountid;
         return ResponseEntity.ok("Cart updated successfully.");
     }
     @PostMapping ("/setOrderDelivery")
@@ -133,7 +135,7 @@ public class PaymentController {
             if(buyInfo!= null)
             {
                 System.out.println("1");
-                prebuyController.buyVNPay(cartID, accountId,price,paid,buyInfo,transactionId);
+                prebuyController.buyVNPay(cartID, accountId,price,paid,buyInfo,transactionId,discount);
             }
             else
             {

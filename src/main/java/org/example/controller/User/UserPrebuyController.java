@@ -47,6 +47,7 @@ public class UserPrebuyController {
     private final SimpMessagingTemplate messagingTemplate;
     private final IEventFlowerService eventFlowerService;
     private final NotificationController notificationController;
+    private final IDiscountService discountService;
     public void notifyCartUpdate(int accountId, int newCartCount) {
         Map<String, Object> message = new HashMap<>();
         if (accountId == -1)
@@ -79,7 +80,7 @@ public class UserPrebuyController {
 
 
         // Fetch discounts
-        List<Discount> discounts = discountRepository.findAll();
+        List<Discount> discounts = discountService.findAllEnable();
 
         // Set account ID in session
         request.getSession().setAttribute("accountID", id);
@@ -189,12 +190,17 @@ public class UserPrebuyController {
         return ResponseEntity.noContent().build();
     }
     @PostMapping("/buy")
-    public ResponseEntity<?> buyProduct(@RequestParam("cartID") int[] cartIDs, @RequestParam("price") BigDecimal[] prices, @RequestParam(value= "paid", required = false) BigDecimal[] paids, @RequestBody BuyInfo buyInfo) {
+    public ResponseEntity<?> buyProduct(@RequestParam("cartID") int[] cartIDs, @RequestParam("price") BigDecimal[] prices, @RequestParam(value= "paid", required = false) BigDecimal[] paids, @RequestParam(value = "discount") int discountid, @RequestBody BuyInfo buyInfo) {
         try {
             int id = getIDAccountFromAuthService.common();
             Account account = accountService.getAccountById(id);
             int firstCartID = cartIDs[0];
             Cart firstCart = cartService.findCartByCartID(firstCartID);
+            Discount discount = discountService.findDiscountByID(discountid);
+            if (discount.getAccount() != null && discount.getAccount().equals(account)) {
+                discount.setStatus(Status.DISABLE);
+                discountRepository.save(discount);
+            }
             if (firstCart.getType()== org.example.entity.enums.Type.Order)
             {
                 Order newBill = new Order();
@@ -296,11 +302,16 @@ public class UserPrebuyController {
         }
     }
 
-    public ResponseEntity<?> buyVNPay(int[] cartIDs, int accountId,BigDecimal[] prices, BigDecimal[] paids, BuyInfo buyInfo, String vnp_TransactionNo) {
+    public ResponseEntity<?> buyVNPay(int[] cartIDs, int accountId,BigDecimal[] prices, BigDecimal[] paids, BuyInfo buyInfo, String vnp_TransactionNo, int discountid) {
         try {
             Account account = accountService.getAccountById(accountId);
             int firstCartID = cartIDs[0];
             Cart firstCart = cartService.findCartByCartID(firstCartID);
+            Discount discount = discountService.findDiscountByID(discountid);
+            if (discount.getAccount() != null && discount.getAccount().equals(account)) {
+                discount.setStatus(Status.DISABLE);
+                discountRepository.save(discount);
+            }
             if (firstCart.getType()== org.example.entity.enums.Type.Order)
             {
                 Order newBill = new Order();
@@ -442,4 +453,25 @@ public class UserPrebuyController {
                     .body("Error occurred while creating product: " + e.getMessage());
         }
     }
+
+    @RequestMapping("/checkDiscount")
+    private ResponseEntity<?> checkDiscount(@RequestBody String discountCode) {
+        int accountId = getIDAccountFromAuthService.common();
+        Account account = accountService.getAccountById(accountId);
+
+        Discount discount = discountService.findDiscountByName(discountCode);
+
+        if (discount == null) {
+            return ResponseEntity.badRequest().body("Mã giảm giá không tồn tại");
+        }
+
+        if (discount.getAccount() != null && !discount.getAccount().equals(account)) {
+            return ResponseEntity.badRequest().body("Bạn không thể dùng mã này");
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("detailDiscount", discount);
+        return ResponseEntity.ok(response);
+    }
+
 }

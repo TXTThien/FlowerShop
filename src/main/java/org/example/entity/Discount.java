@@ -39,6 +39,9 @@ public class Discount {
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Purpose purpose;
 
+    @Column (name = "discountcode", nullable = false)
+    private String discountcode;
+
     @Column(name = "Discountpercent", precision = 5, scale = 2)
     private BigDecimal discountPercent;
 
@@ -51,4 +54,10 @@ public class Discount {
     @Enumerated(EnumType.STRING)
     @Column(name = "Status")
     protected Status status;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "accountid")
+    private Account account;
+
+
 }

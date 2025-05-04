@@ -111,6 +111,8 @@ public class SecurityConfiguration {
                             .requestMatchers("/prebuy/**").hasAuthority(user.name())
                             .requestMatchers("/payment_info").permitAll()
                             .requestMatchers("/payment_orderdeli").permitAll()
+                            .requestMatchers("/attendance").hasAuthority(user.name())
+                            .requestMatchers("/attendance").permitAll()
 
                             .anyRequest().authenticated();
                 })

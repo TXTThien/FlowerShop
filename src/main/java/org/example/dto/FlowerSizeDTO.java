@@ -17,5 +17,6 @@ import java.util.List;
 public class FlowerSizeDTO {
     private int flowerSizeID;
     private String sizeName;
+    private String url;
     private BigDecimal price;
 }

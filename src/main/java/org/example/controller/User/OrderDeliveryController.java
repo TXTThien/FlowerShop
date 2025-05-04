@@ -48,6 +48,7 @@ public class OrderDeliveryController {
                             .map(flowerSize -> new FlowerSizeDTO(
                                     flowerSize.getFlowerSizeID(),
                                     flowerSize.getSizeName(),
+                                    flowerSize.getFlower().getImage(),
                                     flowerSize.getPrice()
                             ))
                             .collect(Collectors.toList());
