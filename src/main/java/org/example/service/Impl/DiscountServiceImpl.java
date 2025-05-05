@@ -12,7 +12,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class DiscountServiceImpl implements IDiscountService {
-    DiscountRepository discountRepository;
+    private final DiscountRepository discountRepository;
     @Override
     public List<Discount> findAllCode() {
         return discountRepository.findDiscountByStatus(Status.ENABLE);

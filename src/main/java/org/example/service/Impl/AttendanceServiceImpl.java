@@ -23,4 +23,9 @@ public class AttendanceServiceImpl implements IAttendanceService {
     public Attendance findAttendanceByAccountAndDate(int account, LocalDateTime localDateTime) {
         return attendanceRepository.findAttendanceByAccount_AccountIDAndDateAndStatus(account,localDateTime,Status.ENABLE);
     }
+
+    @Override
+    public List<Attendance> findAttendanceByAccount(int id) {
+        return attendanceRepository.findAttendancesByAccount_AccountIDAndStatus(id,Status.ENABLE);
+    }
 }

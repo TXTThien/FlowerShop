@@ -112,7 +112,7 @@ public class SecurityConfiguration {
                             .requestMatchers("/payment_info").permitAll()
                             .requestMatchers("/payment_orderdeli").permitAll()
                             .requestMatchers("/attendance").hasAuthority(user.name())
-                            .requestMatchers("/attendance").permitAll()
+                            .requestMatchers("/rollbar").hasAuthority(user.name())
 
                             .anyRequest().authenticated();
                 })

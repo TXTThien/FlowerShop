@@ -40,7 +40,7 @@ public class AttendanceController {
     private ResponseEntity<?> getAttendance() {
         int account = getIDAccountFromAuthService.common();
         int month = LocalDateTime.now().getMonthValue();
-        List<Attendance> attendanceList = attendanceService.findAttendanceByAccountAndMonth(account, month);
+        List<Attendance> attendanceList = attendanceService.findAttendanceByAccount(account);
         Map<String, Object> response = new HashMap<>();
         response.put("attendanceList", attendanceList);
         return ResponseEntity.ok(response);

@@ -9,4 +9,7 @@ public interface IAttendanceService {
     List<Attendance> findAttendanceByAccountAndMonth (int id, int month);
 
     Attendance findAttendanceByAccountAndDate(int account, LocalDateTime localDateTime);
+
+    List<Attendance> findAttendanceByAccount (int id);
+
 }

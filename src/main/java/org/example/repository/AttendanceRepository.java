@@ -17,4 +17,5 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Integer>
     List<Attendance> findAttendanceByAccountAndMonth(@Param("accountId") int accountId, @Param("month") int month, @Param("status") Status status);
 
     Attendance findAttendanceByAccount_AccountIDAndDateAndStatus(int id, LocalDateTime localDateTime, Status status);
+    List<Attendance> findAttendancesByAccount_AccountIDAndStatus(int id, Status status);
 }
