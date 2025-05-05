@@ -10,4 +10,8 @@ public interface IAccountGiftService {
     List<AccountGift> findAccountGiftByAccountIDAndMonth(int accountid, int month);
 
     AccountGift findById(int id);
+
+    List<AccountGift> findAllByAdmin();
+
+   AccountGift findByIDByAdmin(int id);
 }

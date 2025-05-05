@@ -48,21 +48,23 @@ public class UserPrebuyController {
     private final IEventFlowerService eventFlowerService;
     private final NotificationController notificationController;
     private final IDiscountService discountService;
+
     public void notifyCartUpdate(int accountId, int newCartCount) {
         Map<String, Object> message = new HashMap<>();
-        if (accountId == -1)
-        {
+        if (accountId == -1) {
             newCartCount = 0;
         }
         message.put("accountId", accountId);
         message.put("cartCount", newCartCount);
         messagingTemplate.convertAndSend("/topic/cart-update", message);
     }
-    public int cartCount (int accountid){
-        List<Cart> cartorderList = cartService.findCartsByAccountID(accountid, org.example.entity.enums.Type.Order );
-        List<Cart> cartpreorderList = cartService.findCartsByAccountID(accountid, org.example.entity.enums.Type.Preorder );
+
+    public int cartCount(int accountid) {
+        List<Cart> cartorderList = cartService.findCartsByAccountID(accountid, org.example.entity.enums.Type.Order);
+        List<Cart> cartpreorderList = cartService.findCartsByAccountID(accountid, org.example.entity.enums.Type.Preorder);
         return cartpreorderList.size() + cartorderList.size();
     }
+
     @GetMapping("")
     public ResponseEntity<?> getCart(HttpServletRequest request) {
         int id = getIDAccountFromAuthService.common();
@@ -75,8 +77,8 @@ public class UserPrebuyController {
         }
 
         // Fetch cart details
-        List<Cart> cartorderList = cartService.findCartsByAccountID(id, org.example.entity.enums.Type.Order );
-        List<Cart> cartpreorderList = cartService.findCartsByAccountID(id, org.example.entity.enums.Type.Preorder );
+        List<Cart> cartorderList = cartService.findCartsByAccountID(id, org.example.entity.enums.Type.Order);
+        List<Cart> cartpreorderList = cartService.findCartsByAccountID(id, org.example.entity.enums.Type.Preorder);
 
 
         // Fetch discounts
@@ -91,8 +93,7 @@ public class UserPrebuyController {
             cartDTO.setCartID(cart.getCartID());
             cartDTO.setSizeChoose(cart.getFlowerSize().getSizeName());
             EventFlower eventFlower = eventFlowerService.findEventFlowerByFlowerSizeID(cart.getFlowerSize().getFlowerSizeID());
-            if (eventFlower !=null && eventFlower.getSaleoff() != null)
-            {
+            if (eventFlower != null && eventFlower.getSaleoff() != null) {
                 BigDecimal discountAmount = cart.getFlowerSize().getPrice().multiply(eventFlower.getSaleoff().divide(BigDecimal.valueOf(100)));
                 cartDTO.setProductPriceEvent(cart.getFlowerSize().getPrice().subtract(discountAmount));
                 cartDTO.setSaleOff(eventFlower.getSaleoff());
@@ -165,7 +166,7 @@ public class UserPrebuyController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updateCart(@PathVariable Integer id, @RequestBody CartUpdateRequest request) {
 
-        Cart cart =cartService.getCartById(id);
+        Cart cart = cartService.getCartById(id);
         FlowerSize FlowerSize = flowerSizeService.findFlowerSizeByProductIDAndSize(cart.getFlowerSize().getFlower().getFlowerID(), request.getSize());
         if (FlowerSize == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product size not found");
@@ -181,28 +182,33 @@ public class UserPrebuyController {
         Cart updatedCart = cartService.updateCart(id, cart);
         return ResponseEntity.ok(updatedCart);
     }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteCart(@PathVariable Integer id){
+    public ResponseEntity<?> deleteCart(@PathVariable Integer id) {
         int idAccount = getIDAccountFromAuthService.common();
         cartService.hardDeleteCart(id);
         notifyCartUpdate(idAccount, cartCount(idAccount));
 
         return ResponseEntity.noContent().build();
     }
+
     @PostMapping("/buy")
-    public ResponseEntity<?> buyProduct(@RequestParam("cartID") int[] cartIDs, @RequestParam("price") BigDecimal[] prices, @RequestParam(value= "paid", required = false) BigDecimal[] paids, @RequestParam(value = "discount") int discountid, @RequestBody BuyInfo buyInfo) {
+    public ResponseEntity<?> buyProduct(@RequestParam("cartID") int[] cartIDs, @RequestParam("price") BigDecimal[] prices, @RequestParam(value = "paid", required = false) BigDecimal[] paids, @RequestParam(value = "discount", required = false) Integer discountid, @RequestBody BuyInfo buyInfo) {
         try {
             int id = getIDAccountFromAuthService.common();
             Account account = accountService.getAccountById(id);
             int firstCartID = cartIDs[0];
             Cart firstCart = cartService.findCartByCartID(firstCartID);
-            Discount discount = discountService.findDiscountByID(discountid);
-            if (discount.getAccount() != null && discount.getAccount().equals(account)) {
-                discount.setStatus(Status.DISABLE);
-                discountRepository.save(discount);
-            }
-            if (firstCart.getType()== org.example.entity.enums.Type.Order)
+            if (discountid != null)
             {
+                Discount discount = discountService.findDiscountByID(discountid);
+                if (discount.getAccount() != null && discount.getAccount().equals(account)) {
+                    discount.setStatus(Status.DISABLE);
+                    discountRepository.save(discount);
+                }
+            }
+            System.out.println ("Herex1");
+            if (firstCart.getType() == org.example.entity.enums.Type.Order) {
                 Order newBill = new Order();
                 newBill.setAccountID(account);
                 newBill.setPaid(IsPaid.No);
@@ -247,9 +253,8 @@ public class UserPrebuyController {
                 newBill.setTotalAmount(totalAmount);
                 orderRepository.save(newBill);
                 notificationController.orderConditionNotification(newBill.getOrderID());
-                emailController.BuySuccess(newBill,id);
-            }
-            else {
+                emailController.BuySuccess(newBill, id);
+            } else {
                 Preorder newPreorder = new Preorder();
                 newPreorder.setAccount(account);
                 newPreorder.setStatus(Status.ENABLE);
@@ -288,7 +293,7 @@ public class UserPrebuyController {
                 }
                 newPreorder.setTotalAmount(totalAmount);
                 preOrderRepository.save(newPreorder);
-                emailController.PreorderSuccess(newPreorder,id);
+                emailController.PreorderSuccess(newPreorder, id);
                 notificationController.preOrderCreateNotification(newPreorder.getId());
 
             }
@@ -302,18 +307,22 @@ public class UserPrebuyController {
         }
     }
 
-    public ResponseEntity<?> buyVNPay(int[] cartIDs, int accountId,BigDecimal[] prices, BigDecimal[] paids, BuyInfo buyInfo, String vnp_TransactionNo, int discountid) {
+    public ResponseEntity<?> buyVNPay(int[] cartIDs, int accountId, BigDecimal[] prices, BigDecimal[] paids, BuyInfo buyInfo, String vnp_TransactionNo, Integer discountid) {
         try {
             Account account = accountService.getAccountById(accountId);
+            if (discountid!=-1)
+            {
+                Discount discount = discountService.findDiscountByID(discountid);
+                if (discount.getAccount() != null && discount.getAccount().equals(account)) {
+                    discount.setStatus(Status.DISABLE);
+                    discountRepository.save(discount);
+                }
+            }
+
             int firstCartID = cartIDs[0];
             Cart firstCart = cartService.findCartByCartID(firstCartID);
-            Discount discount = discountService.findDiscountByID(discountid);
-            if (discount.getAccount() != null && discount.getAccount().equals(account)) {
-                discount.setStatus(Status.DISABLE);
-                discountRepository.save(discount);
-            }
-            if (firstCart.getType()== org.example.entity.enums.Type.Order)
-            {
+
+            if (firstCart.getType() == org.example.entity.enums.Type.Order) {
                 Order newBill = new Order();
                 newBill.setAccountID(account);
                 newBill.setPaid(IsPaid.Yes);
@@ -379,10 +388,9 @@ public class UserPrebuyController {
                 }
 
                 accountService.save(account);
-                emailController.BuySuccess(newBill,accountId);
+                emailController.BuySuccess(newBill, accountId);
                 notificationController.orderConditionNotification(newBill.getOrderID());
-            }
-            else {
+            } else {
                 Preorder newPreorder = new Preorder();
                 newPreorder.setAccount(account);
                 newPreorder.setStatus(Status.ENABLE);
@@ -440,7 +448,7 @@ public class UserPrebuyController {
                 accountRepository.save(account);
                 newPreorder.setTotalAmount(totalAmount);
                 preOrderRepository.save(newPreorder);
-                emailController.PreorderSuccess(newPreorder,accountId);
+                emailController.PreorderSuccess(newPreorder, accountId);
                 notificationController.preOrderCreateNotification(newPreorder.getId());
 
             }

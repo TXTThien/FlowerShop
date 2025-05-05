@@ -11,5 +11,5 @@ import java.util.List;
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Integer> {
     List<Category> findAllByStatus(Status status);
-
+    Category findCategoryByCategoryID(int id);
 }

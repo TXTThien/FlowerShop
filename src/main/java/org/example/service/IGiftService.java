@@ -9,4 +9,6 @@ public interface IGiftService {
     List<Gift> findGiftsByRollBar(RollBar rollBar);
 
     Gift findGiftByGiftID(Integer giftid);
+
+    List<Gift> findGiftsByRollBarByAdmin(int id);
 }

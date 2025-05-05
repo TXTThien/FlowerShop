@@ -13,4 +13,5 @@ public interface RollBarRepository extends JpaRepository<RollBar, Integer> {
     RollBar findRollBarByIdAndStatus(int id, Status status);
 
     List<RollBar> findRollBarByStatus(Status status);
+    RollBar findRollBarById(int id);
 }

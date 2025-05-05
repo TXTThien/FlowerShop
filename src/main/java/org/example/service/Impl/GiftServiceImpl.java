@@ -23,4 +23,9 @@ public class GiftServiceImpl implements IGiftService {
     public Gift findGiftByGiftID(Integer giftid) {
         return giftRepository.findGiftByIdAndStatus(giftid,Status.ENABLE);
     }
+
+    @Override
+    public List<Gift> findGiftsByRollBarByAdmin(int id) {
+        return giftRepository.findGiftsByRollbarid_Id(id);
+    }
 }

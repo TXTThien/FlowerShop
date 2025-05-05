@@ -22,4 +22,9 @@ public class RollBarServiceImpl implements IRollBarService {
     public List<RollBar> findAll() {
         return rollBarRepository.findRollBarByStatus(Status.ENABLE);
     }
+
+    @Override
+    public RollBar findRollBarByIdByAdmin(int id) {
+        return rollBarRepository.findRollBarById(id);
+    }
 }

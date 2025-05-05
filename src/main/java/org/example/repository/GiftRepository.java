@@ -13,4 +13,8 @@ import java.util.List;
 public interface GiftRepository extends JpaRepository<Gift, Integer> {
     List<Gift> findGiftsByRollbaridAndStatus(RollBar rollBar, Status status);
     Gift findGiftByIdAndStatus(int id, Status status);
+
+    List<Gift> findGiftsByRollbarid_Id(int id);
+
+    Gift findGiftById(Integer giftid);
 }

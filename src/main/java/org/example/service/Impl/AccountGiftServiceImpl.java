@@ -27,4 +27,14 @@ public class AccountGiftServiceImpl implements IAccountGiftService {
     public AccountGift findById(int id) {
         return accountGiftRepository.findAccountGiftByIdAndStatus(id, Status.ENABLE);
     }
+
+    @Override
+    public List<AccountGift> findAllByAdmin() {
+        return accountGiftRepository.findAll();
+    }
+
+    @Override
+    public AccountGift findByIDByAdmin(int id) {
+        return accountGiftRepository.findAccountGiftById(id);
+    }
 }

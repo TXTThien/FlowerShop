@@ -4,12 +4,15 @@ import lombok.RequiredArgsConstructor;
 import org.example.dto.FlowerSizeDTO;
 import org.example.dto.GiftInfoDTO;
 import org.example.dto.RollBarInfoDTO;
+import org.example.entity.Attendance;
 import org.example.entity.FlowerSize;
 import org.example.entity.Gift;
 import org.example.entity.RollBar;
+import org.example.service.IAttendanceService;
 import org.example.service.IFlowerSizeService;
 import org.example.service.IGiftService;
 import org.example.service.IRollBarService;
+import org.example.service.securityService.GetIDAccountFromAuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.swing.text.html.parser.Entity;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,7 +32,8 @@ import java.util.Map;
 public class RollBarController {
     private final IRollBarService rollBarService;
     private final IGiftService giftService;
-
+    private final GetIDAccountFromAuthService getIDAccountFromAuthService;
+    private final IAttendanceService attendanceService;
     @GetMapping("/info")
     private ResponseEntity<?> infoBar ()
     {
@@ -47,8 +52,13 @@ public class RollBarController {
     @GetMapping("/{id}")
     private ResponseEntity<?> detailBar (@PathVariable int id)
     {
+        int account = getIDAccountFromAuthService.common();
+        int month = LocalDateTime.now().getMonthValue();
+        List<Attendance> attendanceList = attendanceService.findAttendanceByAccountAndMonth(account,month);
+        int days = attendanceList.size();
         RollBarInfoDTO rollBarInfoDTO = selectRollBarInfoDTO(id);
         Map<String, Object> response = new HashMap<>();
+        response.put("days",days);
         response.put("rollBarInfoDTO", rollBarInfoDTO);
         return ResponseEntity.ok(response);
     }

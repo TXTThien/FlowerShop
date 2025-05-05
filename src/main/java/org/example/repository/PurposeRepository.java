@@ -11,4 +11,5 @@ import java.util.List;
 @Repository
 public interface PurposeRepository extends JpaRepository<Purpose, Integer> {
     List<Purpose> findAllByStatus(Status status);
+    Purpose findPurposeByPurposeID(int id);
 }

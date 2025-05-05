@@ -11,5 +11,6 @@ import java.util.List;
 @Repository
 public interface TypeRepository extends JpaRepository<Type, Integer> {
     Type findTypeByTypeIDAndStatus(int id, Status status);
+    Type findTypeByTypeID(int id);
     List<Type> findTypesByStatusOrderByMinConsumeAsc(Status status);
 }

@@ -18,4 +18,6 @@ public interface AccountGiftRepository extends JpaRepository<AccountGift, Intege
     List<AccountGift> findAccountGiftsByAccountAndMonth(@Param("accountId") int accountId, @Param("month") int month, @Param("status") Status status);
 
     AccountGift findAccountGiftByIdAndStatus(int id, Status status);
+
+    AccountGift findAccountGiftById(int id);
 }
