@@ -27,49 +27,102 @@ public class StaffRollBarController {
     private final PurposeRepository purposeRepository;
     private final TypeRepository typeRepository;
     @GetMapping("")
-    private ResponseEntity<?> getRollBarInfo(){
+    private ResponseEntity<?> getRollBarInfo() {
         List<RollBar> rollBarList = rollBarRepository.findAll();
+        List<Map<String, Object>> rollBarDetailsList = new ArrayList<>();
+
+        for (RollBar rollBar : rollBarList) {
+            Map<String, Object> rollBarDetail = new HashMap<>();
+            int rollBarId = rollBar.getId();
+
+            List<Gift> gifts = giftService.findGiftsByRollBarByAdmin(rollBarId);
+            List<Flower> flowers = flowerService.findAll();
+            List<FlowerInfo> flowerInfos = new ArrayList<>();
+
+            for (Flower flower : flowers) {
+                FlowerInfo flowerInfo = new FlowerInfo();
+                flowerInfo.setId(flower.getFlowerID());
+                flowerInfo.setName(flower.getName());
+                flowerInfo.setImage(flower.getImage());
+
+                List<FlowerSize> flowerSizes = flowerSizeService.findFlowerSizeByProductID(flower.getFlowerID());
+                List<FlowerSizeDTO> flowerSizeDTOS = new ArrayList<>();
+                for (FlowerSize flowerSize : flowerSizes) {
+                    FlowerSizeDTO flowerSizeDTO = new FlowerSizeDTO();
+                    flowerSizeDTO.setFlowerSizeID(flowerSize.getFlowerSizeID());
+                    flowerSizeDTO.setSizeName(flowerSize.getSizeName());
+                    flowerSizeDTOS.add(flowerSizeDTO);
+                }
+
+                flowerInfo.setFlowerSizeDTOS(flowerSizeDTOS);
+                flowerInfos.add(flowerInfo);
+            }
+
+            rollBarDetail.put("rollBar", rollBar);
+            rollBarDetail.put("gifts", gifts);
+            rollBarDetail.put("flowers", flowers);
+            rollBarDetail.put("flowerInfos", flowerInfos);
+
+            rollBarDetailsList.add(rollBarDetail);
+        }
+
+        // Static data only needs to be added once
+        TypeGift[] typeGifts = TypeGift.values();
+        List<Category> categories = categoryRepository.findAll();
+        List<Type> types = typeRepository.findAll();
+        List<Purpose> purposes = purposeRepository.findAll();
+
         Map<String, Object> response = new HashMap<>();
-        response.put("rollBarList", rollBarList);
+        response.put("rollBarList", rollBarDetailsList);
+        response.put("typeGifts", typeGifts);
+        response.put("categories", categories);
+        response.put("types", types);
+        response.put("purposes", purposes);
         return ResponseEntity.ok(response);
     }
 
+
     @GetMapping("/{id}")
-    private ResponseEntity<?> getDetailRollBar(@PathVariable int id){
+    private ResponseEntity<?> getDetailRollBar(@PathVariable int id) {
         RollBar rollBar = rollBarService.findRollBarByIdByAdmin(id);
         List<Gift> gifts = giftService.findGiftsByRollBarByAdmin(id);
         List<Flower> flowers = flowerService.findAll();
         List<FlowerInfo> flowerInfos = new ArrayList<>();
-        for (Flower flower : flowers)
-        {
+
+        for (Flower flower : flowers) {
             FlowerInfo flowerInfo = new FlowerInfo();
+            flowerInfo.setId(flower.getFlowerID());
             flowerInfo.setName(flower.getName());
-            flowerInfo.setId(flowerInfo.getId());
-            flowerInfo.setImage(flowerInfo.getImage());
+            flowerInfo.setImage(flower.getImage());
+
             List<FlowerSize> flowerSizes = flowerSizeService.findFlowerSizeByProductID(flower.getFlowerID());
             List<FlowerSizeDTO> flowerSizeDTOS = new ArrayList<>();
-            for (FlowerSize flowerSize : flowerSizes)
-            {
+
+            for (FlowerSize flowerSize : flowerSizes) {
                 FlowerSizeDTO flowerSizeDTO = new FlowerSizeDTO();
-                flowerSizeDTO.setSizeName(flowerSizeDTO.getSizeName());
-                flowerSizeDTO.setFlowerSizeID(flowerSizeDTO.getFlowerSizeID());
+                flowerSizeDTO.setFlowerSizeID(flowerSize.getFlowerSizeID());
+                flowerSizeDTO.setSizeName(flowerSize.getSizeName());
                 flowerSizeDTOS.add(flowerSizeDTO);
             }
+
             flowerInfo.setFlowerSizeDTOS(flowerSizeDTOS);
             flowerInfos.add(flowerInfo);
         }
+
         TypeGift[] typeGifts = TypeGift.values();
         List<Category> categories = categoryRepository.findAll();
         List<Type> types = typeRepository.findAll();
-        List<Purpose> purposes =purposeRepository.findAll();
+        List<Purpose> purposes = purposeRepository.findAll();
+
         Map<String, Object> response = new HashMap<>();
         response.put("rollBar", rollBar);
         response.put("gifts", gifts);
         response.put("flowers", flowers);
+        response.put("flowerInfos", flowerInfos);
         response.put("typeGifts", typeGifts);
-        response.put("categories", flowers);
-        response.put("types", flowers);
-        response.put("purposes", flowers);
+        response.put("categories", categories);
+        response.put("types", types);
+        response.put("purposes", purposes);
 
         return ResponseEntity.ok(response);
     }
