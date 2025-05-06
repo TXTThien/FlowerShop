@@ -1,5 +1,6 @@
 package org.example.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.type.Date;
 import com.google.type.DateTime;
 import jakarta.persistence.*;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Getter
 @Setter
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity(name = "AccountGift")
 @Table(name = "accountgift", schema = "flowershop")
 public class AccountGift {

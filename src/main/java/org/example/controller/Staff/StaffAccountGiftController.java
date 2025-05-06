@@ -1,15 +1,9 @@
 package org.example.controller.Staff;
 
 import lombok.RequiredArgsConstructor;
-import org.example.entity.Account;
-import org.example.entity.AccountGift;
-import org.example.entity.Discount;
-import org.example.entity.Order;
+import org.example.entity.*;
 import org.example.entity.enums.Status;
-import org.example.repository.AccountGiftRepository;
-import org.example.repository.AccountRepository;
-import org.example.repository.DiscountRepository;
-import org.example.repository.OrderRepository;
+import org.example.repository.*;
 import org.example.service.IAccountGiftService;
 import org.example.service.IAccountService;
 import org.example.service.IDiscountService;
@@ -31,6 +25,7 @@ public class StaffAccountGiftController {
     private final DiscountRepository discountRepository;
     private final OrderRepository orderRepository;
     private final AccountGiftRepository accountGiftRepository;
+    private final GiftRepository giftRepository;
     @GetMapping("")
     public ResponseEntity<?> getAccountGiftInfo()
     {
@@ -38,7 +33,10 @@ public class StaffAccountGiftController {
         List<Account> accounts = accountRepository.findAll();
         List<Discount> discounts = discountRepository.findAll();
         List<Order> orders = orderRepository.findAll();
+        List<Gift> gifts = giftRepository.findAll();
+
         Map<String, Object> response = new HashMap<>();
+        response.put("gifts", gifts);
         response.put("accountGifts", accountGifts);
         response.put("accounts", accounts);
         response.put("discounts", discounts);
@@ -54,7 +52,9 @@ public class StaffAccountGiftController {
         List<Account> accounts = accountRepository.findAll();
         List<Discount> discounts = discountRepository.findAll();
         List<Order> orders = orderRepository.findAll();
+        List<Gift> gifts = giftRepository.findAll();
         Map<String, Object> response = new HashMap<>();
+        response.put("gifts",gifts);
         response.put("accountGift", accountGifts);
         response.put("accounts", accounts);
         response.put("discounts", discounts);

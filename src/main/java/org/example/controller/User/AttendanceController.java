@@ -2,6 +2,7 @@ package org.example.controller.User;
 
 import com.google.type.DateTime;
 import lombok.RequiredArgsConstructor;
+import org.example.dto.AccountGiftDTO;
 import org.example.dto.GiftInfoDTO;
 import org.example.dto.RollDTO;
 import org.example.entity.*;
@@ -49,8 +50,24 @@ public class AttendanceController {
     private ResponseEntity<?> getGift() {
         int account = getIDAccountFromAuthService.common();
         List<AccountGift> accountGifts = accountGiftService.findAccountGiftByAccountID(account);
+        List<AccountGiftDTO> accountGiftDTOList = new ArrayList<>();
+        for (AccountGift accountGift : accountGifts)
+        {
+            AccountGiftDTO accountGiftDTO = new AccountGiftDTO();
+            accountGiftDTO.setAccountGift(accountGift);
+            if (accountGift.getDiscount() !=null)
+            {
+                if (accountGift.getDiscount().getCategoryID()!=null)
+                    accountGiftDTO.setDisfor(accountGift.getDiscount().getCategoryID().getCategoryName());
+                if (accountGift.getDiscount().getType()!=null)
+                    accountGiftDTO.setDisfor(accountGift.getDiscount().getType().getTypeName());
+                if (accountGift.getDiscount().getPurpose()!=null)
+                    accountGiftDTO.setDisfor(accountGift.getDiscount().getPurpose().getPurposeName());
+            }
+            accountGiftDTOList.add(accountGiftDTO);
+        }
         Map<String, Object> response = new HashMap<>();
-        response.put("accountGifts", accountGifts);
+        response.put("accountGifts", accountGiftDTOList);
         return ResponseEntity.ok(response);
     }
 

@@ -10,7 +10,6 @@ import org.example.entity.enums.Status;
 @NoArgsConstructor
 @Getter
 @Setter
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity(name = "Purpose")
 @Table(name = "purpose", schema = "flowershop")
 public class Purpose {

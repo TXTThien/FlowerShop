@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Getter
 @Setter
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity(name = "Gift")
 @Table(name = "gift", schema = "flowershop")
 public class Gift {
@@ -47,22 +48,19 @@ public class Gift {
     @JoinColumn(name = "rollbarid")
     private RollBar rollbarid;
 
-    @Column(name = "percent", length = 3, scale = 2)
+    @Column(name = "percent", length = 5, scale = 2)
     private BigDecimal percent;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CategoryID")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Category categoryID;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TypeID")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Type type;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PurposeID")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Purpose purpose;
 
     @Column(name= "timeend")

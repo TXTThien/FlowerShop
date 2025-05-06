@@ -82,16 +82,21 @@ public class RollBarController {
             giftInfoDTO.setPercent(gift.getPercent());
             giftInfoDTO.setName(gift.getName());
             giftInfoDTO.setId(gift.getId());
+            if (gift.getDiscountpercent() != null)
+                giftInfoDTO.setDiscountpercent(gift.getDiscountpercent());
             giftInfoDTO.setTypegift(String.valueOf(gift.getTypeGift()));
-            giftInfoDTO.setDiscountpercent(gift.getDiscountpercent());
-            giftInfoDTO.setDescription(gift.getDescription());
+            if (gift.getDescription() != null)
+                giftInfoDTO.setDescription(gift.getDescription());
+            if (gift.getFlowersizeid() != null)
+            {
+                FlowerSizeDTO flowerSizeDTO = new FlowerSizeDTO();
+                flowerSizeDTO.setFlowerSizeID(gift.getFlowersizeid().getFlower().getFlowerID());
+                flowerSizeDTO.setSizeName(gift.getFlowersizeid().getFlower().getName()+" "+gift.getFlowersizeid().getSizeName());
+                flowerSizeDTO.setUrl(gift.getFlowersizeid().getFlower().getImage());
+                giftInfoDTO.setFlowerSizeDTO(flowerSizeDTO);
+            }
 
-            FlowerSizeDTO flowerSizeDTO = new FlowerSizeDTO();
-            flowerSizeDTO.setFlowerSizeID(gift.getFlowersizeid().getFlower().getFlowerID());
-            flowerSizeDTO.setSizeName(gift.getFlowersizeid().getFlower().getName()+" "+gift.getFlowersizeid().getSizeName());
-            flowerSizeDTO.setUrl(gift.getFlowersizeid().getFlower().getImage());
 
-            giftInfoDTO.setFlowerSizeDTO(flowerSizeDTO);
             giftInfoDTOList.add(giftInfoDTO);
         }
         rollBarInfoDTO.setGiftInfoDTOList(giftInfoDTOList);
