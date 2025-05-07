@@ -87,7 +87,7 @@ public class AttendanceController {
     }
 
     @RequestMapping("/roll/{id}")
-    private ResponseEntity<?> rollGift(@RequestBody Integer giftid, @PathVariable int id) {
+    private ResponseEntity<?> rollGift(@RequestParam  Integer giftid, @PathVariable int id) {
         int accountid = getIDAccountFromAuthService.common();
         int month = LocalDateTime.now().getMonthValue();
         List<Attendance> attendanceList = attendanceService.findAttendanceByAccountAndMonth(accountid, month);
@@ -127,6 +127,7 @@ public class AttendanceController {
 
             accountGift.setDiscount(discount);
             response.put("accountGift", accountGift);
+            accountGiftRepository.save(accountGift);
 
             return ResponseEntity.ok(response);
         }
@@ -159,10 +160,12 @@ public class AttendanceController {
     }
 
     @RequestMapping("/sendInfo/{id}")
-    private ResponseEntity<?> sendInfo(@RequestParam RollDTO rollDTO, @PathVariable int id)
+    private ResponseEntity<?> sendInfo(@RequestBody  RollDTO rollDTO, @PathVariable int id)
     {
         int accountid = getIDAccountFromAuthService.common();
         AccountGift accountGift = accountGiftService.findById(id);
+        System.out.println("giftID: "+accountGift.getGift().getId());
+        System.out.println("Flowersize: "+accountGift.getGift().getFlowersizeid().getFlowerSizeID());
         Order order = new Order();
         order.setNote(rollDTO.getNote());
         order.setName(rollDTO.getName());
@@ -189,6 +192,7 @@ public class AttendanceController {
         orderDetailRepository.save(orderDetail);
 
         accountGift.setOrder(order);
+        accountGiftRepository.save(accountGift);
         Map<String, Object> response = new HashMap<>();
         response.put("accountGift", accountGift);
         return ResponseEntity.ok(response);

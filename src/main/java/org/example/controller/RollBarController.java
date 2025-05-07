@@ -58,7 +58,7 @@ public class RollBarController {
         int days = attendanceList.size();
         RollBarInfoDTO rollBarInfoDTO = selectRollBarInfoDTO(id);
         Map<String, Object> response = new HashMap<>();
-        response.put("days",days);
+        response.put("dayNeeds",days);
         response.put("rollBarInfoDTO", rollBarInfoDTO);
         return ResponseEntity.ok(response);
     }

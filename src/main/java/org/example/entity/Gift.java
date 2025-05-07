@@ -48,18 +48,21 @@ public class Gift {
     @JoinColumn(name = "rollbarid")
     private RollBar rollbarid;
 
-    @Column(name = "percent", length = 5, scale = 2)
+    @Column(name = "percent", length = 4, scale = 2)
     private BigDecimal percent;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @JoinColumn(name = "CategoryID")
     private Category categoryID;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @JoinColumn(name = "TypeID")
     private Type type;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @JoinColumn(name = "PurposeID")
     private Purpose purpose;
 
