@@ -4,14 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.example.dto.FlowerSizeDTO;
 import org.example.dto.GiftInfoDTO;
 import org.example.dto.RollBarInfoDTO;
-import org.example.entity.Attendance;
-import org.example.entity.FlowerSize;
-import org.example.entity.Gift;
-import org.example.entity.RollBar;
-import org.example.service.IAttendanceService;
-import org.example.service.IFlowerSizeService;
-import org.example.service.IGiftService;
-import org.example.service.IRollBarService;
+import org.example.entity.*;
+import org.example.service.*;
 import org.example.service.securityService.GetIDAccountFromAuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,6 +28,7 @@ public class RollBarController {
     private final IGiftService giftService;
     private final GetIDAccountFromAuthService getIDAccountFromAuthService;
     private final IAttendanceService attendanceService;
+    private final IAccountGiftService accountGiftService;
     @GetMapping("/info")
     private ResponseEntity<?> infoBar ()
     {
@@ -56,8 +51,15 @@ public class RollBarController {
         int month = LocalDateTime.now().getMonthValue();
         List<Attendance> attendanceList = attendanceService.findAttendanceByAccountAndMonth(account,month);
         int days = attendanceList.size();
+        boolean rolled = false;
+        List<AccountGift> accountGifts = accountGiftService.findAccountGiftByAccountIDAndMonth(account, month);
+        if (accountGifts != null && !accountGifts.isEmpty()) {
+            rolled = true;
+        }
+
         RollBarInfoDTO rollBarInfoDTO = selectRollBarInfoDTO(id);
         Map<String, Object> response = new HashMap<>();
+        response.put("rolled",rolled);
         response.put("dayNeeds",days);
         response.put("rollBarInfoDTO", rollBarInfoDTO);
         return ResponseEntity.ok(response);
