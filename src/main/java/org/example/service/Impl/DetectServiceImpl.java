@@ -32,4 +32,9 @@ public class DetectServiceImpl implements IDetectService {
         List<Detect> results = detectRepository.findTopByVietnamname(flower, Status.ENABLE, pageRequest);
         return results.isEmpty() ? null : results.get(0);
     }
+
+    @Override
+    public List<Detect> findAllEnable() {
+        return detectRepository.findDetectsByStatus(Status.ENABLE);
+    }
 }

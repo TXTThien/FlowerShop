@@ -27,4 +27,6 @@ public class DetectFlowerServiceImpl implements IDetectFlowerService {
         List<DetectFlower> all = detectFlowerRepository.findDetectFlowersByDetect(detect);
         return all.stream().limit(n).collect(Collectors.toList());
     }
+
+
 }

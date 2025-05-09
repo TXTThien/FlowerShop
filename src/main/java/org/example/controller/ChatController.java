@@ -7,6 +7,7 @@ import org.example.dto.ChatResponse;
 import org.example.dto.FlowerDTO;
 import org.example.entity.*;
 import org.example.entity.enums.Status;
+import org.example.repository.DetectFlowerRepository;
 import org.example.service.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -118,7 +119,6 @@ public class ChatController {
             if (content == null) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Không có nội dung trả về từ OpenAI");
             }
-// Bước 1: Trích cụm từ giữa **...**
             Pattern pattern = Pattern.compile("\\*\\*(.*?)\\*\\*");
             Matcher matcher = pattern.matcher(content);
             List<String> flowers = new ArrayList<>();
@@ -127,16 +127,16 @@ public class ChatController {
                 flowers.add(flower);
             }
 
-// Bước 2: Nếu không có, dùng regex bắt cụm "hoa + tên"
+// Kiểm tra từ khóa "hoa + tên" nếu không tìm thấy bằng cặp "** **"
             if (flowers.isEmpty()) {
-                Pattern namePattern = Pattern.compile("\\bhoa\\s+[\\p{L}\\p{M}\\s\\(\\)]+(?=[,\\.\\)]|\\shoặc|$)", Pattern.CASE_INSENSITIVE);
+                Pattern namePattern = Pattern.compile("\\bhoa\\s+[\\p{L}\\s]+", Pattern.CASE_INSENSITIVE);
                 Matcher nameMatcher = namePattern.matcher(content);
 
                 while (nameMatcher.find()) {
                     String flower = nameMatcher.group().trim().toLowerCase();
 
-                    // Loại bỏ phần trong ngoặc đơn
-                    flower = flower.replaceAll("\\s*\\([^\\)]*\\)", "").trim();
+                    // Loại bỏ dấu câu và khoảng trắng thừa
+                    flower = flower.replaceAll("[^\\p{L}\\s]", "").trim();
 
                     // Tránh thêm trùng lặp
                     if (!flower.isEmpty() && !flowers.contains(flower)) {
@@ -145,17 +145,26 @@ public class ChatController {
                 }
             }
 
-
-// In ra các loại hoa tìm được
-            System.out.println("Flowers: " + flowers);
-
-// Gọi findFlower
-            List<FlowerDTO> flowerDTOList = findFlower(flowers);
-            if (flowerDTOList != null && !flowerDTOList.isEmpty()) {
-                content += "\nDưới đây là các sản phẩm được đề xuất";
+// Lấy danh sách hoa từ cơ sở dữ liệu
+            List<Detect> detects = detectService.findAllEnable();
+            List<String> flowerList = new ArrayList<>();
+            for (Detect detect : detects) {
+                flowerList.add(detect.getVietnamname().toLowerCase());
             }
-            else {
-                // Bước fallback: tìm trong tin nhắn cuối của người dùng
+
+// Tìm hoa trong nội dung
+            Set<String> foundFlowers = new HashSet<>();
+            String userContent = content.toLowerCase().replaceAll("[^\\p{L}\\s]", " ").trim();
+
+            for (String flowerName : flowerList) {
+                // Kiểm tra theo từ nguyên vẹn (không phụ thuộc vào dấu câu)
+                if (userContent.contains(flowerName.toLowerCase())) {
+                    foundFlowers.add(flowerName);
+                }
+            }
+
+// Bước fallback: kiểm tra tin nhắn cuối của người dùng
+            if (foundFlowers.isEmpty()) {
                 String lastUserMessage = "";
                 for (int i = request.getMessages().size() - 1; i >= 0; i--) {
                     Map<String, String> msg = request.getMessages().get(i);
@@ -167,60 +176,25 @@ public class ChatController {
                     }
                 }
 
-                // Phân tích lại theo cụm "mua|muốn|cần hoa ..."
-                Pattern flowerPattern = Pattern.compile("(?:mua|muốn|cần|đặt|ý nghĩa|Ý nghĩa|của|Tác dụng|tác dụng|Ngôn ngữ|ngôn ngữ loài hoa|Công dụng|công dụng|Tìm)\\s*hoa\\s*([\\p{L}\\s]+)", Pattern.CASE_INSENSITIVE);
-                Matcher flowerMatcher = flowerPattern.matcher(lastUserMessage);
-
-                flowers.clear();
-
-                while (flowerMatcher.find()) {
-                    String flower = flowerMatcher.group(1).trim().toLowerCase();
-                    if (!flower.isEmpty() && !flowers.contains(flower)) {
-                        flowers.add(flower);
+                lastUserMessage = lastUserMessage.replaceAll("[^\\p{L}\\s]", " ").trim();
+                for (String flowerName : flowerList) {
+                    if (lastUserMessage.contains(flowerName.toLowerCase())) {
+                        foundFlowers.add(flowerName);
                     }
                 }
-
-                flowerDTOList = findFlower(flowers);
-
-                if (flowerDTOList != null && !flowerDTOList.isEmpty()) {
-                    content += "\nDưới đây là các sản phẩm được đề xuất";
-                }
-                else{
-                    flowerPattern = Pattern.compile("(?:mua|muốn|cần|đặt|ý nghĩa|Ý nghĩa|của|Tác dụng|tác dụng|Ngôn ngữ|ngôn ngữ loài hoa|Công dụng|công dụng|Tìm)\\s*([\\p{L}\\s]+)", Pattern.CASE_INSENSITIVE);
-                    flowerMatcher = flowerPattern.matcher(lastUserMessage);
-
-                    flowers.clear();
-
-                    while (flowerMatcher.find()) {
-                        String flower = flowerMatcher.group(1).trim().toLowerCase();
-                        if (!flower.isEmpty() && !flowers.contains(flower)) {
-                            flowers.add(flower);
-                        }
-                    }
-                    flowerDTOList = findFlower(flowers);
-                    if (flowerDTOList != null && !flowerDTOList.isEmpty()) {
-                        content += "\nDưới đây là các sản phẩm được đề xuất";
-                    }
-                    else {
-                        flowerPattern = Pattern.compile("hoa\\s*([\\p{L}\\s]+)", Pattern.CASE_INSENSITIVE);
-                        flowerMatcher = flowerPattern.matcher(lastUserMessage);
-
-                        flowers.clear();
-
-                        while (flowerMatcher.find()) {
-                            String flower = flowerMatcher.group(1).trim().toLowerCase();
-                            if (!flower.isEmpty() && !flowers.contains(flower)) {
-                                flowers.add(flower);
-                            }
-                        }
-                        flowerDTOList = findFlower(flowers);
-                        if (flowerDTOList != null && !flowerDTOList.isEmpty()) {
-                            content += "\nDưới đây là các sản phẩm được đề xuất";
-                        }
-                    }
-                }
-
             }
+
+// Chuyển sang dạng List để gọi findFlower
+            List<String> flowersName = new ArrayList<>(foundFlowers);
+            List<FlowerDTO> flowerDTOList = findFlower(flowersName);
+
+// Cập nhật nội dung phản hồi
+            if (flowerDTOList != null && !flowerDTOList.isEmpty()) {
+                content += "\nDưới đây là các sản phẩm được đề xuất";
+            }
+
+            System.out.println("Flowers: " + flowersName);
+
 
             ChatResponse chatResponse = new ChatResponse(content, flowerDTOList);
             return ResponseEntity.ok(chatResponse);

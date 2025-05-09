@@ -15,7 +15,7 @@ import java.util.List;
 public interface DetectRepository extends JpaRepository<Detect, Integer> {
     Detect findDetectByFlowerdetectAndStatus(String name , Status status);
     Detect findDetectById(int id);
-
+    List<Detect>findDetectsByStatus(Status status);
     @Query("SELECT d FROM Detect d " +
             "WHERE (:name IS NULL OR TRIM(LOWER(d.vietnamname)) LIKE CONCAT('%', TRIM(LOWER(:name)), '%')) " +
             "AND d.status = :status " +

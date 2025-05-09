@@ -9,4 +9,6 @@ public interface IDetectFlowerService {
     List<DetectFlower> findDetectFlowerByDetect(Detect detect);
 
     List<DetectFlower> findDetectFlowerByDetectAndNumber(Detect detect, int n);
+
+
 }
