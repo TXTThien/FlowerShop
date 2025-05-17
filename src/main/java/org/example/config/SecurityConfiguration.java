@@ -57,7 +57,8 @@ public class SecurityConfiguration {
             "/blog",
             "/testapp/hello",
             "/detect/**",
-            "/api/chat/**"
+            "/api/chat/**",
+            "/flowshort/**"
     };
 
     private final JwtAuthenticationFilter jwtAuthFilter;
@@ -113,7 +114,7 @@ public class SecurityConfiguration {
                             .requestMatchers("/payment_orderdeli").permitAll()
                             .requestMatchers("/attendance").hasAuthority(user.name())
                             .requestMatchers("/rollbar").hasAuthority(user.name())
-
+                            .requestMatchers("/user/flowshort/**").hasAnyAuthority(user.name(), admin.name(),staff.name(),shipper.name())
                             .anyRequest().authenticated();
                 })
                 // Cấu hình provider và JWT filter
