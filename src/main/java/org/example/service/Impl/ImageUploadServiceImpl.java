@@ -19,19 +19,21 @@ public class ImageUploadServiceImpl implements IImageUploadService {
         this.storage = storage;
     }
 
+
     @Override
     public String uploadImage(MultipartFile file) throws IOException {
         String folderName = "product/";
-        String fileName = folderName + UUID.randomUUID().toString();
+        String fileExtension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
+        String uniqueFileName = System.currentTimeMillis() + "_" + UUID.randomUUID() + fileExtension;
 
-        BlobId blobId = BlobId.of(bucketName, fileName);
+        BlobId blobId = BlobId.of(bucketName, folderName + uniqueFileName);
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
                 .setContentType(file.getContentType())
                 .build();
 
         Blob blob = storage.create(blobInfo, file.getInputStream());
 
-        return String.format("https://storage.googleapis.com/%s/%s", bucketName, fileName);
+        return String.format("https://storage.googleapis.com/%s/%s", bucketName, folderName + uniqueFileName);
     }
 
 }

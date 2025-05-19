@@ -36,6 +36,50 @@ public class FlowShortController {
         response.put("videos", videos);
         return ResponseEntity.ok(response);
     }
+    @GetMapping("/account/{id}")
+    private ResponseEntity<?> getAllFlowShortAccount (@PathVariable int id)
+    {
+        List<Video> videos = videoService.findVideoByAccountIDEnable(id);
+        Map<String, Object> response = new HashMap<>();
+        response.put("videos", videos);
+        return ResponseEntity.ok(response);
+    }
+    @GetMapping("/account/{accountid}/video/{videoid}/next")
+    private ResponseEntity<?> getNextFlowShortAccount (@PathVariable int accountid, @PathVariable int videoid)
+    {
+        List<Video> videos = videoService.findVideoByAccountIDEnable(accountid);
+        for (int i = 0; i < videos.size(); i++) {
+            if (videos.get(i).getId() == videoid) {
+                // Kiểm tra nếu có video trước
+                if (i + 1 < videos.size()) {
+                    Video prevVideo = videos.get(i + 1);
+                    VideoDTO videoDTO = getVideoDTO(prevVideo.getId());
+                    return ResponseEntity.ok(videoDTO);
+                } else {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No previous video available.");
+                }
+            }
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Video not found.");
+    }
+    @GetMapping("/account/{accountid}/video/{videoid}/prev")
+    private ResponseEntity<?> getPrevFlowShortAccount (@PathVariable int accountid, @PathVariable int videoid)
+    {
+        List<Video> videos = videoService.findVideoByAccountIDEnable(accountid);
+        for (int i = 0; i < videos.size(); i++) {
+            if (videos.get(i).getId() == videoid) {
+                // Kiểm tra nếu có video trước
+                if (i - 1 >= 0) {
+                    Video prevVideo = videos.get(i - 1);
+                    VideoDTO videoDTO = getVideoDTO(prevVideo.getId());
+                    return ResponseEntity.ok(videoDTO);
+                } else {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No previous video available.");
+                }
+            }
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Video not found.");
+    }
     @GetMapping("/{id}")
     private ResponseEntity<?> getFlowShort (@PathVariable int id)
     {

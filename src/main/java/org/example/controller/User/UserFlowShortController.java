@@ -236,7 +236,42 @@ public class UserFlowShortController {
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Video not found.");
     }
-
+    @GetMapping("/getall/{id}/prev")
+    private ResponseEntity<?> getPreVideo (@PathVariable int id)
+    {
+        int accountid = getIDAccountFromAuthService.common();
+        List<Video> videos = videoService.findVideoByAccountIDEnable(accountid);
+        for (int i = 0; i < videos.size(); i++) {
+            if (videos.get(i).getId() == id) {
+                if (i - 1 >= 0) {
+                    Video prevVideo = videos.get(i - 1);
+                    VideoDTO videoDTO = flowShortController.getVideoDTO(prevVideo.getId());
+                    return ResponseEntity.ok(videoDTO);
+                } else {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No previous video available.");
+                }
+            }
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Video not found.");
+    }
+    @GetMapping("/putVideo/{id}")
+    private ResponseEntity<?> editVideo (@PathVariable int id)
+    {
+        int accountid = getIDAccountFromAuthService.common();
+        Account account = accountService.getAccountById(accountid);
+        Video videos = videoService.findVideoByIDEnable(id);
+        if (videos.getAccountID().equals(account) || account.getRole().equals(Role.admin)|| account.getRole().equals(Role.staff))
+        {
+            PostVideo postVideo = new PostVideo();
+            postVideo.setCommentable(videos.getCommentable());
+            postVideo.setTitle(videos.getTitle());
+            postVideo.setVid_url(videos.getVid_url());
+            postVideo.setDescription(videos.getDescription());
+            postVideo.setThumb_url(videos.getThumb_url());
+            return ResponseEntity.ok(postVideo);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Video not found.");
+    }
     @PostMapping("")
     private ResponseEntity<?> postVideo (@RequestBody PostVideo postVideo)
     {
@@ -261,18 +296,19 @@ public class UserFlowShortController {
     private ResponseEntity<?> updateVideo (@RequestBody PostVideo postVideo, @PathVariable int id)
     {
         int accountid = getIDAccountFromAuthService.common();
+        Account account = accountService.getAccountById(accountid);
         Video video = videoService.findVideoByIDEnable(id);
-        if (video.getAccountID().getAccountID() != accountid)
+        if (video.getAccountID().getAccountID() == accountid || account.getRole().equals(Role.admin) || account.getRole().equals(Role.staff))
         {
-            return ResponseEntity.badRequest().body("Fail");
+            video.setDescription(postVideo.getDescription());
+            video.setCommentable(postVideo.getCommentable());
+            video.setTitle(postVideo.getTitle());
+            video.setThumb_url(postVideo.getThumb_url());
+            video.setVid_url(postVideo.getVid_url());
+            videoRepository.save(video);
+            return ResponseEntity.ok("Success");
         }
-        video.setDescription(postVideo.getDescription());
-        video.setCommentable(postVideo.getCommentable());
-        video.setTitle(postVideo.getTitle());
-        video.setThumb_url(postVideo.getThumb_url());
-        video.setVid_url(postVideo.getVid_url());
-        videoRepository.save(video);
-        return ResponseEntity.ok("Success");
+        return ResponseEntity.badRequest().body("Fail");
     }
 
     @DeleteMapping("/{id}")

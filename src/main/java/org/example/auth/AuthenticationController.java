@@ -91,7 +91,6 @@ public class AuthenticationController {
         public ResponseEntity<?> getAccountInfo(@RequestParam Integer accountID) {
         Map<String, Object> response = new HashMap<>();
         Account account = accountService.getAccountById(accountID);
-
         if (account != null) {
             response.put("id", account.getAccountID());
             response.put("name", account.getName());

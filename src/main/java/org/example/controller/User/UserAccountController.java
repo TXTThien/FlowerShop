@@ -57,7 +57,15 @@ public class UserAccountController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
-
+    @GetMapping("/getInfo")
+    public ResponseEntity<Account> getAccountInfo(@RequestParam int accountID) {
+        Account account = accountRepository.findAccountByAccountID(accountID);
+        if (account != null) {
+            return ResponseEntity.ok(account);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
     @GetMapping("/blogpin")
     public ResponseEntity<?> getBlog() {
         List<Blog> blogs = iBlogInteractService.findBlogPin(getIDAccountFromAuthService.common())
