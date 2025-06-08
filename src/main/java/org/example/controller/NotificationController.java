@@ -31,6 +31,8 @@ public class NotificationController {
     private final IBlogInteractService blogInteractService;
     private final EmailController emailController;
     private final IOrderDelivery orderDelivery;
+    private final IVideoService videoService;
+    private final IVideoCommentService videoCommentService;
     public void notifyNotificationUpdate(int accountId) {
         Map<String, Object> message = new HashMap<>();
         message.put("accountId", accountId);
@@ -592,12 +594,37 @@ public class NotificationController {
         notification.setNotice(Notifi.NO);
         notification.setTime(LocalDateTime.now());
         notification.setText("Đơn hẹn giao hàng " + orderdelivery + " đã đặt thành công.");
+        notificationRepository.save(notification);
+        notifyNotificationUpdate(orderDelivery1.getAccountID().getAccountID());
+
         List<Account> staffAccountList = accountService.getAccountByRole(Role.staff);
         List<Account> adminAccountList = accountService.getAccountByRole(Role.admin);
-        for (Account account : staffAccountList)
+        for (Account account: staffAccountList)
+        {
+            Notification notification1 = new Notification();
+            notification1.setOrderDelivery(orderDelivery1);
+            notification1.setAccount(account);
+            notification1.setStatus(Status.ENABLE);
+            notification1.setSeen(Notifi.NO);
+            notification1.setNotice(Notifi.NO);
+            notification1.setTime(LocalDateTime.now());
+            notification1.setText("Một khách hàng vừa đặt đơn cố định.");
+            notificationRepository.save(notification1);
             notifyNotificationUpdate(account.getAccountID());
-        for (Account account : adminAccountList)
+        }
+        for (Account account: adminAccountList)
+        {
+            Notification notification1 = new Notification();
+            notification1.setOrderDelivery(orderDelivery1);
+            notification1.setAccount(account);
+            notification1.setStatus(Status.ENABLE);
+            notification1.setSeen(Notifi.NO);
+            notification1.setNotice(Notifi.NO);
+            notification1.setTime(LocalDateTime.now());
+            notification1.setText("Một khách hàng vừa đặt đơn cố định.");
+            notificationRepository.save(notification1);
             notifyNotificationUpdate(account.getAccountID());
+        }
     }
 
     public void refundOrDeRequestForStaffNotification(int orderid) {
@@ -615,7 +642,7 @@ public class NotificationController {
             notification.setStatus(Status.ENABLE);
             notification.setSeen(Notifi.NO);
             notification.setNotice(Notifi.NO);
-            notification.setText("Khách hàng vừa gửi yêu cầu hoàn tiền đơn đặt hàng "+orderid);
+            notification.setText("Khách hàng vừa gửi yêu cầu hoàn tiền đơn đặt hàng số "+orderid);
             notificationRepository.save(notification);
             notifyNotificationUpdate(account.getAccountID());
         }
@@ -699,7 +726,7 @@ public class NotificationController {
         notification.setSeen(Notifi.NO);
         notification.setNotice(Notifi.NO);
         notification.setTime(LocalDateTime.now());
-        notification.setText("Đơn đặt giao hàng của bạn đã bị từ chối: " + order.getId() + "Hãy điền form yêu cầu hoàn tiền.");
+        notification.setText("Đơn đặt giao hàng của bạn đã bị từ chối. Hãy điền form yêu cầu hoàn tiền.");
         notificationRepository.save(notification);
         notifyNotificationUpdate(order.getAccountID().getAccountID());
     }
@@ -714,7 +741,7 @@ public class NotificationController {
         notification.setSeen(Notifi.NO);
         notification.setNotice(Notifi.NO);
         notification.setTime(LocalDateTime.now());
-        notification.setText("Đơn đặt trước " + order.getId() + " đã được hoàn tiền thành công");
+        notification.setText("Đơn đặt trước đã được hoàn tiền thành công");
         notificationRepository.save(notification);
         notifyNotificationUpdate(order.getAccount().getAccountID());
     }
@@ -729,8 +756,69 @@ public class NotificationController {
         notification.setSeen(Notifi.NO);
         notification.setNotice(Notifi.NO);
         notification.setTime(LocalDateTime.now());
-        notification.setText("Đơn đặt giao hàng " + order.getId() + " đã được hoàn tiền thành công");
+        notification.setText("Đơn đặt giao hàng đã được hoàn tiền thành công");
         notificationRepository.save(notification);
         notifyNotificationUpdate(order.getAccountID().getAccountID());
+    }
+
+    public void FlowerShortNotifiLike (int shortID) {
+        Notification notification = new Notification();
+        Video video = videoService.findVideoByIDEnable(shortID);
+        notification.setVideo(video);
+        notification.setAccount(video.getAccountID());
+        notification.setStatus(Status.ENABLE);
+        notification.setSeen(Notifi.NO);
+        notification.setNotice(Notifi.NO);
+        notification.setTime(LocalDateTime.now());
+        notification.setText("Một người dùng vừa thả tim cho FlowerShort của bạn");
+        notificationRepository.save(notification);
+
+        notifyNotificationUpdate(video.getAccountID().getAccountID());
+
+    }
+
+    public void FlowerShortNotifiComment (int videoid) {
+        Notification notification = new Notification();
+        Video video = videoService.findVideoByIDEnable(videoid);
+        notification.setVideo(video);
+        notification.setAccount(video.getAccountID());
+        notification.setStatus(Status.ENABLE);
+        notification.setSeen(Notifi.NO);
+        notification.setNotice(Notifi.NO);
+        notification.setTime(LocalDateTime.now());
+        notification.setText("Một người dùng vừa bình luận cho FlowerShort của bạn");
+        notificationRepository.save(notification);
+
+        notifyNotificationUpdate(video.getAccountID().getAccountID());
+    }
+
+    public void FlowerShortNotifiRepComment (int commentid) {
+        Notification notification = new Notification();
+        VideoComment videoComment = videoCommentService.findVidCommentByIDEnable(commentid);
+        notification.setVideo(videoComment.getVideo());
+        notification.setAccount(videoComment.getAccountID());
+        notification.setStatus(Status.ENABLE);
+        notification.setSeen(Notifi.NO);
+        notification.setNotice(Notifi.NO);
+        notification.setTime(LocalDateTime.now());
+        notification.setText("Một người dùng vừa trả lời cho bình luận của bạn");
+        notificationRepository.save(notification);
+
+        notifyNotificationUpdate(videoComment.getAccountID().getAccountID());
+    }
+
+    public void FlowerShortNotifiLikeComment (int commentid) {
+        Notification notification = new Notification();
+        VideoComment videoComment = videoCommentService.findVidCommentByIDEnable(commentid);
+        notification.setVideo(videoComment.getVideo());
+        notification.setAccount(videoComment.getAccountID());
+        notification.setStatus(Status.ENABLE);
+        notification.setSeen(Notifi.NO);
+        notification.setNotice(Notifi.NO);
+        notification.setTime(LocalDateTime.now());
+        notification.setText("Một người dùng vừa thả tim cho bình luận của bạn");
+        notificationRepository.save(notification);
+
+        notifyNotificationUpdate(videoComment.getAccountID().getAccountID());
     }
 }

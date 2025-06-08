@@ -23,5 +23,5 @@ public interface IOrderService {
 
     List<Order> findOrdersByOrDeIDAndCondition(int id, Condition condition);
 
-    List<Order> findOrderByOrDeIDAndTime(Integer id);
+    List<Order> findOrdersByOrDeIDEnable(Integer id);
 }

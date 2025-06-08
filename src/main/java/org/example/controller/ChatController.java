@@ -127,7 +127,6 @@ public class ChatController {
                 flowers.add(flower);
             }
 
-// Kiểm tra từ khóa "hoa + tên" nếu không tìm thấy bằng cặp "** **"
             if (flowers.isEmpty()) {
                 Pattern namePattern = Pattern.compile("\\bhoa\\s+[\\p{L}\\s]+", Pattern.CASE_INSENSITIVE);
                 Matcher nameMatcher = namePattern.matcher(content);
@@ -135,35 +134,29 @@ public class ChatController {
                 while (nameMatcher.find()) {
                     String flower = nameMatcher.group().trim().toLowerCase();
 
-                    // Loại bỏ dấu câu và khoảng trắng thừa
                     flower = flower.replaceAll("[^\\p{L}\\s]", "").trim();
 
-                    // Tránh thêm trùng lặp
                     if (!flower.isEmpty() && !flowers.contains(flower)) {
                         flowers.add(flower);
                     }
                 }
             }
 
-// Lấy danh sách hoa từ cơ sở dữ liệu
             List<Detect> detects = detectService.findAllEnable();
             List<String> flowerList = new ArrayList<>();
             for (Detect detect : detects) {
                 flowerList.add(detect.getVietnamname().toLowerCase());
             }
 
-// Tìm hoa trong nội dung
             Set<String> foundFlowers = new HashSet<>();
             String userContent = content.toLowerCase().replaceAll("[^\\p{L}\\s]", " ").trim();
 
             for (String flowerName : flowerList) {
-                // Kiểm tra theo từ nguyên vẹn (không phụ thuộc vào dấu câu)
                 if (userContent.contains(flowerName.toLowerCase())) {
                     foundFlowers.add(flowerName);
                 }
             }
 
-// Bước fallback: kiểm tra tin nhắn cuối của người dùng
             if (foundFlowers.isEmpty()) {
                 String lastUserMessage = "";
                 for (int i = request.getMessages().size() - 1; i >= 0; i--) {
@@ -184,11 +177,9 @@ public class ChatController {
                 }
             }
 
-// Chuyển sang dạng List để gọi findFlower
             List<String> flowersName = new ArrayList<>(foundFlowers);
             List<FlowerDTO> flowerDTOList = findFlower(flowersName);
 
-// Cập nhật nội dung phản hồi
             if (flowerDTOList != null && !flowerDTOList.isEmpty()) {
                 content += "\nDưới đây là các sản phẩm được đề xuất";
             }

@@ -89,7 +89,6 @@ public class OrderDeliveryController {
 
     public void createOrderDelivery(BigDecimal[] prices, OrderDeliveryDTO orderDeliveryDTO, int accountId, String vnp_TransactionNo) {
         try {
-            System.out.println("vnp_TransactionNo: "+vnp_TransactionNo);
             Account account = accountService.getAccountById(accountId);
             OrderDelivery orderDelivery = new OrderDelivery();
             orderDelivery.setAccountID(account);
@@ -105,20 +104,14 @@ public class OrderDeliveryController {
                         .body("Something is wrong: total mismatch");
                 return;
             }
-            System.out.println("vnp_TransactionNo2: ");
             orderDelivery.setTotal(totalPay(orderDeliveryDTO.getFlowerChooses()));
-            System.out.println("vnp_TransactionNo2.5: ");
             orderDelivery.setDeliverper(Deliverper.valueOf(orderDeliveryDTO.getDeliverper()));
-            System.out.println("vnp_TransactionNo2.6: ");
 
             orderDelivery.setStatus(Status.ENABLE);
-            System.out.println("vnp_TransactionNo2.7: ");
 
             orderDelivery.setVnp_TransactionNo(vnp_TransactionNo);
-            System.out.println("vnp_TransactionNo2.8: ");
 
             orderDeliveryRepository.save(orderDelivery);
-            System.out.println("vnp_TransactionNo3: ");
             List<OrderDeliveryDetail> orderDeliveryDetailList = new ArrayList<>();
             for (FlowerChoose flowerChoose : orderDeliveryDTO.getFlowerChooses()) {
                 OrderDeliveryDetail orderDeliveryDetail = new OrderDeliveryDetail();
@@ -126,13 +119,11 @@ public class OrderDeliveryController {
                 orderDeliveryDetail.setQuantity(flowerChoose.getQuantity());
                 orderDeliveryDetail.setFlowerSize(flowerSizeService.findFlowerSizeByID(flowerChoose.getFlowersizeid()));
                 orderDeliveryDetailList.add(orderDeliveryDetail);
-                System.out.println("vnp_TransactionNo4: ");
             }
             orderDeliveryDetailRepository.saveAll(orderDeliveryDetailList);
 
             BigDecimal consume = account.getConsume().add(totalPay(orderDeliveryDTO.getFlowerChooses()));
             account.setConsume(consume);
-            System.out.println("vnp_TransactionNo5: ");
             List<Type> types = typeService.findAllOrderByMinConsumeAsc();
 
             Type appropriateType = null;
@@ -143,7 +134,6 @@ public class OrderDeliveryController {
                     break;
                 }
             }
-            System.out.println("vnp_TransactionNo6: ");
             if (appropriateType != null) {
                 account.setType(appropriateType);
             }

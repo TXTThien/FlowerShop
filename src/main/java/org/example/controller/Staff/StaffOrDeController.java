@@ -20,10 +20,7 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/v1/staff/orde")
@@ -47,21 +44,39 @@ public class StaffOrDeController {
         List<OrderDelivery> haveDeli = new ArrayList<>();
 
         for (OrderDelivery orderDelivery1 : orderDeliveryOnGoing) {
-            long days = ChronoUnit.DAYS.between(orderDelivery1.getStart(), LocalDateTime.now());
+            List<Order> orders = orderService.findOrdersByOrDeIDEnable(orderDelivery1.getId());
 
             Deliverper dayper = orderDelivery1.getDeliverper();
+            LocalDate nowDate = LocalDate.now();
+            LocalDate startDate = orderDelivery1.getStart().toLocalDate();
+            long daysBetween;
+            if (!orders.isEmpty()) {
+                Order lastOrder = orders.get(orders.size() - 1);
+                daysBetween = ChronoUnit.DAYS.between(lastOrder.getDate().toLocalDate(), nowDate);
+            }
+            else
+                daysBetween = ChronoUnit.DAYS.between(startDate, nowDate);
             long devper;
-
             switch (dayper) {
                 case every_day -> devper = 1;
                 case two_day -> devper = 2;
                 case three_day -> devper = 3;
                 default -> devper = 1; // fallback an toàn
             }
-            List<Order> order = orderService.findOrderByOrDeIDAndTime(orderDelivery1.getId());
-            if (days % devper == 0 && orderDelivery1.getCondition() == OrDeCondition.ONGOING && order.isEmpty()) {
+            boolean delivered = false;
+
+            if (!orders.isEmpty()) {
+                Order lastOrder = orders.get(orders.size() - 1);
+                if (Objects.equals(lastOrder.getDate().toLocalDate(), LocalDate.now())) {
+                    delivered = true;
+                }
+            }
+
+            if (orderDelivery1.getStart().isBefore(LocalDateTime.now()) && orderDelivery1.getCondition() == OrDeCondition.ONGOING && daysBetween >= 0 && (daysBetween % devper == 0 || daysBetween / devper >= 1)
+                    && orders.size() < orderDelivery1.getOrderDeliveryType().getDays() && !delivered) {
                 haveDeli.add(orderDelivery1);
             }
+
         }
 
         Map<String, Object> response = new HashMap<>();
@@ -88,7 +103,7 @@ public class StaffOrDeController {
         if (orderDelivery1.getCondition() == null)
         {
             orderDelivery1.setCondition(OrDeCondition.REFUND);
-            notificationController.NewOrDeAcceptNotification(id);
+            notificationController.NewOrDeDeclineNotification(id);
         }
     }
     @RequestMapping("/{id}/deli")

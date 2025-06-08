@@ -142,6 +142,8 @@ public class PaymentController {
             }
             else
             {
+                System.out.println("ordeType: "+orderDeliveryDTO.getOrderDeliveryTypeID());
+
                 System.out.println("2");
                 orderDeliveryController.createOrderDelivery(price,orderDeliveryDTO,accountId,transactionId);
             }

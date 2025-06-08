@@ -2,6 +2,7 @@ package org.example.controller.User;
 
 import lombok.RequiredArgsConstructor;
 import org.example.controller.FlowShortController;
+import org.example.controller.NotificationController;
 import org.example.dto.PostVideo;
 import org.example.dto.VideoCommentDTO;
 import org.example.dto.VideoDTO;
@@ -39,7 +40,7 @@ public class UserFlowShortController {
     private final GetIDAccountFromAuthService getIDAccountFromAuthService;
     private final IAccountService accountService;
     private final FlowShortController flowShortController;
-
+    private final NotificationController notificationController;
     @GetMapping("/video/{id}/getComment")
     private ResponseEntity<?> getComment (@PathVariable int id)
     {
@@ -67,6 +68,7 @@ public class UserFlowShortController {
         video.setLikes(video.getLikes()+1);
         videoRepository.save(video);
         videoInteractRepository.save(videoInteract);
+        notificationController.FlowerShortNotifiLike(id);
         return ResponseEntity.ok("Success");
     }
     @RequestMapping("video/{id}/comment")
@@ -88,6 +90,7 @@ public class UserFlowShortController {
         video.setComments(video.getComments()+1);
         videoRepository.save(video);
         videoCommentRepository.save(videoComment);
+        notificationController.FlowerShortNotifiComment(id);
         return ResponseEntity.ok("Success");
     }
 
@@ -110,6 +113,7 @@ public class UserFlowShortController {
         videoComment.setLike(videoComment.getLike()+1);
         videoCommentRepository.save(videoComment);
         videoInteractRepository.save(videoInteract);
+        notificationController.FlowerShortNotifiLikeComment(id);
         return ResponseEntity.ok("Success");
     }
     @RequestMapping("comment/{id}/comment")
@@ -146,6 +150,7 @@ public class UserFlowShortController {
         video.setComments(video.getComments()+1);
         videoRepository.save(video);
         videoCommentRepository.save(videoComment);
+        notificationController.FlowerShortNotifiRepComment(id);
         return ResponseEntity.ok("Success");
     }
 

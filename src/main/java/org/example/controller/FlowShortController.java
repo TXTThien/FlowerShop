@@ -99,12 +99,8 @@ public class FlowShortController {
     private void plusView (@PathVariable int id)
     {
         Video video = videoService.findVideoByIDEnable(id);
-        int accountid = getIDAccountFromAuthService.common();
-        if (!video.getAccountID().getAccountID().equals(accountid))
-        {
-            video.setViews(video.getViews() + 1);
-            videoRepository.save(video);
-        }
+        video.setViews(video.getViews() + 1);
+        videoRepository.save(video);
     }
     public VideoDTO getVideoDTO (int id)
     {

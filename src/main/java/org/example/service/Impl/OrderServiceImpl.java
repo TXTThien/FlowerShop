@@ -103,10 +103,9 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     @Override
-    public List<Order> findOrderByOrDeIDAndTime(Integer id) {
-        LocalDate localDate = LocalDate.now();
-        LocalDateTime startOfDay = localDate.atStartOfDay(); // 00:00:00
-        LocalDateTime endOfDay = localDate.atTime(LocalTime.MAX);
-        return orderRepository.findOrderByOrderDelivery_IdAndDate(id,startOfDay,endOfDay, Status.ENABLE);
+    public List<Order> findOrdersByOrDeIDEnable(Integer id) {
+        return orderRepository.findOrdersByOrderDelivery_IdAndStatus(id,Status.ENABLE);
     }
+
+
 }

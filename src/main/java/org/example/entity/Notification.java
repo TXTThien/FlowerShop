@@ -70,6 +70,10 @@ public class Notification {
     private LocalDateTime time;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "shortid")
+    private Video video;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "orderdeliveryid", nullable = false)
     private OrderDelivery orderDelivery;
 }

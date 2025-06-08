@@ -28,7 +28,6 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 
     List<Order> findOrdersByOrderDelivery_IdAndConfirmAndStatus(int id,  IsPaid confirm, Status status);
     List<Order> findOrdersByOrderDelivery_IdAndCondition(int id, Condition condition);
-
     @Query("SELECT o FROM Order o WHERE o.orderDelivery.id = :id AND o.date BETWEEN :startOfDay AND :endOfDay AND o.status =:status")
     List<Order> findOrderByOrderDelivery_IdAndDate(
             @Param("id") int id,
@@ -36,4 +35,6 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
             @Param("endOfDay") LocalDateTime endOfDay,
             @Param("status") Status status
     );
+    List<Order> findOrdersByOrderDelivery_IdAndStatus(int id, Status status);
+
 }
