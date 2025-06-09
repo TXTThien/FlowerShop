@@ -67,15 +67,6 @@ public class OrderDeliveryController {
         return ResponseEntity.ok(response);
     }
 
-    public BigDecimal totalPay(List<FlowerChoose> flowerChooseList) {
-        BigDecimal total = BigDecimal.ZERO;
-        for (FlowerChoose flowerChoose : flowerChooseList) {
-            FlowerSize flowerSize = flowerSizeService.findFlowerSizeByID(flowerChoose.getFlowersizeid());
-            BigDecimal subtotal = flowerSize.getPrice().multiply(BigDecimal.valueOf(flowerChoose.getQuantity()));
-            total = total.add(subtotal);
-        }
-        return total;
-    }
 
     public BigDecimal sum(BigDecimal[] prices) {
         BigDecimal total = BigDecimal.ZERO;
@@ -87,7 +78,7 @@ public class OrderDeliveryController {
         return total;
     }
 
-    public void createOrderDelivery(BigDecimal[] prices, OrderDeliveryDTO orderDeliveryDTO, int accountId, String vnp_TransactionNo) {
+    public void createOrderDelivery(BigDecimal total, OrderDeliveryDTO orderDeliveryDTO, int accountId, String vnp_TransactionNo) {
         try {
             Account account = accountService.getAccountById(accountId);
             OrderDelivery orderDelivery = new OrderDelivery();
@@ -98,20 +89,19 @@ public class OrderDeliveryController {
             orderDelivery.setName(orderDeliveryDTO.getName());
             orderDelivery.setOrderDeliveryType(orderDeliveryType.findTypeByIDEnable(orderDeliveryDTO.getOrderDeliveryTypeID()));
             orderDelivery.setStart(orderDeliveryDTO.getDateStart());
-            if (sum(prices).compareTo(totalPay(orderDeliveryDTO.getFlowerChooses())) != 0) {
-                ResponseEntity
-                        .badRequest()
-                        .body("Something is wrong: total mismatch");
-                return;
-            }
-            orderDelivery.setTotal(totalPay(orderDeliveryDTO.getFlowerChooses()));
+            System.out.println("Tới dòng này: 1");
+            System.out.println("total: "+total);
+
+            orderDelivery.setTotal(total);
             orderDelivery.setDeliverper(Deliverper.valueOf(orderDeliveryDTO.getDeliverper()));
 
             orderDelivery.setStatus(Status.ENABLE);
 
             orderDelivery.setVnp_TransactionNo(vnp_TransactionNo);
+            System.out.println("Tới dòng này: 2");
 
             orderDeliveryRepository.save(orderDelivery);
+            System.out.println("Tới dòng này: 3");
             List<OrderDeliveryDetail> orderDeliveryDetailList = new ArrayList<>();
             for (FlowerChoose flowerChoose : orderDeliveryDTO.getFlowerChooses()) {
                 OrderDeliveryDetail orderDeliveryDetail = new OrderDeliveryDetail();
@@ -121,8 +111,9 @@ public class OrderDeliveryController {
                 orderDeliveryDetailList.add(orderDeliveryDetail);
             }
             orderDeliveryDetailRepository.saveAll(orderDeliveryDetailList);
+            System.out.println("Tới dòng này: 4");
 
-            BigDecimal consume = account.getConsume().add(totalPay(orderDeliveryDTO.getFlowerChooses()));
+            BigDecimal consume = account.getConsume().add(total);
             account.setConsume(consume);
             List<Type> types = typeService.findAllOrderByMinConsumeAsc();
 
@@ -137,9 +128,14 @@ public class OrderDeliveryController {
             if (appropriateType != null) {
                 account.setType(appropriateType);
             }
+            System.out.println("Tới dòng này: 5");
 
             accountService.save(account);
+            System.out.println("Tới dòng này: 6");
+
             emailController.OrDeSuccess(orderDelivery, accountId);
+            System.out.println("Tới dòng này: 7");
+
             notificationController.OrDeNotificationCreate(orderDelivery.getId());
 
             ResponseEntity.status(HttpStatus.CREATED)

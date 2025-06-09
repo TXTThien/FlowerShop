@@ -107,7 +107,7 @@ public class AdminOrDeController {
             BigDecimal refundMoney = moneyPer.multiply(BigDecimal.valueOf(orderDelivery1.getOrderDeliveryType().getDays()));
             orderDelivery1.setRefund(refundMoney);
             orderDeliveryRepository.save(orderDelivery1);
-            notificationController.OrDeCancelSuccessNotification(id);
+            notificationController.NewOrDeDeclineNotification(id);
         }
     }
     @RequestMapping("/{id}/deli")

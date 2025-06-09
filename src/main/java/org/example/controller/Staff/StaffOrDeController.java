@@ -64,7 +64,8 @@ public class StaffOrDeController {
                 default -> devper = 1; // fallback an toàn
             }
             boolean delivered = false;
-
+            System.out.println("OrDeID: "+orderDelivery1.getId());
+            System.out.println("DayBet: "+daysBetween);
             if (!orders.isEmpty()) {
                 Order lastOrder = orders.get(orders.size() - 1);
                 if (Objects.equals(lastOrder.getDate().toLocalDate(), LocalDate.now())) {
@@ -72,7 +73,9 @@ public class StaffOrDeController {
                 }
             }
 
-            if (orderDelivery1.getStart().isBefore(LocalDateTime.now()) && orderDelivery1.getCondition() == OrDeCondition.ONGOING && daysBetween >= 0 && (daysBetween % devper == 0 || daysBetween / devper >= 1)
+            if (orderDelivery1.getStart().toLocalDate().isBefore(LocalDate.now()) ||
+                    orderDelivery1.getStart().toLocalDate().isEqual(LocalDate.now())
+                            && orderDelivery1.getCondition() == OrDeCondition.ONGOING && daysBetween >= 0 && (daysBetween % devper == 0 || daysBetween / devper >= 1)
                     && orders.size() < orderDelivery1.getOrderDeliveryType().getDays() && !delivered) {
                 haveDeli.add(orderDelivery1);
             }
@@ -107,7 +110,7 @@ public class StaffOrDeController {
             BigDecimal refundMoney = moneyPer.multiply(BigDecimal.valueOf(orderDelivery1.getOrderDeliveryType().getDays()));
             orderDelivery1.setRefund(refundMoney);
             orderDeliveryRepository.save(orderDelivery1);
-            notificationController.OrDeCancelSuccessNotification(id);
+            notificationController.NewOrDeDeclineNotification(id);
         }
     }
     @RequestMapping("/{id}/deli")

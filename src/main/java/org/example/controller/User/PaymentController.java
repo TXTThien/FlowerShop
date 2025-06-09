@@ -38,6 +38,7 @@ public class PaymentController {
     int [] cartID;
     int [] quantity;
     BigDecimal[] price;
+    BigDecimal totalPrice;
     BigDecimal[] paid;
     BuyInfo buyInfo;
     OrderDeliveryDTO orderDeliveryDTO;
@@ -56,9 +57,9 @@ public class PaymentController {
         return ResponseEntity.ok("Cart updated successfully.");
     }
     @PostMapping ("/setOrderDelivery")
-    public ResponseEntity<?> setCart(@RequestParam("price") BigDecimal[] prices, @RequestBody OrderDeliveryDTO dto ){
+    public ResponseEntity<?> setCart(@RequestParam("price") BigDecimal total, @RequestBody OrderDeliveryDTO dto ){
 
-        price = prices;
+        totalPrice = total;
         orderDeliveryDTO = dto;
         return ResponseEntity.ok(dto);
     }
@@ -145,7 +146,7 @@ public class PaymentController {
                 System.out.println("ordeType: "+orderDeliveryDTO.getOrderDeliveryTypeID());
 
                 System.out.println("2");
-                orderDeliveryController.createOrderDelivery(price,orderDeliveryDTO,accountId,transactionId);
+                orderDeliveryController.createOrderDelivery(totalPrice,orderDeliveryDTO,accountId,transactionId);
             }
             response.sendRedirect("http://localhost:8000/PaymentSuccess");
 
