@@ -146,7 +146,7 @@ public class UserOrDeController {
             if (orderDelivery1.getCondition() == OrDeCondition.ONGOING || orderDelivery1.getCondition() == null){
                     orderDelivery1.setCondition(OrDeCondition.CANCEL_REQUEST_IS_WAITING);
                     orderDeliveryRepository.save(orderDelivery1);
-                    notificationController.refundOrDeRequestForStaffNotification(id);
+                    notificationController.refundCancelRequestForStaffNotification(id);
 
                     return ResponseEntity.ok("Gửi yêu cầu hủy thành công");
             }

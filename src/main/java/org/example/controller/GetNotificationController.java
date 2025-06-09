@@ -81,11 +81,11 @@ public class GetNotificationController {
             response.put("redirectUrl", "http://localhost:8000/comment/" + notification.getBlogComment().getBlogcommentid());
         } else if (notification.getOrderDelivery() != null && notification.getText().contains("Khách hàng vừa gửi yêu cầu hoàn tiền đơn đặt hàng số ") && notification.getAccount().getRole() == Role.admin) {
             response.put("redirectUrl", "http://localhost:8000/AdminRefund");
-        }else if (notification.getOrderDelivery() != null && notification.getText().contains("Một khách hàng vừa đặt đơn cố định.") && notification.getAccount().getRole() == Role.admin) {
+        }else if (notification.getOrderDelivery() != null && (notification.getText().contains("Một khách hàng vừa đặt đơn cố định.") || notification.getText().contains("Khách hàng vừa gửi yêu cầu hủy đơn cố định số: ")) && notification.getAccount().getRole() == Role.admin) {
             response.put("redirectUrl", "http://localhost:8000/AdminOrderDe/" + notification.getOrderDelivery().getId());
         } else if (notification.getOrderDelivery() != null && notification.getText().contains("Khách hàng vừa gửi yêu cầu hoàn tiền đơn đặt hàng số ") && notification.getAccount().getRole() == Role.staff) {
             response.put("redirectUrl", "http://localhost:8000/StaffRefund" );
-        }else if (notification.getOrderDelivery() != null && notification.getText().contains("Một khách hàng vừa đặt đơn cố định.") && notification.getAccount().getRole() == Role.staff) {
+        }else if (notification.getOrderDelivery() != null && (notification.getText().contains("Một khách hàng vừa đặt đơn cố định.") || notification.getText().contains("Khách hàng vừa gửi yêu cầu hủy đơn cố định số: ")) && notification.getAccount().getRole() == Role.staff) {
             response.put("redirectUrl", "http://localhost:8000/StaffOrderDe/" + notification.getOrderDelivery().getId());
         } else if (notification.getOrder() != null && notification.getText().contains(" đã chuẩn bị xong, shop đã tạo đơn hàng gửi đến bạn, hãy kiểm tra lại thông tin")) {
             response.put("redirectUrl", "http://localhost:8000/account/history/" + notification.getOrder().getOrderID());

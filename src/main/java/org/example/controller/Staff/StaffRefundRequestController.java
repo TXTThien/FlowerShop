@@ -50,6 +50,7 @@ public class StaffRefundRequestController {
                 }
                 staffRefund.setRefundMoney(total);
             } else if (refunds.get(i).getOrderdeliveryid() != null){
+                System.out.println("Refundmoney"+refunds.get(i).getOrderdeliveryid().getRefund());
                 staffRefund.setRefundMoney(refunds.get(i).getOrderdeliveryid().getRefund());
             }
             else

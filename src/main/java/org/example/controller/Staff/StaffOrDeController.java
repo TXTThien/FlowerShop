@@ -103,7 +103,11 @@ public class StaffOrDeController {
         if (orderDelivery1.getCondition() == null)
         {
             orderDelivery1.setCondition(OrDeCondition.REFUND);
-            notificationController.NewOrDeDeclineNotification(id);
+            BigDecimal moneyPer = orderDelivery1.getTotal().divide(BigDecimal.valueOf(orderDelivery1.getOrderDeliveryType().getDays()));
+            BigDecimal refundMoney = moneyPer.multiply(BigDecimal.valueOf(orderDelivery1.getOrderDeliveryType().getDays()));
+            orderDelivery1.setRefund(refundMoney);
+            orderDeliveryRepository.save(orderDelivery1);
+            notificationController.OrDeCancelSuccessNotification(id);
         }
     }
     @RequestMapping("/{id}/deli")
@@ -160,14 +164,11 @@ public class StaffOrDeController {
         {
             orderDelivery1.setCondition(OrDeCondition.REFUND);
 
-            List<Order> orderSuccess = orderService.findOrdersByOrDeIDAndCondition(id, Condition.Delivered_Successfully);
-            List<Order> orderFail = orderService.findOrdersByOrDeIDAndCondition(id, Condition.Return_to_shop);
-            List<Order> orderList = new ArrayList<>();
-            orderList.addAll(orderSuccess);
-            orderList.addAll(orderFail);
-            BigDecimal perMoney = orderDelivery1.getTotal().divide(
-                    BigDecimal.valueOf(orderDelivery1.getOrderDeliveryType().getDays()),RoundingMode.HALF_UP);
-            BigDecimal refundMoney = perMoney.multiply(BigDecimal.valueOf(orderDelivery1.getOrderDeliveryType().getDays() - orderList.size()));
+            List<Order> orderSuccess = orderService.findOrdersByOrDeIDEnable(id);
+            List<Order> orderList = new ArrayList<>(orderSuccess);
+            BigDecimal moneyPer = orderDelivery1.getTotal().divide(BigDecimal.valueOf(orderDelivery1.getOrderDeliveryType().getDays()));
+
+            BigDecimal refundMoney = moneyPer.multiply(BigDecimal.valueOf(orderDelivery1.getOrderDeliveryType().getDays() - orderList.size()));
             orderDelivery1.setRefund(refundMoney);
             orderDeliveryRepository.save(orderDelivery1);
             notificationController.OrDeCancelSuccessNotification(id);
