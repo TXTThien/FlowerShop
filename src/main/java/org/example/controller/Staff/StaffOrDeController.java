@@ -81,11 +81,20 @@ public class StaffOrDeController {
 
         }
 
+        List<String> conditionNames = Arrays.stream(OrDeCondition.values())
+                .map(Enum::name)
+                .toList();
+        List<String> dayPer = Arrays.stream(Deliverper.values())
+                .map(Enum::name)
+                .toList();
         Map<String, Object> response = new HashMap<>();
         response.put("NewOrDe", newOrDelivery);
         response.put("AllOrDe", orderDeliveryList);
         response.put("HaveDeli", haveDeli);
         response.put("CancelReq", orderDeliveryCancel);
+        response.put("conditionNames",conditionNames);
+        response.put("dayPer",dayPer);
+
         return ResponseEntity.ok(response);
     }
     @RequestMapping("/{id}/acceptNew")
@@ -271,5 +280,26 @@ public class StaffOrDeController {
         response.put("orderDeliveryDTO", orderDeliveryDTO);
         return ResponseEntity.ok(response);
 
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> putOrDe(@RequestBody OrderDelivery orderDelivery, @PathVariable int id) {
+        OrderDelivery orderDelivery1 = orderDeliveryService.findOrderDeliveryByAdmin(id);
+
+        if (orderDelivery1 == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        orderDelivery1.setCondition(orderDelivery.getCondition());
+        orderDelivery1.setName(orderDelivery.getName());
+        orderDelivery1.setPhoneNumber(orderDelivery.getPhoneNumber());
+        orderDelivery1.setNote(orderDelivery.getNote());
+        orderDelivery1.setAddress(orderDelivery.getAddress());
+        orderDelivery1.setDeliverper(orderDelivery.getDeliverper());
+        orderDelivery1.setStart(orderDelivery.getStart());
+
+        orderDeliveryRepository.save(orderDelivery1);
+
+        return ResponseEntity.ok(orderDelivery1);
     }
 }

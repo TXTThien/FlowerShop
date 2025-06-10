@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/admin/orde")
@@ -72,18 +73,28 @@ public class AdminOrDeController {
                 }
             }
 
-            if (orderDelivery1.getStart().isBefore(LocalDateTime.now()) && orderDelivery1.getCondition() == OrDeCondition.ONGOING && daysBetween >= 0 && (daysBetween % devper == 0 || daysBetween / devper >= 1)
+            if ((orderDelivery1.getStart().toLocalDate().isBefore(LocalDate.now()) ||
+                    orderDelivery1.getStart().toLocalDate().isEqual(LocalDate.now()))
+                    && orderDelivery1.getCondition() == OrDeCondition.ONGOING && daysBetween >= 0 && (daysBetween % devper == 0 || daysBetween / devper >= 1)
                     && orders.size() < orderDelivery1.getOrderDeliveryType().getDays() && !delivered) {
                 haveDeli.add(orderDelivery1);
             }
 
         }
-
+        List<String> conditionNames = Arrays.stream(OrDeCondition.values())
+                .map(Enum::name)
+                .toList();
+        List<String> dayPer = Arrays.stream(Deliverper.values())
+                .map(Enum::name)
+                .toList();
         Map<String, Object> response = new HashMap<>();
         response.put("NewOrDe", newOrDelivery);
         response.put("AllOrDe", orderDeliveryList);
         response.put("HaveDeli", haveDeli);
         response.put("CancelReq", orderDeliveryCancel);
+        response.put("conditionNames",conditionNames);
+        response.put("dayPer",dayPer);
+
         return ResponseEntity.ok(response);
     }
     @RequestMapping("/{id}/acceptNew")
@@ -208,21 +219,39 @@ public class AdminOrDeController {
             orderDeliveryDTO.setEnd(orderDelivery1.getEnd());
         orderDeliveryDTO.setTotal(orderDelivery1.getTotal());
         orderDeliveryDTO.setDeliverper(orderDelivery1.getDeliverper());
-        List<Order> orders = orderService.findOrdersByOrDeID(id);
+        List<Order> orders = orderService.findOrdersByOrDeIDEnable(id);
         orderDeliveryDTO.setNumberDelivered(orders.size());
 
-        long days = ChronoUnit.DAYS.between(orderDelivery1.getStart(), LocalDateTime.now());
         Deliverper dayper = orderDelivery1.getDeliverper();
+        LocalDate nowDate = LocalDate.now();
+        LocalDate startDate = orderDelivery1.getStart().toLocalDate();
+        long daysBetween;
+        if (!orders.isEmpty()) {
+            Order lastOrder = orders.get(orders.size() - 1);
+            daysBetween = ChronoUnit.DAYS.between(lastOrder.getDate().toLocalDate(), nowDate);
+        }
+        else
+            daysBetween = ChronoUnit.DAYS.between(startDate, nowDate);
         long devper;
-
         switch (dayper) {
             case every_day -> devper = 1;
             case two_day -> devper = 2;
             case three_day -> devper = 3;
             default -> devper = 1; // fallback an toàn
         }
+        boolean delivered = false;
 
-        if (days % devper == 0 && orderDelivery1.getCondition() == OrDeCondition.ONGOING) {
+        if (!orders.isEmpty()) {
+            Order lastOrder = orders.get(orders.size() - 1);
+            if (Objects.equals(lastOrder.getDate().toLocalDate(), LocalDate.now())) {
+                delivered = true;
+            }
+        }
+
+        if ((orderDelivery1.getStart().toLocalDate().isBefore(LocalDate.now()) ||
+                orderDelivery1.getStart().toLocalDate().isEqual(LocalDate.now()))
+                && orderDelivery1.getCondition() == OrDeCondition.ONGOING && daysBetween >= 0 && (daysBetween % devper == 0 || daysBetween / devper >= 1)
+                && orders.size() < orderDelivery1.getOrderDeliveryType().getDays() && !delivered)  {
             orderDeliveryDTO.setDeliver(Boolean.TRUE);
         }
         else
@@ -252,4 +281,26 @@ public class AdminOrDeController {
         return ResponseEntity.ok(response);
 
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> putOrDe(@RequestBody OrderDelivery orderDelivery, @PathVariable int id) {
+        OrderDelivery orderDelivery1 = orderDeliveryService.findOrderDeliveryByAdmin(id);
+
+        if (orderDelivery1 == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        orderDelivery1.setCondition(orderDelivery.getCondition());
+        orderDelivery1.setName(orderDelivery.getName());
+        orderDelivery1.setPhoneNumber(orderDelivery.getPhoneNumber());
+        orderDelivery1.setNote(orderDelivery.getNote());
+        orderDelivery1.setAddress(orderDelivery.getAddress());
+        orderDelivery1.setDeliverper(orderDelivery.getDeliverper());
+        orderDelivery1.setStart(orderDelivery.getStart());
+
+        orderDeliveryRepository.save(orderDelivery1);
+
+        return ResponseEntity.ok(orderDelivery1);
+    }
+
 }
