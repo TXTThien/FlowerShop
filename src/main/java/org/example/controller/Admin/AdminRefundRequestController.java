@@ -5,8 +5,10 @@ import org.example.controller.NotificationController;
 import org.example.dto.AdminStaffRefund;
 import org.example.entity.*;
 import org.example.entity.enums.Condition;
+import org.example.entity.enums.OrDeCondition;
 import org.example.entity.enums.Precondition;
 import org.example.entity.enums.Status;
+import org.example.repository.OrderDeliveryRepository;
 import org.example.repository.OrderRepository;
 import org.example.repository.PreOrderRepository;
 import org.example.repository.RefundResponsitory;
@@ -35,12 +37,12 @@ public class AdminRefundRequestController {
     private final IAccountService accountService;
     private final IRefundService refundService;
     private final NotificationController notificationController;
+    private final OrderDeliveryRepository orderDeliveryRepository;
     @GetMapping("")
     public ResponseEntity<?> getRefund() {
         List<Refund> refunds = refundResponsitory.findAll();
         List<AdminStaffRefund> adminStaffRefund = new ArrayList<>();
-        List<Preorder> preorders = preOrderRepository.findAll();
-        List<Order> orders = orderRepository.findAll();
+
         for (int i = 0; i < refunds.size(); i++) {
             AdminStaffRefund staffRefund = new AdminStaffRefund(); // Tạo đối tượng mới
             staffRefund.setRefund(refunds.get(i));
@@ -54,16 +56,18 @@ public class AdminRefundRequestController {
                     total = total.add(detail.getPaid());
                 }
                 staffRefund.setRefundMoney(total);
-            } else {
-                staffRefund.setRefundMoney(BigDecimal.ZERO);
+            } else if (refunds.get(i).getOrderdeliveryid() != null){
+                System.out.println("Refundmoney"+refunds.get(i).getOrderdeliveryid().getRefund());
+                staffRefund.setRefundMoney(refunds.get(i).getOrderdeliveryid().getRefund());
             }
+            else
+                staffRefund.setRefundMoney(BigDecimal.ZERO);
+
 
             adminStaffRefund.add(staffRefund); // Thêm vào danh sách
         }
 
         Map<String, Object> response = new HashMap<>();
-        response.put("preorders", preorders);
-        response.put("orders", orders);
         response.put("refunds", adminStaffRefund);
         return ResponseEntity.ok(response);
     }
@@ -86,7 +90,7 @@ public class AdminRefundRequestController {
         refund.setStatus(Status.DISABLE);
         refundResponsitory.save(refund);
 
-        if (refund.getPreorderID() == null) {
+        if (refund.getOrderID() != null) {
             Order order = refund.getOrderID();
 
             order.setCondition(Condition.Cancelled);
@@ -111,8 +115,7 @@ public class AdminRefundRequestController {
             orderRepository.save(order);
             accountService.save(account);
             notificationController.orderConditionNotification(order.getOrderID());
-
-        } else {
+        } else  if (refund.getPreorderID() != null){
             Preorder preorder = refund.getPreorderID();
 
 
@@ -143,6 +146,32 @@ public class AdminRefundRequestController {
 
             preOrderRepository.save(preorder);
             accountService.save(account);
+            notificationController.refundPreorder(preorder.getId());
+        }
+        else  {
+            OrderDelivery orderDelivery1 = refund.getOrderdeliveryid();
+
+
+            orderDelivery1.setCondition(OrDeCondition.CANCEL);
+            Account account = orderDelivery1.getAccountID();
+
+            account.setConsume(account.getConsume().subtract(orderDelivery1.getRefund()));
+            List<Type> types = typeService.findAllOrderByMinConsumeAsc();
+            Type appropriateType = null;
+            for (Type type : types) {
+                if (account.getConsume().compareTo(type.getMinConsume()) >= 0) {
+                    appropriateType = type;
+                } else {
+                    break;
+                }
+            }
+            if (appropriateType != null) {
+                account.setType(appropriateType);
+            }
+
+            orderDeliveryRepository.save(orderDelivery1);
+            accountService.save(account);
+            notificationController.refundOrDe(orderDelivery1.getId());
         }
     }
 }

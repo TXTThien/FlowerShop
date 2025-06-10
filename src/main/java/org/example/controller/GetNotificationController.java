@@ -59,11 +59,11 @@ public class GetNotificationController {
             response.put("redirectUrl", "http://localhost:8000/account/history/" + notification.getOrder().getOrderID());
         } else if (notification.getOrder() != null && notification.getAccount().getRole() == Role.staff && notification.getText().contains("Khách hàng vừa gửi yêu cầu hủy đơn hàng cho đơn ")) {
             response.put("redirectUrl", "http://localhost:8000/StaffCanceldelivery");
-        } else if (notification.getOrder() != null && notification.getAccount().getRole() == Role.staff && (notification.getText().contains("Khách hàng vừa gửi yêu cầu hoàn tiền đơn hàng ") || notification.getText().contains("Khách hàng vừa gửi yêu cầu hoàn tiền đơn đặt trước "))) {
+        } else if ( notification.getAccount().getRole() == Role.staff && (notification.getText().contains("Khách hàng vừa gửi yêu cầu hoàn tiền đơn hàng ") || notification.getText().contains("Khách hàng vừa gửi yêu cầu hoàn tiền đơn đặt trước "))) {
             response.put("redirectUrl", "http://localhost:8000/StaffRefund");
         } else if (notification.getOrder() != null && notification.getAccount().getRole() == Role.admin && notification.getText().contains("Khách hàng vừa gửi yêu cầu hủy đơn hàng cho đơn ")) {
             response.put("redirectUrl", "http://localhost:8000/AdminCanceldelivery");
-        } else if (notification.getOrder() != null && notification.getAccount().getRole() == Role.admin && (notification.getText().contains("Khách hàng vừa gửi yêu cầu hoàn tiền đơn hàng ") || notification.getText().contains("Khách hàng vừa gửi yêu cầu hoàn tiền đơn đặt trước "))) {
+        } else if (notification.getAccount().getRole() == Role.admin && (notification.getText().contains("Khách hàng vừa gửi yêu cầu hoàn tiền đơn hàng ") || notification.getText().contains("Khách hàng vừa gửi yêu cầu hoàn tiền đơn đặt trước "))) {
             response.put("redirectUrl", "http://localhost:8000/AdminRefund");
         } else if (notification.getPreorder() != null) {
             response.put("redirectUrl", "http://localhost:8000/account/preorder/" + notification.getPreorder().getId());
@@ -94,6 +94,7 @@ public class GetNotificationController {
         } else if (notification.getVideo() != null) {
             response.put("redirectUrl", "http://localhost:8000/flowshort/" + notification.getVideo().getId());
         }
+        System.out.println("Response: "+response);
         notification.setSeen(Notifi.YES);
         notificationRepository.save(notification);
         notificationController.notifyNotificationUpdate(getIDAccountFromAuthService.common());
