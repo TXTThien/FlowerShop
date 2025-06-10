@@ -160,6 +160,8 @@ public class NotificationController {
             notification.setText("Yêu cầu hủy đơn hàng " + order.getOrderID() + " đã được chấp nhận, đơn đã bị hủy");
         else if (order.getCondition() == Condition.Refund)
             notification.setText("Yêu cầu hủy đơn hàng " + order.getOrderID() + " đã được chấp nhận, bạn có thể gửi yêu cầu hoàn tiền");
+        else if (order.getCondition() == Condition.Refund_is_Processing)
+            notification.setText("Đơn hàng " + order.getOrderID() + " đang chờ hoàn tiền");
         notificationRepository.save(notification);
         String text ="\n"+ notification.getText() + "Hãy đến xem ngay: http://localhost:8000/account/history/"+order.getOrderID();
         emailController.OrderCondition(order,text);

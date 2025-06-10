@@ -64,8 +64,7 @@ public class StaffOrDeController {
                 default -> devper = 1; // fallback an toàn
             }
             boolean delivered = false;
-            System.out.println("OrDeID: "+orderDelivery1.getId());
-            System.out.println("DayBet: "+daysBetween);
+
             if (!orders.isEmpty()) {
                 Order lastOrder = orders.get(orders.size() - 1);
                 if (Objects.equals(lastOrder.getDate().toLocalDate(), LocalDate.now())) {
@@ -73,8 +72,8 @@ public class StaffOrDeController {
                 }
             }
 
-            if (orderDelivery1.getStart().toLocalDate().isBefore(LocalDate.now()) ||
-                    orderDelivery1.getStart().toLocalDate().isEqual(LocalDate.now())
+            if ((orderDelivery1.getStart().toLocalDate().isBefore(LocalDate.now()) ||
+                    orderDelivery1.getStart().toLocalDate().isEqual(LocalDate.now()))
                             && orderDelivery1.getCondition() == OrDeCondition.ONGOING && daysBetween >= 0 && (daysBetween % devper == 0 || daysBetween / devper >= 1)
                     && orders.size() < orderDelivery1.getOrderDeliveryType().getDays() && !delivered) {
                 haveDeli.add(orderDelivery1);
@@ -211,21 +210,39 @@ public class StaffOrDeController {
             orderDeliveryDTO.setEnd(orderDelivery1.getEnd());
         orderDeliveryDTO.setTotal(orderDelivery1.getTotal());
         orderDeliveryDTO.setDeliverper(orderDelivery1.getDeliverper());
-        List<Order> orders = orderService.findOrdersByOrDeID(id);
+        List<Order> orders = orderService.findOrdersByOrDeIDEnable(id);
         orderDeliveryDTO.setNumberDelivered(orders.size());
 
-        long days = ChronoUnit.DAYS.between(orderDelivery1.getStart(), LocalDateTime.now());
         Deliverper dayper = orderDelivery1.getDeliverper();
+        LocalDate nowDate = LocalDate.now();
+        LocalDate startDate = orderDelivery1.getStart().toLocalDate();
+        long daysBetween;
+        if (!orders.isEmpty()) {
+            Order lastOrder = orders.get(orders.size() - 1);
+            daysBetween = ChronoUnit.DAYS.between(lastOrder.getDate().toLocalDate(), nowDate);
+        }
+        else
+            daysBetween = ChronoUnit.DAYS.between(startDate, nowDate);
         long devper;
-
         switch (dayper) {
             case every_day -> devper = 1;
             case two_day -> devper = 2;
             case three_day -> devper = 3;
             default -> devper = 1; // fallback an toàn
         }
+        boolean delivered = false;
 
-        if (days % devper == 0 && orderDelivery1.getCondition() == OrDeCondition.ONGOING) {
+        if (!orders.isEmpty()) {
+            Order lastOrder = orders.get(orders.size() - 1);
+            if (Objects.equals(lastOrder.getDate().toLocalDate(), LocalDate.now())) {
+                delivered = true;
+            }
+        }
+
+        if ((orderDelivery1.getStart().toLocalDate().isBefore(LocalDate.now()) ||
+                orderDelivery1.getStart().toLocalDate().isEqual(LocalDate.now()))
+                && orderDelivery1.getCondition() == OrDeCondition.ONGOING && daysBetween >= 0 && (daysBetween % devper == 0 || daysBetween / devper >= 1)
+                && orders.size() < orderDelivery1.getOrderDeliveryType().getDays() && !delivered)  {
             orderDeliveryDTO.setDeliver(Boolean.TRUE);
         }
         else
