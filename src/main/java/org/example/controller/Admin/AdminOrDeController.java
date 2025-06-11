@@ -2,6 +2,7 @@ package org.example.controller.Admin;
 
 import lombok.RequiredArgsConstructor;
 import org.example.controller.NotificationController;
+import org.example.dto.EditOrDe;
 import org.example.dto.InfoOrderDelivery;
 import org.example.dto.OrDeDetailDTO;
 import org.example.entity.*;
@@ -283,19 +284,29 @@ public class AdminOrDeController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> putOrDe(@RequestBody OrderDelivery orderDelivery, @PathVariable int id) {
+    public ResponseEntity<?> putOrDe(@RequestBody EditOrDe orderDelivery, @PathVariable int id) {
         OrderDelivery orderDelivery1 = orderDeliveryService.findOrderDeliveryByAdmin(id);
 
         if (orderDelivery1 == null) {
             return ResponseEntity.notFound().build();
         }
 
-        orderDelivery1.setCondition(orderDelivery.getCondition());
+        String condition = orderDelivery.getCondition();
+
+        if (condition == null || condition.trim().isEmpty()) {
+            orderDelivery1.setCondition(null);
+        } else {
+            try {
+                orderDelivery1.setCondition(OrDeCondition.valueOf(condition.trim().toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.badRequest().body("Invalid condition value: " + condition);
+            }
+        }
         orderDelivery1.setName(orderDelivery.getName());
         orderDelivery1.setPhoneNumber(orderDelivery.getPhoneNumber());
         orderDelivery1.setNote(orderDelivery.getNote());
         orderDelivery1.setAddress(orderDelivery.getAddress());
-        orderDelivery1.setDeliverper(orderDelivery.getDeliverper());
+        orderDelivery1.setDeliverper(Deliverper.valueOf(orderDelivery.getDeliverper()));
         orderDelivery1.setStart(orderDelivery.getStart());
 
         orderDeliveryRepository.save(orderDelivery1);
