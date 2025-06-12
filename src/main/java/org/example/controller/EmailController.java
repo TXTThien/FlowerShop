@@ -122,5 +122,16 @@ public class EmailController {
 
         emailService.sendSimpleMessage(email, subject, text);
     }
+
+    public void CustomizeSuccess(Customize customize, int idAccount) {
+        Account account = accountService.getAccountById(idAccount);
+        String email = account.getEmail();
+        String subject = "Thông báo đặt hoa tùy chọn thành công";
+        String text;
+        text = "Bạn đã thanh toán thành công, mã số đơn: " + customize.getCustomID() + "\n" +
+                "Số tiền đã thanh toán: " + customize.getTotalAmount() + "\n";
+
+        emailService.sendSimpleMessage(email, subject, text);
+    }
 }
 

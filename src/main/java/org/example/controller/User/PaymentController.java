@@ -35,6 +35,7 @@ public class PaymentController {
     private final GetIDAccountFromAuthService getIDAccountService;
     private final UserPrebuyController prebuyController;
     private final OrderDeliveryController orderDeliveryController;
+    private final CustomizeController customizeController;
     int [] cartID;
     int [] quantity;
     BigDecimal[] price;
@@ -43,6 +44,7 @@ public class PaymentController {
     BuyInfo buyInfo;
     OrderDeliveryDTO orderDeliveryDTO;
     Integer discount =-1;
+    Integer customizeID = 0;
     @PostMapping ("/setCart")
     public ResponseEntity<String> setCart(@RequestParam("cartID") int[] cartIDs, @RequestParam("quantities") int [] quantities , @RequestParam("price") BigDecimal[] prices,@RequestParam(value= "paid", required = false) BigDecimal[] paids, @RequestParam(value = "discount",required = false) Integer discountid,@RequestBody BuyInfo buyInfos){
         cartID = cartIDs;
@@ -62,6 +64,14 @@ public class PaymentController {
         totalPrice = total;
         orderDeliveryDTO = dto;
         return ResponseEntity.ok(dto);
+    }
+
+    @PostMapping ("/setCustomize/{id}")
+    public ResponseEntity<?> setCustomize(@RequestParam("price") BigDecimal total, @PathVariable Integer id ){
+
+        totalPrice = total;
+        customizeID = id;
+        return ResponseEntity.ok("Updated successfully.");
     }
     @GetMapping("/pay")
     public ResponseEntity<String>  getPay(@RequestParam("totalPayment") String totalPayment) throws UnsupportedEncodingException {
@@ -141,12 +151,13 @@ public class PaymentController {
                 System.out.println("1");
                 prebuyController.buyVNPay(cartID, accountId,price,paid,buyInfo,transactionId,discount);
             }
+            else if (orderDeliveryDTO!=null)
+            {
+                orderDeliveryController.createOrderDelivery(totalPrice,orderDeliveryDTO,accountId,transactionId);
+            }
             else
             {
-                System.out.println("ordeType: "+orderDeliveryDTO.getOrderDeliveryTypeID());
-
-                System.out.println("2");
-                orderDeliveryController.createOrderDelivery(totalPrice,orderDeliveryDTO,accountId,transactionId);
+                customizeController.updateCustomize(totalPrice,customizeID,accountId);
             }
             response.sendRedirect("http://localhost:8000/PaymentSuccess");
 

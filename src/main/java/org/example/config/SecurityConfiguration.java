@@ -71,7 +71,7 @@ public class SecurityConfiguration {
                 .cors(cors -> cors
                         .configurationSource(request -> {
                             CorsConfiguration config = new CorsConfiguration();
-                            config.setAllowedOrigins(List.of("http://localhost:8000", "http://192.168.68.103"));
+                            config.setAllowedOrigins(List.of("http://localhost:8000", "http://172.16.31.145"));
                             config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                             config.setAllowedHeaders(List.of("*"));
                             config.setExposedHeaders(List.of("Authorization"));
@@ -114,6 +114,8 @@ public class SecurityConfiguration {
                             .requestMatchers("/payment_orderdeli").permitAll()
                             .requestMatchers("/attendance").hasAuthority(user.name())
                             .requestMatchers("/rollbar").hasAuthority(user.name())
+                            .requestMatchers("/customize").hasAuthority(user.name())
+                            .requestMatchers("/acccus").hasAuthority(user.name())
                             .requestMatchers("/user/flowshort/**").hasAnyAuthority(user.name(), admin.name(),staff.name(),shipper.name())
                             .anyRequest().authenticated();
                 })
